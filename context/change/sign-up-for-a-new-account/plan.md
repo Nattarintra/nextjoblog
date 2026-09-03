@@ -431,28 +431,28 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [x] 3.1 TypeScript compiles with no errors
-- [x] 3.2 Lint passes
-- [x] 3.3 npm run build completes without errors
-- [x] 3.4 `use client` directive present in SignupForm.tsx
-- [x] 3.5 Route page file exists at app/signup/page.tsx
-- [x] 3.6 SignupForm unit tests pass
+- [x] 3.1 TypeScript compiles with no errors — bb5a92a
+- [x] 3.2 Lint passes — bb5a92a
+- [x] 3.3 npm run build completes without errors — bb5a92a
+- [x] 3.4 `use client` directive present in SignupForm.tsx — bb5a92a
+- [x] 3.5 Route page file exists at app/signup/page.tsx — bb5a92a
+- [x] 3.6 SignupForm unit tests pass — bb5a92a
 
 #### Manual
 
-- [x] 3.7 Page renders at /signup with correct dark navy design
-- [x] 3.8 Short password shows error without network request
-- [x] 3.9 Valid sign-up redirects to /dashboard
-- [x] 3.10 Duplicate email shows amber alert with Log In link
-- [x] 3.11 Submit button shows pending state during submission
+- [x] 3.7 Page renders at /signup with correct dark navy design — bb5a92a
+- [x] 3.8 Short password shows error without network request — bb5a92a
+- [x] 3.9 Valid sign-up redirects to /dashboard — bb5a92a
+- [x] 3.10 Duplicate email shows amber alert with Log In link — bb5a92a
+- [x] 3.11 Submit button shows pending state during submission — bb5a92a
 
 ### Phase 4: Playwright E2E Tests
 
 #### Automated
 
 - [ ] 4.1 Playwright installed and browsers downloaded
-- [ ] 4.2 playwright.config.ts exists with correct testDir and baseURL
-- [ ] 4.3 e2e/signup.spec.ts exists
+- [x] 4.2 playwright.config.ts exists with correct testDir and baseURL
+- [x] 4.3 e2e/signup.spec.ts exists
 - [ ] 4.4 All four E2E tests pass
 
 #### Manual
