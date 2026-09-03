@@ -15,6 +15,18 @@ const workSans = Work_Sans({
   weight: ["400", "600"],
 });
 
+const authPageClassName = [
+  archivo.variable,
+  workSans.variable,
+  "min-h-[100svh]",
+  "flex",
+  "items-center",
+  "justify-center",
+  "bg-navy",
+  "text-white",
+  "[font-family:var(--font-work-sans)]",
+].join(" ");
+
 export const metadata: Metadata = {
   title: "Create Account — NextJobLog",
 };
@@ -22,13 +34,7 @@ export const metadata: Metadata = {
 export default function SignupPage() {
   return (
     <div
-      className={`${archivo.variable} ${workSans.variable}`}
-      style={{
-        minHeight: "100svh",
-        background: "#042c53",
-        color: "#fff",
-        fontFamily: "var(--font-work-sans)",
-      }}
+      className={authPageClassName}
     >
       <SignupForm />
     </div>
