@@ -4,18 +4,15 @@ const password = "abcdef";
 const seedEmail = "duplicate@example.com";
 
 test.beforeAll(async ({ browser }) => {
-  const page = await browser.newPage();
+  const page = await browser.newPage({ baseURL: "http://localhost:3000" });
   try {
     await page.goto("/signup");
     await page.getByLabel("Email").fill(seedEmail);
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign Up" }).click();
     await expect(page).toHaveURL(/\/dashboard$|\/signup$/);
-  } catch (error) {
-    // Re-runs can encounter user_already_exists; the duplicate-email test
-    // below verifies that application-level error path directly.
-    if (!(error instanceof Error) || !error.message.toLowerCase().includes("already")) {
-      throw error;
+    if (page.url().endsWith("/signup")) {
+      await expect(page.getByRole("alert")).toContainText("already in use");
     }
   } finally {
     await page.close();

@@ -312,6 +312,20 @@ Install Playwright and write E2E tests that cover every acceptance criterion by 
 
 **Cleanup note**: Happy-path and boundary tests create real `auth.users` rows. Use unique timestamped emails to avoid inter-run collisions. Test users accumulate in dev Supabase — acceptable for local dev. In CI, run `supabase db reset` before the test suite to start clean.
 
+#### 3. Linux CI workflow
+
+**File**: `.github/workflows/playwright.yml`
+
+**Intent**: Run the Playwright suite on Ubuntu because local Chromium execution is unavailable on the development Mac. The workflow starts a disposable local Supabase instance, resets it to the repository migrations, installs Chromium with system dependencies, runs `npm run test:e2e`, and uploads the HTML report even when tests fail.
+
+**Contract**:
+- Run on Ubuntu for pushes, pull requests, and manual dispatch.
+- Install Node dependencies with `npm ci` and install the Supabase CLI.
+- Run `supabase start`, then `supabase db reset` before the E2E suite.
+- Export the local Supabase URL and anon key to the job environment.
+- Run `npx playwright install --with-deps chromium` and `npm run test:e2e`.
+- Upload `playwright-report/` as an artifact regardless of test outcome.
+
 ### Success Criteria
 
 #### Automated Verification

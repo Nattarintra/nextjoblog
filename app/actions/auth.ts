@@ -48,7 +48,11 @@ export async function signup(
         return { error: "duplicate_email" };
       }
 
-      return { error: "unknown", message: error.message };
+      console.error("Signup failed", error);
+      return {
+        error: "unknown",
+        message: "Unable to create account. Please try again.",
+      };
     }
 
     if (!data.user) {
@@ -58,21 +62,15 @@ export async function signup(
       };
     }
 
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({ id: data.user.id });
-
-    if (profileError) {
-      return { error: "unknown", message: profileError.message };
-    }
   } catch (error) {
     if (isDuplicateEmailError(error)) {
       return { error: "duplicate_email" };
     }
 
+    console.error("Signup failed", error);
     return {
       error: "unknown",
-      message: error instanceof Error ? error.message : "Unable to create account.",
+      message: "Unable to create account. Please try again.",
     };
   }
 

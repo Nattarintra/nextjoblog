@@ -27,10 +27,13 @@ jobs:
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.74.5
 
       - name: Start local Supabase
         run: supabase start
+
+      - name: Reset test database
+        run: supabase db reset
 
       - name: Export Supabase credentials
         shell: bash
