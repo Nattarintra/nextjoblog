@@ -387,15 +387,15 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [ ] 0.1 All dev dependencies installed
-- [ ] 0.2 vitest.config.mts exists
-- [ ] 0.3 Smoke test passes
-- [ ] 0.4 TypeScript compiles with no errors
-- [ ] 0.5 Lint passes
+- [x] 0.1 All dev dependencies installed
+- [x] 0.2 vitest.config.mts exists
+- [x] 0.3 Smoke test passes
+- [x] 0.4 TypeScript compiles with no errors
+- [x] 0.5 Lint passes
 
 #### Manual
 
-- [ ] 0.6 npm test starts Vitest in watch mode with smoke test passing
+- [x] 0.6 npm test starts Vitest in watch mode with smoke test passing
 
 ### Phase 1: Auth Infrastructure
 
