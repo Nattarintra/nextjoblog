@@ -415,36 +415,36 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [x] 2.1 TypeScript compiles with no errors
-- [x] 2.2 Lint passes
-- [x] 2.3 `use server` directive present in auth.ts
-- [x] 2.4 `SignupFormState` type exported
-- [x] 2.5 `signup` function exported
+- [x] 2.1 TypeScript compiles with no errors — 666169d
+- [x] 2.2 Lint passes — 666169d
+- [x] 2.3 `use server` directive present in auth.ts — 666169d
+- [x] 2.4 `SignupFormState` type exported — 666169d
+- [x] 2.5 `signup` function exported — 666169d
 
 #### Manual
 
-- [x] 2.6 Valid new credentials create auth.users and profiles rows
-- [x] 2.7 Duplicate email returns duplicate_email error
-- [x] 2.8 Short password returns weak_password error before Supabase call
+- [x] 2.6 Valid new credentials create auth.users and profiles rows — 666169d
+- [x] 2.7 Duplicate email returns duplicate_email error — 666169d
+- [x] 2.8 Short password returns weak_password error before Supabase call — 666169d
 
 ### Phase 3: Sign-up UI
 
 #### Automated
 
-- [ ] 3.1 TypeScript compiles with no errors
-- [ ] 3.2 Lint passes
-- [ ] 3.3 npm run build completes without errors
-- [ ] 3.4 `use client` directive present in SignupForm.tsx
-- [ ] 3.5 Route page file exists at app/signup/page.tsx
-- [ ] 3.6 SignupForm unit tests pass
+- [x] 3.1 TypeScript compiles with no errors
+- [x] 3.2 Lint passes
+- [x] 3.3 npm run build completes without errors
+- [x] 3.4 `use client` directive present in SignupForm.tsx
+- [x] 3.5 Route page file exists at app/signup/page.tsx
+- [x] 3.6 SignupForm unit tests pass
 
 #### Manual
 
-- [ ] 3.7 Page renders at /signup with correct dark navy design
-- [ ] 3.8 Short password shows error without network request
-- [ ] 3.9 Valid sign-up redirects to /dashboard
-- [ ] 3.10 Duplicate email shows amber alert with Log In link
-- [ ] 3.11 Submit button shows pending state during submission
+- [x] 3.7 Page renders at /signup with correct dark navy design
+- [x] 3.8 Short password shows error without network request
+- [x] 3.9 Valid sign-up redirects to /dashboard
+- [x] 3.10 Duplicate email shows amber alert with Log In link
+- [x] 3.11 Submit button shows pending state during submission
 
 ### Phase 4: Playwright E2E Tests
 
