@@ -401,31 +401,31 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [x] 1.1 TypeScript compiles with no errors
-- [x] 1.2 Lint passes
-- [x] 1.3 proxy.ts exports `proxy` function and `config` object
-- [x] 1.4 lib/supabase/server.ts exports `createServerSupabaseClient`
+- [x] 1.1 TypeScript compiles with no errors — 0225a23
+- [x] 1.2 Lint passes — 0225a23
+- [x] 1.3 proxy.ts exports `proxy` function and `config` object — 0225a23
+- [x] 1.4 lib/supabase/server.ts exports `createServerSupabaseClient` — 0225a23
 
 #### Manual
 
-- [x] 1.5 Dev server starts without errors
-- [x] 1.6 No console errors on home page navigation
+- [x] 1.5 Dev server starts without errors — 0225a23
+- [x] 1.6 No console errors on home page navigation — 0225a23
 
 ### Phase 2: Sign-up Server Action
 
 #### Automated
 
-- [ ] 2.1 TypeScript compiles with no errors
-- [ ] 2.2 Lint passes
-- [ ] 2.3 `use server` directive present in auth.ts
-- [ ] 2.4 `SignupFormState` type exported
-- [ ] 2.5 `signup` function exported
+- [x] 2.1 TypeScript compiles with no errors
+- [x] 2.2 Lint passes
+- [x] 2.3 `use server` directive present in auth.ts
+- [x] 2.4 `SignupFormState` type exported
+- [x] 2.5 `signup` function exported
 
 #### Manual
 
-- [ ] 2.6 Valid new credentials create auth.users and profiles rows
-- [ ] 2.7 Duplicate email returns duplicate_email error
-- [ ] 2.8 Short password returns weak_password error before Supabase call
+- [x] 2.6 Valid new credentials create auth.users and profiles rows
+- [x] 2.7 Duplicate email returns duplicate_email error
+- [x] 2.8 Short password returns weak_password error before Supabase call
 
 ### Phase 3: Sign-up UI
 
