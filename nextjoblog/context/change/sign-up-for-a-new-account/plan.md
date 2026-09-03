@@ -387,29 +387,29 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [x] 0.1 All dev dependencies installed
-- [x] 0.2 vitest.config.mts exists
-- [x] 0.3 Smoke test passes
-- [x] 0.4 TypeScript compiles with no errors
-- [x] 0.5 Lint passes
+- [x] 0.1 All dev dependencies installed — 15e8b10
+- [x] 0.2 vitest.config.mts exists — 15e8b10
+- [x] 0.3 Smoke test passes — 15e8b10
+- [x] 0.4 TypeScript compiles with no errors — 15e8b10
+- [x] 0.5 Lint passes — 15e8b10
 
 #### Manual
 
-- [x] 0.6 npm test starts Vitest in watch mode with smoke test passing
+- [x] 0.6 npm test starts Vitest in watch mode with smoke test passing — 15e8b10
 
 ### Phase 1: Auth Infrastructure
 
 #### Automated
 
-- [ ] 1.1 TypeScript compiles with no errors
-- [ ] 1.2 Lint passes
-- [ ] 1.3 proxy.ts exports `proxy` function and `config` object
-- [ ] 1.4 lib/supabase/server.ts exports `createServerSupabaseClient`
+- [x] 1.1 TypeScript compiles with no errors
+- [x] 1.2 Lint passes
+- [x] 1.3 proxy.ts exports `proxy` function and `config` object
+- [x] 1.4 lib/supabase/server.ts exports `createServerSupabaseClient`
 
 #### Manual
 
-- [ ] 1.5 Dev server starts without errors
-- [ ] 1.6 No console errors on home page navigation
+- [x] 1.5 Dev server starts without errors
+- [x] 1.6 No console errors on home page navigation
 
 ### Phase 2: Sign-up Server Action
 
