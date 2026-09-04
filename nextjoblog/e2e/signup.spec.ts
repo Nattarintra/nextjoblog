@@ -3,6 +3,13 @@ import { test, expect } from "@playwright/test";
 const password = "abcdef";
 const seedEmail = "duplicate@example.com";
 
+// This file relies on a single beforeAll seeding `seedEmail` and shares it across
+// tests. `fullyParallel` in playwright.config.ts would otherwise scatter these tests
+// across multiple workers, running beforeAll once per worker and racing to sign up
+// the same email concurrently. Force this file back to the default (single-worker,
+// in-order) mode.
+test.describe.configure({ mode: "default" });
+
 test.beforeAll(async ({ browser }) => {
   const page = await browser.newPage({ baseURL: "http://localhost:3000" });
   try {
