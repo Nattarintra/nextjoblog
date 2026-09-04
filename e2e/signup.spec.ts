@@ -4,7 +4,7 @@ const password = "abcdef";
 const seedEmail = "duplicate@example.com";
 
 test.beforeAll(async ({ browser }) => {
-  const page = await browser.newPage({ baseURL: "http://localhost:3000" });
+  const page = await browser.newPage({ baseURL: "http://127.0.0.1:3000" });
   try {
     await page.goto("/signup");
     await page.getByLabel("Email").fill(seedEmail);
