@@ -42,8 +42,8 @@ jobs:
       - name: Export Supabase credentials
         shell: bash
         run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | sed -n 's/^API_URL=//p')" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | sed -n 's/^ANON_KEY=//p')" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | sed -n 's/^API_URL=//p' | tr -d '\"')" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | sed -n 's/^ANON_KEY=//p' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
