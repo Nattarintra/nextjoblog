@@ -3,11 +3,25 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --navy: #042c53;
+  --sky: #b5d4f4;
+  --azure: #1976d2;
+  --warning-tint: #fbf0dc;
+  --warning-fg: #8a5608;
+  --auth-label: #cfe1f5;
+  --auth-danger: #ffb4ab;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-sky: var(--sky);
+  --color-azure: var(--azure);
+  --color-warning-tint: var(--warning-tint);
+  --color-warning-fg: var(--warning-fg);
+  --color-auth-label: var(--auth-label);
+  --color-auth-danger: var(--auth-danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
