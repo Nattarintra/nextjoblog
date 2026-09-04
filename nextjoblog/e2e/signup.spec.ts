@@ -1,7 +1,29 @@
+import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
 const password = "abcdef";
 const seedEmail = "duplicate@example.com";
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+async function expectProfileForEmail(email: string) {
+  const { data, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  expect(error).toBeNull();
+
+  const user = data.users.find((candidate) => candidate.email === email);
+  expect(user).toBeDefined();
+
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from("profiles")
+    .select("id")
+    .eq("id", user!.id)
+    .single();
+
+  expect(profileError).toBeNull();
+  expect(profile?.id).toBe(user!.id);
+}
 
 // This file relies on a single beforeAll seeding `seedEmail` and shares it across
 // tests. `fullyParallel` in playwright.config.ts would otherwise scatter these tests
@@ -36,6 +58,7 @@ test("signs up a new user and redirects to the dashboard", async ({ page }) => {
   await page.getByRole("button", { name: "Sign Up" }).click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
+  await expectProfileForEmail(email);
 });
 
 test("accepts the six-character minimum password", async ({ page }) => {

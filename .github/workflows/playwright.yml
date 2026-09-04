@@ -44,6 +44,7 @@ jobs:
         run: |
           echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | sed -n 's/^API_URL=//p' | tr -d '\"')" >> "$GITHUB_ENV"
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | sed -n 's/^ANON_KEY=//p' | tr -d '\"')" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | sed -n 's/^SERVICE_ROLE_KEY=//p' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

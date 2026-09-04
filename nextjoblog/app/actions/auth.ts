@@ -32,7 +32,8 @@ export async function signup(
     return { error: "weak_password" };
   }
 
-  if (!email || !email.includes("@")) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
     return { error: "unknown", message: "Please enter a valid email address." };
   }
 
