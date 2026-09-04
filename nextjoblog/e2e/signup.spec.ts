@@ -10,10 +10,11 @@ test.beforeAll(async ({ browser }) => {
     await page.getByLabel("Email").fill(seedEmail);
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign Up" }).click();
-    await expect(page).toHaveURL(/\/dashboard$|\/signup$/);
-    if (page.url().endsWith("/signup")) {
-      await expect(page.getByRole("alert")).toContainText("already in use");
-    }
+
+    await Promise.race([
+      expect(page).toHaveURL(/\/dashboard$/),
+      expect(page.getByRole("alert")).toContainText("already in use"),
+    ]);
   } finally {
     await page.close();
   }
