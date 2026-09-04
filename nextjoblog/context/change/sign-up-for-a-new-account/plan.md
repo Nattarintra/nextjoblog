@@ -464,12 +464,12 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [ ] 4.1 Playwright installed and browsers downloaded
+- [x] 4.1 Playwright installed and browsers downloaded
 - [x] 4.2 playwright.config.ts exists with correct testDir and baseURL
 - [x] 4.3 e2e/signup.spec.ts exists
-- [ ] 4.4 All four E2E tests pass
+- [x] 4.4 All four E2E tests pass
 
 #### Manual
 
-- [ ] 4.5 npm run test:e2e starts dev server automatically and all tests pass
-- [ ] 4.6 Playwright HTML report shows all four scenarios with correct status
+- [x] 4.5 npm run test:e2e starts dev server automatically and all tests pass
+- [x] 4.6 Playwright HTML report shows all four scenarios with correct status
