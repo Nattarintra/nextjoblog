@@ -13,7 +13,7 @@ No auth infrastructure exists. The Supabase backend is fully provisioned (email 
 - `proxy.ts` — does not exist; `middleware.ts` is deprecated and silently ignored in Next.js 16 (`node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`)
 - `lib/supabase/` — does not exist; no Supabase client helper anywhere in the codebase
 - `app/actions/`, `app/signup/` — do not exist
-- `profiles` table has no DB trigger; `id` must be supplied at insert time from application code (`supabase/migrations/20260902082510_create_tables.sql:1–8`)
+- A database trigger creates the matching `profiles` row after each `auth.users` insert (`supabase/migrations/20260903100000_create_profile_trigger.sql:1–15`)
 - RLS `WITH CHECK (auth.uid() = id)` on `profiles` passes without service-role key because `enable_confirmations = false` makes `signUp()` authenticate immediately (`supabase/config.toml:225`, `supabase/migrations/20260902082511_create_rls_policies.sql:1–3`)
 - `cookies()` from `next/headers` is async in Next.js 16 — must be `await`ed
 - Minimum password enforced by Supabase: **6 characters** (not 8 — the helper text in the HTML mockup at line 1314 says "At least 6 characters")
@@ -25,7 +25,7 @@ No auth infrastructure exists. The Supabase backend is fully provisioned (email 
 A user can visit `/signup`, enter an email and password, and click "Sign Up". The system:
 1. Validates password length client-side before any network call
 2. Calls Supabase Auth, creating an account and establishing a session immediately
-3. Inserts a `profiles` row for the new user
+3. The database trigger inserts a matching `profiles` row atomically
 4. Redirects to `/dashboard`
 
 Duplicate-email submissions show an inline warning with a link to `/login`. The session cookie is refreshed on every navigation via `proxy.ts`. The page matches the `scr-signup` dark navy design spec exactly.
@@ -48,7 +48,7 @@ Four phases in dependency order: test infrastructure first (Vitest + RTL), then 
 
 **`getClaims()` not `getUser()`**: In `proxy.ts`, use `supabase.auth.getClaims()` to trigger token refresh. It reads the JWT without a network round-trip when the token is still valid, and only calls the Supabase Auth API when a refresh is needed. `getUser()` always makes a network call.
 
-**`redirect()` control flow**: `redirect('/dashboard')` from `next/navigation` throws a Next.js control-flow exception. Insert the `profiles` row **before** calling `redirect()` — code after `redirect()` never runs.
+**`redirect()` control flow**: `redirect('/dashboard')` from `next/navigation` throws a Next.js control-flow exception. The `auth.users` profile trigger runs as part of the signup transaction before the action reaches `redirect()` — code after `redirect()` never runs.
 
 ---
 
@@ -156,7 +156,7 @@ Create the two foundational files everything else depends on: the `proxy.ts` ses
 
 ### Overview
 
-Implement the `signup` Server Action in `app/actions/auth.ts`. This is the only file that touches Supabase Auth and the `profiles` table. It is invoked by the form in Phase 3 via `useActionState`.
+Implement the `signup` Server Action in `app/actions/auth.ts`. This is the only application file that touches Supabase Auth; the database trigger provisions the matching `profiles` row. It is invoked by the form in Phase 3 via `useActionState`.
 
 ### Changes Required
 
@@ -164,7 +164,7 @@ Implement the `signup` Server Action in `app/actions/auth.ts`. This is the only 
 
 **File**: `app/actions/auth.ts`
 
-**Intent**: Validate the submitted email and password, call `supabase.auth.signUp()`, insert a `profiles` row using the new user's `id`, and redirect to `/dashboard`. Return a typed error state when validation fails or Supabase returns an error, so the form can render the right error UI without a full page reload.
+**Intent**: Validate the submitted email and password, call `supabase.auth.signUp()`, rely on the database trigger to insert the matching `profiles` row atomically, and redirect to `/dashboard`. Return a typed error state when validation fails or Supabase returns an error, so the form can render the right error UI without a full page reload.
 
 **Contract**:
 - File-level `'use server'` directive.
@@ -172,8 +172,16 @@ Implement the `signup` Server Action in `app/actions/auth.ts`. This is the only 
 - Exported function `signup(_state: SignupFormState, formData: FormData): Promise<SignupFormState>`.
 - Return `{ error: 'weak_password' }` if `password.length < 6` — this guard fires before any Supabase call, satisfying the AC that the error appears "before the request is sent to Supabase".
 - Map Supabase `AuthApiError` with `code === 'user_already_exists'` or message containing `'already registered'` to `{ error: 'duplicate_email' }`.
-- Insert `{ id: data.user.id }` into `profiles` after a successful `signUp()` call; return `{ error: 'unknown', message: profileError.message }` if the insert fails (do not redirect — the user would be authenticated but profileless).
-- Call `redirect('/dashboard')` as the final step, after the profiles insert succeeds. **Critical**: `redirect()` throws a Next.js control-flow exception (`NEXT_REDIRECT`). It must be called **outside** any try/catch block — if called inside one, the exception is caught and the redirect is silently lost. Structure the action as: try/catch for Supabase calls and profile insert → early returns for error states → `redirect()` unconditionally after the try/catch.
+- The `after insert on auth.users` trigger in `supabase/migrations/20260903100000_create_profile_trigger.sql` creates `{ id: data.user.id }` in `profiles` as part of the same database transaction; a trigger failure must abort account creation.
+- Call `redirect('/dashboard')` as the final step after `signUp()` succeeds. **Critical**: `redirect()` throws a Next.js control-flow exception (`NEXT_REDIRECT`). It must be called **outside** any try/catch block — if called inside one, the exception is caught and the redirect is silently lost. Structure the action as: try/catch for Supabase signup → early returns for error states → `redirect()` unconditionally after the try/catch.
+
+#### 2. Atomic profile provisioning migration
+
+**File**: `supabase/migrations/20260903100000_create_profile_trigger.sql`
+
+**Intent**: Create the default profile automatically whenever Supabase Auth creates a user, keeping account and profile creation atomic.
+
+**Contract**: Define a `security definer` trigger function with an explicit empty `search_path`, insert only the new user ID into `public.profiles`, and attach it as an `after insert` trigger on `auth.users`.
 
 ### Success Criteria
 
@@ -188,7 +196,7 @@ Implement the `signup` Server Action in `app/actions/auth.ts`. This is the only 
 #### Manual Verification
 
 - Using a REST client or `curl`, a POST to the Server Action endpoint with a short password returns `{ error: 'weak_password' }` (or a redirect to the form with that state)
-- Submitting with a valid new email+password creates a row in `auth.users` and a matching row in `profiles` (verify in Supabase dashboard or local Studio at `http://localhost:54323`)
+- Submitting with a valid new email+password creates a row in `auth.users` and the trigger creates a matching row in `profiles` (verify in Supabase dashboard or local Studio at `http://localhost:54323`)
 - Submitting with an already-registered email returns `{ error: 'duplicate_email' }`
 
 ---
@@ -275,7 +283,7 @@ Mock `signup` from `@/app/actions/auth` via `vi.mock` so no Server Action runs d
 
 ### Overview
 
-Install Playwright and write E2E tests that cover every acceptance criterion by driving a real browser against the running Next.js app and a real Supabase instance. This is the only layer that can verify the full vertical slice — client validation, Server Action, Supabase Auth, profile insert, and redirect — because Vitest cannot reach async Server Components or Server Actions.
+Install Playwright and write E2E tests that cover every acceptance criterion by driving a real browser against the running Next.js app and a real Supabase instance. This is the only layer that can verify the full vertical slice — client validation, Server Action, Supabase Auth, trigger-based profile provisioning, and redirect — because Vitest cannot reach async Server Components or Server Actions.
 
 ### Changes Required
 
@@ -326,6 +334,18 @@ Install Playwright and write E2E tests that cover every acceptance criterion by 
 - Run `npx playwright install --with-deps chromium` and `npm run test:e2e`.
 - Upload `playwright-report/` as an artifact regardless of test outcome.
 
+#### 4. Supabase CLI compatibility configuration
+
+**File**: `supabase/config.toml`
+
+**Intent**: Keep local Supabase configuration compatible with the current CLI and CI workflow.
+
+**Changes**:
+- Rename the deprecated `[local_smtp]` section to `[inbucket]`.
+- Remove the obsolete experimental `[experimental.pgdelta]` configuration.
+
+These changes are required for reliable local Supabase startup and database reset in CI.
+
 ### Success Criteria
 
 #### Automated Verification
@@ -374,7 +394,7 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 ### Manual Testing Steps
 
 1. Run `npm run dev` and open `http://localhost:3000/signup`
-2. **Happy path**: enter a fresh email + password `abcdef` → click "Sign Up" → confirm redirect to `/dashboard` (404) → verify in Supabase Studio that `auth.users` and `profiles` both have a row for this email
+2. **Happy path**: enter a fresh email + password `abcdef` → click "Sign Up" → confirm redirect to `/dashboard` (404) → verify in Supabase Studio that the trigger created matching `auth.users` and `profiles` rows
 3. **Boundary case**: repeat with password exactly `abcdef` (6 chars) → confirm account created
 4. **Short password**: enter any email + password `abc` → click "Sign Up" → confirm the "At least 6 characters" error appears, confirm no network request in DevTools
 5. **Duplicate email**: submit the same email again → confirm the amber duplicate-email alert appears with underlined "Log In" text
@@ -464,12 +484,12 @@ These cover what Vitest cannot — the full server-side stack including the Serv
 
 #### Automated
 
-- [x] 4.1 Playwright installed and browsers downloaded — 54b7994
-- [x] 4.2 playwright.config.ts exists with correct testDir and baseURL
-- [x] 4.3 e2e/signup.spec.ts exists
-- [x] 4.4 All four E2E tests pass — 54b7994
+- [x] 4.1 Playwright installed and browsers downloaded — 54b7994 — CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826
+- [x] 4.2 playwright.config.ts exists with correct testDir and baseURL — CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826
+- [x] 4.3 e2e/signup.spec.ts exists — CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826
+- [x] 4.4 All four E2E tests pass — 54b7994 — CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826
 
 #### Manual
 
-- [x] 4.5 npm run test:e2e starts dev server automatically and all tests pass — 54b7994
-- [x] 4.6 Playwright HTML report shows all four scenarios with correct status — 54b7994
+- [x] 4.5 npm run test:e2e starts dev server automatically and all tests pass — 54b7994 — CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826
+- [x] 4.6 Playwright HTML report shows all four scenarios with correct status — 54b7994 — artifact from CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/33911904826

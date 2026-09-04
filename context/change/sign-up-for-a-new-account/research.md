@@ -138,9 +138,9 @@ create table public.profiles (
 );
 ```
 
-- `id` is the same UUID as `auth.users.id`. No `gen_random_uuid()` — must be supplied at insert time.
+- `id` is the same UUID as `auth.users.id`. No `gen_random_uuid()` is used; the signup trigger supplies the new auth user ID.
 - `timezone` and `google_calendar_connected` have defaults; only `id` is mandatory at insert.
-- No DB trigger exists to auto-insert the profiles row. This must be done in application code.
+- `supabase/migrations/20260903100000_create_profile_trigger.sql` creates the profiles row automatically after `auth.users` insertion, within the same transaction.
 
 ### Supabase — RLS policy on profiles
 
@@ -153,7 +153,7 @@ create policy "profiles_self" on public.profiles
 ```
 
 - The `WITH CHECK` on `INSERT` requires `auth.uid() = id`. This means: an insert using the anon key will only succeed if the caller is authenticated as the user whose `id` is being inserted.
-- Because `enable_confirmations = false`, `supabase.auth.signUp()` establishes the user session immediately. `auth.uid()` will therefore equal the new user's id at the time of the profiles insert — so the anon key client can perform this insert without needing the service role key.
+- Because `enable_confirmations = false`, `supabase.auth.signUp()` establishes the user session immediately. Profile creation is handled by the security-definer trigger, so the application does not need a separate anon-key insert or the service-role key.
 
 ### Supabase — all other tables
 
@@ -231,8 +231,8 @@ Source: `context/change/`, `context/archive/`
 
 ## Architecture Insights
 
-- **No trigger for profiles row.** All 5 migration files have been reviewed — there is no `AFTER INSERT ON auth.users` trigger. The profiles row must be created in application code after `signUp()`.
-- **`signUp()` authenticates immediately.** `enable_confirmations = false` in config.toml means the user is signed in the moment `signUp()` succeeds. The anon-key client can therefore insert the profiles row under RLS without escalating to the service role key.
+- **Trigger for profiles row.** `supabase/migrations/20260903100000_create_profile_trigger.sql` creates a profile after `AFTER INSERT ON auth.users`, so auth-user and profile creation remain atomic. The application does not need a service-role key or a second profile insert.
+- **`signUp()` authenticates immediately.** `enable_confirmations = false` in config.toml means the user is signed in the moment `signUp()` succeeds; the trigger runs in the database transaction that creates the auth user.
 - **`proxy.ts` is the auth guard file.** `middleware.ts` is silently ignored in Next.js 16. This is a non-obvious breaking change with no runtime warning.
 - **Tailwind v4 import syntax.** `globals.css` uses `@import "tailwindcss"` (not `@tailwind base/components/utilities`). Any new CSS added must follow v4 conventions.
 - **No Zod.** Validation must be done with plain JS/TS.
