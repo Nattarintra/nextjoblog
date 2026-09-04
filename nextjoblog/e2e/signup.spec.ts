@@ -20,7 +20,7 @@ test.beforeAll(async ({ browser }) => {
 
     await Promise.race([
       expect(page).toHaveURL(/\/dashboard$/),
-      expect(page.getByRole("alert")).toContainText("already in use"),
+      expect(page.getByTestId("signup-alert")).toContainText("already in use"),
     ]);
   } finally {
     await page.close();
@@ -55,8 +55,8 @@ test("shows an inline error for a duplicate email", async ({ page }) => {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign Up" }).click();
 
-  await expect(page.getByRole("alert")).toContainText("already in use");
-  await expect(page.getByRole("alert").getByRole("link", { name: "Log In" })).toBeVisible();
+  await expect(page.getByTestId("signup-alert")).toContainText("already in use");
+  await expect(page.getByTestId("signup-alert").getByRole("link", { name: "Log In" })).toBeVisible();
 });
 
 test("blocks a short password before sending a Server Action request", async ({ page }) => {
