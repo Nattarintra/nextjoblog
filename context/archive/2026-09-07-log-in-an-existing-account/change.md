@@ -1,10 +1,10 @@
 ---
 change_id: log-in-an-existing-account
 title: Log in to an existing account
-status: impl_reviewed
+status: archived
 created: 2026-09-07
 updated: 2026-09-08
-archived_at: null
+archived_at: 2026-09-08T19:30:34Z
 ---
 
 ## Notes
