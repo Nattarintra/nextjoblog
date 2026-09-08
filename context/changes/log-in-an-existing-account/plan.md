@@ -256,35 +256,35 @@ None — no schema changes. The RLS-protected tables and policies this story's N
 
 #### Automated
 
-- [x] 1.1 TypeScript compiles with no errors
-- [x] 1.2 Lint passes
-- [x] 1.3 `login` function exported
-- [x] 1.4 `LoginFormState` type exported
+- [x] 1.1 TypeScript compiles with no errors — 97ed740
+- [x] 1.2 Lint passes — 97ed740
+- [x] 1.3 `login` function exported — 97ed740
+- [x] 1.4 `LoginFormState` type exported — 97ed740
 
 #### Manual
 
-- [x] 1.5 Correct credentials establish a session and reach the redirect
-- [x] 1.6 Wrong password returns `invalid_credentials`
-- [x] 1.7 Unregistered email returns the identical `invalid_credentials`
-- [x] 1.8 Malformed email returns `unknown` before any network call
+- [x] 1.5 Correct credentials establish a session and reach the redirect — 97ed740
+- [x] 1.6 Wrong password returns `invalid_credentials` — 97ed740
+- [x] 1.7 Unregistered email returns the identical `invalid_credentials` — 97ed740
+- [x] 1.8 Malformed email returns `unknown` before any network call — 97ed740
 
 ### Phase 2: Login UI
 
 #### Automated
 
-- [ ] 2.1 TypeScript compiles with no errors
-- [ ] 2.2 Lint passes
-- [ ] 2.3 npm run build completes without errors
-- [ ] 2.4 `use client` directive present in LoginForm.tsx
-- [ ] 2.5 Route page exists at app/login/page.tsx
-- [ ] 2.6 LoginForm unit tests pass
+- [x] 2.1 TypeScript compiles with no errors
+- [x] 2.2 Lint passes
+- [x] 2.3 npm run build completes without errors
+- [x] 2.4 `use client` directive present in LoginForm.tsx
+- [x] 2.5 Route page exists at app/login/page.tsx
+- [x] 2.6 LoginForm unit tests pass
 
 #### Manual
 
-- [ ] 2.7 /login renders matching the scr-login design
-- [ ] 2.8 Danger-tint/danger-fg alert colors render with adequate contrast
-- [ ] 2.9 Tab order moves logically through all interactive elements
-- [ ] 2.10 Screen reader announces the error alert via role="alert"
+- [x] 2.7 /login renders matching the scr-login design
+- [x] 2.8 Danger-tint/danger-fg alert colors render with adequate contrast
+- [x] 2.9 Tab order moves logically through all interactive elements
+- [x] 2.10 Screen reader announces the error alert via role="alert"
 
 ### Phase 3: Playwright E2E Tests
 
