@@ -296,4 +296,4 @@ None — no schema changes. The RLS-protected tables and policies this story's N
 #### Manual
 
 - [x] 3.3 Playwright HTML report shows all login scenarios passing — 6502245
-- [ ] 3.4 Staging/production NEXT_PUBLIC_SUPABASE_URL confirmed https://
+- [x] 3.4 Staging/production NEXT_PUBLIC_SUPABASE_URL confirmed https://
