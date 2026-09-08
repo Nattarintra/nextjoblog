@@ -290,8 +290,8 @@ None — no schema changes. The RLS-protected tables and policies this story's N
 
 #### Automated
 
-- [ ] 3.1 e2e/login.spec.ts exists
-- [ ] 3.2 All login E2E tests pass
+- [x] 3.1 e2e/login.spec.ts exists
+- [x] 3.2 All login E2E tests pass
 
 #### Manual
 
