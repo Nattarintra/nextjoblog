@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export type SignupFormState =
   | undefined
   | { error: "duplicate_email" }
@@ -41,8 +43,7 @@ export async function signup(
     return { error: "weak_password" };
   }
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(email)) {
+  if (!emailShapePattern.test(email)) {
     return { error: "unknown", message: "Please enter a valid email address." };
   }
 
@@ -86,8 +87,6 @@ export async function signup(
 
   redirect("/dashboard");
 }
-
-const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function login(
   _state: LoginFormState,
