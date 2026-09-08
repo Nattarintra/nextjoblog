@@ -1,9 +1,9 @@
 ---
 change_id: log-in-an-existing-account
 title: Log in to an existing account
-status: new
+status: implementing
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-09-08
 archived_at: null
 ---
 
