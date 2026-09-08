@@ -290,10 +290,10 @@ None — no schema changes. The RLS-protected tables and policies this story's N
 
 #### Automated
 
-- [x] 3.1 e2e/login.spec.ts exists
-- [x] 3.2 All login E2E tests pass
+- [x] 3.1 e2e/login.spec.ts exists — 270dc33
+- [x] 3.2 All login E2E tests pass — 270dc33
 
 #### Manual
 
-- [ ] 3.3 Playwright HTML report shows all login scenarios passing
+- [x] 3.3 Playwright HTML report shows all login scenarios passing
 - [ ] 3.4 Staging/production NEXT_PUBLIC_SUPABASE_URL confirmed https://
