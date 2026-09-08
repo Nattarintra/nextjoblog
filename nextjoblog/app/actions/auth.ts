@@ -11,12 +11,21 @@ export type SignupFormState =
   | { error: "weak_password" }
   | { error: "unknown"; message: string };
 
+export type LoginFormState =
+  | undefined
+  | { error: "invalid_credentials" }
+  | { error: "unknown"; message: string };
+
 function isDuplicateEmailError(error: unknown): boolean {
   return (
     isAuthApiError(error) &&
     (error.code === "user_already_exists" ||
       error.message.toLowerCase().includes("already registered"))
   );
+}
+
+function isInvalidCredentialsError(error: unknown): boolean {
+  return isAuthApiError(error) && error.code === "invalid_credentials";
 }
 
 export async function signup(
@@ -72,6 +81,54 @@ export async function signup(
     return {
       error: "unknown",
       message: "Unable to create account. Please try again.",
+    };
+  }
+
+  redirect("/dashboard");
+}
+
+const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function login(
+  _state: LoginFormState,
+  formData: FormData,
+): Promise<LoginFormState> {
+  const emailValue = formData.get("email");
+  const passwordValue = formData.get("password");
+  const email = typeof emailValue === "string" ? emailValue.trim() : "";
+  const password = typeof passwordValue === "string" ? passwordValue : "";
+
+  if (!emailShapePattern.test(email)) {
+    return { error: "unknown", message: "Please enter a valid email address." };
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      if (isInvalidCredentialsError(error)) {
+        return { error: "invalid_credentials" };
+      }
+
+      console.error("Login failed", error);
+      return {
+        error: "unknown",
+        message: "Unable to log in. Please try again.",
+      };
+    }
+  } catch (error) {
+    if (isInvalidCredentialsError(error)) {
+      return { error: "invalid_credentials" };
+    }
+
+    console.error("Login failed", error);
+    return {
+      error: "unknown",
+      message: "Unable to log in. Please try again.",
     };
   }
 
