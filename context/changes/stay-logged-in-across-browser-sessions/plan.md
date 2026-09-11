@@ -344,8 +344,8 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 5.1 `npm run test:run` enforces and fails under 80% coverage
-- [x] 5.2 `npm run test:coverage` prints a summary
+- [x] 5.1 `npm run test:run` enforces and fails under 80% coverage — c9d3943
+- [x] 5.2 `npm run test:coverage` prints a summary — c9d3943
 
 ### Phase 6: E2E Verification
 
