@@ -2,6 +2,8 @@ import type { JwtPayload } from "@supabase/auth-js";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+import { SessionExpiryNotice } from "./SessionExpiryNotice";
+
 const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
 
 // `amr[0].timestamp` is when the session actually began (unlike the 1-hour
@@ -21,8 +23,12 @@ function computeSessionExpiresAt(claims: JwtPayload | null | undefined): number 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getClaims();
-  // Consumed by SessionExpiryNotice once it's wired in here (Phase 4).
   const sessionExpiresAt = computeSessionExpiresAt(data?.claims);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {sessionExpiresAt !== undefined && <SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />}
+    </>
+  );
 }

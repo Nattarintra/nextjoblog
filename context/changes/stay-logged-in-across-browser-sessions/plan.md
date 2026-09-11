@@ -330,15 +330,15 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [ ] 4.1 `getNoticeState` unit tests cover all boundary cases
-- [ ] 4.2 `SessionExpiryNotice` unit tests cover show/schedule/Yes/No
-- [ ] 4.3 `npm run test:run` passes with coverage thresholds met
-- [ ] 4.4 Lint (incl. a11y) passes
+- [x] 4.1 `getNoticeState` unit tests cover all boundary cases
+- [x] 4.2 `SessionExpiryNotice` unit tests cover show/schedule/Yes/No
+- [x] 4.3 `npm run test:run` passes with coverage thresholds met
+- [x] 4.4 Lint (incl. a11y) passes
 
 #### Manual
 
-- [ ] 4.5 Modal appears once past day 28, doesn't reappear after dismissal
-- [ ] 4.6 Keyboard-only navigation can open, navigate, and dismiss the modal
+- [x] 4.5 Modal appears once past day 28, doesn't reappear after dismissal
+- [x] 4.6 Keyboard-only navigation can open, navigate, and dismiss the modal
 
 ### Phase 5: Test Coverage Tooling
 
