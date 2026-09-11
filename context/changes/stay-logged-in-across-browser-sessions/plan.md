@@ -296,24 +296,24 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 1.1 Supabase config validates without error
-- [x] 1.2 Existing e2e suite still passes unchanged
+- [x] 1.1 Supabase config validates without error — 342288c
+- [x] 1.2 Existing e2e suite still passes unchanged — 342288c
 
 #### Manual
 
-- [ ] 1.3 `supabase start` boots locally with new config and login still succeeds
+- [x] 1.3 `supabase start` boots locally with new config and login still succeeds — 342288c
 
 ### Phase 2: Expired and Invalid Session Handling in `proxy.ts`
 
 #### Automated
 
-- [ ] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes
 - [ ] 2.2 Cookie-tampering e2e test passes
 
 #### Manual
 
-- [ ] 2.3 Expired-but-valid cookie is cleared and shows login page, not an error
-- [ ] 2.4 Corrupted cookie shows login page without a server error
+- [x] 2.3 Expired-but-valid cookie is cleared and shows login page, not an error
+- [x] 2.4 Corrupted cookie shows login page without a server error
 
 ### Phase 3: Dashboard Placeholder and Expiry Plumbing
 
