@@ -330,22 +330,22 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 4.1 `getNoticeState` unit tests cover all boundary cases
-- [x] 4.2 `SessionExpiryNotice` unit tests cover show/schedule/Yes/No
-- [x] 4.3 `npm run test:run` passes with coverage thresholds met
-- [x] 4.4 Lint (incl. a11y) passes
+- [x] 4.1 `getNoticeState` unit tests cover all boundary cases — a9e0d08
+- [x] 4.2 `SessionExpiryNotice` unit tests cover show/schedule/Yes/No — a9e0d08
+- [x] 4.3 `npm run test:run` passes with coverage thresholds met — a9e0d08
+- [x] 4.4 Lint (incl. a11y) passes — a9e0d08
 
 #### Manual
 
-- [x] 4.5 Modal appears once past day 28, doesn't reappear after dismissal
-- [x] 4.6 Keyboard-only navigation can open, navigate, and dismiss the modal
+- [x] 4.5 Modal appears once past day 28, doesn't reappear after dismissal — a9e0d08
+- [x] 4.6 Keyboard-only navigation can open, navigate, and dismiss the modal — a9e0d08
 
 ### Phase 5: Test Coverage Tooling
 
 #### Automated
 
-- [ ] 5.1 `npm run test:run` enforces and fails under 80% coverage
-- [ ] 5.2 `npm run test:coverage` prints a summary
+- [x] 5.1 `npm run test:run` enforces and fails under 80% coverage
+- [x] 5.2 `npm run test:coverage` prints a summary
 
 ### Phase 6: E2E Verification
 
