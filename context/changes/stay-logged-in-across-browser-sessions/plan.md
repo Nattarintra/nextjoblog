@@ -296,8 +296,8 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [ ] 1.1 Supabase config validates without error
-- [ ] 1.2 Existing e2e suite still passes unchanged
+- [x] 1.1 Supabase config validates without error
+- [x] 1.2 Existing e2e suite still passes unchanged
 
 #### Manual
 
