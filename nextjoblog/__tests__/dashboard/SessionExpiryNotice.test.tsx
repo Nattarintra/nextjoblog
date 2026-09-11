@@ -115,6 +115,45 @@ describe("SessionExpiryNotice", () => {
     expect(document.cookie).toContain(`${COOKIE_NAME}=1`);
   });
 
+  it("Tab from the Yes button wraps focus back to the No button", () => {
+    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
+    renderAndFlush(sessionExpiresAt);
+
+    const noButton = screen.getByRole("button", { name: "No" });
+    const yesButton = screen.getByRole("button", { name: "Yes" });
+    yesButton.focus();
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
+
+    expect(document.activeElement).toBe(noButton);
+  });
+
+  it("Shift+Tab from the No button wraps focus back to the Yes button", () => {
+    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
+    renderAndFlush(sessionExpiresAt);
+
+    const noButton = screen.getByRole("button", { name: "No" });
+    const yesButton = screen.getByRole("button", { name: "Yes" });
+    noButton.focus();
+
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab", shiftKey: true });
+
+    expect(document.activeElement).toBe(yesButton);
+  });
+
+  it("a non-Tab, non-Escape key does not move focus or dismiss the modal", () => {
+    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
+    renderAndFlush(sessionExpiresAt);
+
+    const dialog = screen.getByRole("dialog");
+    const yesButton = screen.getByRole("button", { name: "Yes" });
+
+    fireEvent.keyDown(dialog, { key: "Enter" });
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(document.activeElement).toBe(yesButton);
+  });
+
   it("exposes dialog a11y attributes", () => {
     const sessionExpiresAt = Date.now() + 1 * DAY_MS;
     renderAndFlush(sessionExpiresAt);
