@@ -307,24 +307,24 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 2.1 `npm run lint` passes
+- [x] 2.1 `npm run lint` passes — 4a2d286
 - [ ] 2.2 Cookie-tampering e2e test passes
 
 #### Manual
 
-- [x] 2.3 Expired-but-valid cookie is cleared and shows login page, not an error
-- [x] 2.4 Corrupted cookie shows login page without a server error
+- [x] 2.3 Expired-but-valid cookie is cleared and shows login page, not an error — 4a2d286
+- [x] 2.4 Corrupted cookie shows login page without a server error — 4a2d286
 
 ### Phase 3: Dashboard Placeholder and Expiry Plumbing
 
 #### Automated
 
-- [ ] 3.1 Typecheck passes
-- [ ] 3.2 Lint passes
+- [x] 3.1 Typecheck passes
+- [x] 3.2 Lint passes
 
 #### Manual
 
-- [ ] 3.3 Login redirects to `/dashboard` and placeholder renders without error
+- [x] 3.3 Login redirects to `/dashboard` and placeholder renders without error
 
 ### Phase 4: Day-28–30 Expiry Notice Modal
 
