@@ -319,12 +319,12 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 3.1 Typecheck passes
-- [x] 3.2 Lint passes
+- [x] 3.1 Typecheck passes — d96d29a
+- [x] 3.2 Lint passes — d96d29a
 
 #### Manual
 
-- [x] 3.3 Login redirects to `/dashboard` and placeholder renders without error
+- [x] 3.3 Login redirects to `/dashboard` and placeholder renders without error — d96d29a
 
 ### Phase 4: Day-28–30 Expiry Notice Modal
 
