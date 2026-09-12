@@ -168,8 +168,11 @@ site_url = "http://127.0.0.1:3000"
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
 additional_redirect_urls = ["https://127.0.0.1:3000"]
-# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
-jwt_expiry = 3600
+# Keep the access token shorter than the 10-second session timebox so the e2e
+# reload must attempt a refresh after the timebox has elapsed. Otherwise the
+# still-valid JWT would let getClaims() succeed without checking the expired
+# refresh session, leaving the stale auth cookie untouched.
+jwt_expiry = 5
 # JWT issuer URL. If not set, defaults to auth.external_url.
 # jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
