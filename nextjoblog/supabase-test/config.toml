@@ -1,8 +1,16 @@
+# TEST-ONLY project. Never used by `npm run dev` or the default `supabase start`.
+# This is a copy of ../supabase/config.toml with `timebox` shortened so
+# e2e/session-expiry.spec.ts can observe real GoTrue session-expiry enforcement
+# within a test run. Migrations under ./migrations must be kept identical to
+# ../supabase/migrations — see that directory's README.md for the drift-risk note.
+#
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "nextjoblog"
+# Deliberately distinct from ../supabase/config.toml's project_id so this project's Docker
+# volumes/network are fully separate and never share or corrupt the main dev stack's data.
+project_id = "nextjoblog-test"
 
 [api]
 enabled = true
@@ -160,8 +168,11 @@ site_url = "http://127.0.0.1:3000"
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
 additional_redirect_urls = ["https://127.0.0.1:3000"]
-# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
-jwt_expiry = 3600
+# Keep the access token shorter than the 10-second session timebox so the e2e
+# reload must attempt a refresh after the timebox has elapsed. Otherwise the
+# still-valid JWT would let getClaims() succeed without checking the expired
+# refresh session, leaving the stale auth cookie untouched.
+jwt_expiry = 5
 # JWT issuer URL. If not set, defaults to auth.external_url.
 # jwt_issuer = ""
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
@@ -270,7 +281,10 @@ max_frequency = "5s"
 # Configure logged in session timeouts.
 [auth.sessions]
 # Force log out after the specified duration.
-timebox = "720h"
+# Shortened from the real 720h (30 days) so e2e/session-expiry.spec.ts can observe
+# real expiry within a test run. The day-28-of-30 notice ratio (2/3 of the window)
+# is preserved by the test: it asserts the notice at ~6.7s and expiry at 10s.
+timebox = "10s"
 # Force log out if the user has been inactive longer than the specified duration.
 # inactivity_timeout = "8h"
 
