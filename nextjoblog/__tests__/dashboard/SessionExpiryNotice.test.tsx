@@ -76,6 +76,21 @@ describe("SessionExpiryNotice", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("re-arms long waits in bounded chunks until the threshold", () => {
+    const sessionExpiresAt = Date.now() + 30 * DAY_MS;
+    render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
+
+    act(() => {
+      vi.advanceTimersByTime(28 * DAY_MS - 1);
+    });
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("does not schedule or show anything when the user already responded this window", () => {
     const sessionExpiresAt = Date.now() + 1 * DAY_MS;
     document.cookie = `${COOKIE_NAME}=1; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
