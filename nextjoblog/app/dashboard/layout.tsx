@@ -4,7 +4,18 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
 
-const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+const DEFAULT_SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+
+// The production session lifetime is Supabase's 30-day timebox. The e2e
+// harness supplies the same value as its short-timebox Supabase project so
+// the notice can exercise the proportional boundary without waiting 28 days.
+function getSessionLifetimeMs(): number {
+  const configuredLifetimeMs = Number(process.env.SESSION_TIMEBOX_MS);
+
+  return Number.isFinite(configuredLifetimeMs) && configuredLifetimeMs > 0
+    ? configuredLifetimeMs
+    : DEFAULT_SESSION_LIFETIME_MS;
+}
 
 // `amr[0].timestamp` is when the session actually began (unlike the 1-hour
 // access-token `iat`, which changes on every refresh) — see research.md's
@@ -17,7 +28,7 @@ function computeSessionExpiresAt(claims: JwtPayload | null | undefined): number 
     return undefined;
   }
 
-  return firstAmrEntry.timestamp * 1000 + SESSION_LIFETIME_MS;
+  return firstAmrEntry.timestamp * 1000 + getSessionLifetimeMs();
 }
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {

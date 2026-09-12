@@ -180,10 +180,10 @@ test.describe("real session expiry (short timebox)", () => {
     await page.getByRole("button", { name: "Sign Up" }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 
-    // SessionExpiryNotice's NOTICE_WINDOW_MS is a fixed 2 days, which dwarfs
-    // this 10s test session — so unlike the real 30-day window, the day-28
-    // threshold is already in the past the instant the session starts, and
-    // the modal shows on mount rather than at a 2/3-of-window mark.
+    // Playwright starts Next with SESSION_TIMEBOX_MS=10000, matching the
+    // short-timebox Supabase project. SessionExpiryNotice's fixed 2-day
+    // production window is therefore already past the threshold for this
+    // compressed session, so the modal shows on mount.
     await expect(page.getByRole("dialog", { name: "Your session is expiring soon" })).toBeVisible();
 
     // Wait past the full 10s timebox, then force a new request through

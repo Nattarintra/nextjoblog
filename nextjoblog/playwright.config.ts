@@ -17,7 +17,10 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
   },
   webServer: {
-    command: "npm run dev",
+    // Keep the app's client-side expiry calculation aligned with the
+    // 10-second Supabase project used by session-expiry.spec.ts. The app
+    // falls back to its real 30-day lifetime outside this test server.
+    command: "SESSION_TIMEBOX_MS=10000 npm run dev",
     url: "http://localhost:3000",
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
