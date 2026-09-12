@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 const RESPONDED_COOKIE_NAME = "session_expiry_responded";
 const NOTICE_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
+const MAX_TIMER_DELAY_MS = 24 * 60 * 60 * 1000;
 
 // Pure and independently testable: `now`/`sessionExpiresAt` are injected,
 // never read from Date.now() in here — see plan Phase 4 contract.
@@ -40,16 +41,25 @@ export function SessionExpiryNotice({ sessionExpiresAt }: { sessionExpiresAt: nu
 
   useEffect(() => {
     const threshold = sessionExpiresAt - NOTICE_WINDOW_MS;
-    const delay = Math.max(0, threshold - Date.now());
+    let timer: ReturnType<typeof setTimeout>;
 
-    // Delayed via setTimeout even for the already-past-threshold case (delay
-    // 0) so the state update runs in a callback rather than synchronously
-    // within the effect body.
-    const timer = setTimeout(() => {
-      if (getNoticeState(Date.now(), sessionExpiresAt, hasRespondedCookie())) {
+    function checkNotice(): void {
+      const now = Date.now();
+
+      if (getNoticeState(now, sessionExpiresAt, hasRespondedCookie())) {
         setShow(true);
+        return;
       }
-    }, delay);
+
+      // Browser timers cannot represent delays longer than ~24.8 days. Re-arm
+      // in bounded chunks so a newly created session reliably reaches day 28.
+      const delay = Math.min(MAX_TIMER_DELAY_MS, threshold - now);
+      timer = setTimeout(checkNotice, Math.max(0, delay));
+    }
+
+    // The first check is also deferred, so an already-past threshold updates
+    // state from a callback rather than synchronously inside the effect.
+    timer = setTimeout(checkNotice, 0);
 
     return () => clearTimeout(timer);
   }, [sessionExpiresAt]);
