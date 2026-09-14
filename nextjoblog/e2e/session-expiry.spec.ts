@@ -14,6 +14,15 @@ function authCookieStorageKey(): string {
   return `sb-${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0]}-auth-token`;
 }
 
+// Match @supabase/ssr's `isChunkLike` behavior: the session is either stored
+// directly at the storage key or split into numeric `.0`, `.1`, … chunks.
+// Do not use `startsWith(storageKey)`: auth-js also creates PKCE verifier
+// cookies such as `<storageKey>-flow-…-code-verifier`, which are not session
+// cookies and are deliberately left alone by proxy.ts.
+function isAuthSessionCookie(cookieName: string, storageKey: string): boolean {
+  return cookieName === storageKey || new RegExp(`^${storageKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+$`).test(cookieName);
+}
+
 // @supabase/ssr writes the session as `base64-<base64url(JSON.stringify(session))>`,
 // optionally split across `<key>.0`, `<key>.1`, ... chunk cookies for large sessions
 // (see node_modules/@supabase/ssr/dist/main/cookies.js and utils/chunker.js). This
@@ -39,6 +48,15 @@ function decodeAuthCookie(
 
   const withoutPrefix = raw.startsWith("base64-") ? raw.slice("base64-".length) : raw;
   return JSON.parse(Buffer.from(withoutPrefix, "base64url").toString("utf-8"));
+}
+
+function accessTokenLifetimeSeconds(accessToken: string): number {
+  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8")) as {
+    exp: number;
+    iat: number;
+  };
+
+  return payload.exp - payload.iat;
 }
 
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
@@ -180,6 +198,12 @@ test.describe("real session expiry (short timebox)", () => {
     await page.getByRole("button", { name: "Sign Up" }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 
+    // Make the compressed-time setup explicit. Supabase enforces timeboxes
+    // when refreshing a session, so the short JWT must be in effect before
+    // this test can prove the proxy clears an expired session cookie.
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
+
     // Playwright starts Next with SESSION_TIMEBOX_MS=10000, matching the
     // short-timebox Supabase project. SessionExpiryNotice's fixed 2-day
     // production window is therefore already past the threshold for this
@@ -192,7 +216,9 @@ test.describe("real session expiry (short timebox)", () => {
     await page.reload();
 
     const cookies = await page.context().cookies();
-    const remainingAuthCookies = cookies.filter((cookie) => cookie.name.startsWith(authCookieStorageKey()));
+    const remainingAuthCookies = cookies.filter((cookie) =>
+      isAuthSessionCookie(cookie.name, authCookieStorageKey()),
+    );
     expect(remainingAuthCookies).toHaveLength(0);
   });
 });
