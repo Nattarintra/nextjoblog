@@ -21,25 +21,34 @@ function getSessionLifetimeMs(): number {
 // access-token `iat`, which changes on every refresh) — see research.md's
 // Key Discoveries. The RFC-8176 string[] form of `amr` carries no timestamp,
 // so expiry can't be derived from it.
-function computeSessionExpiresAt(claims: JwtPayload | null | undefined): number | undefined {
+function computeSessionExpiresAt(
+  claims: JwtPayload | null | undefined,
+  sessionLifetimeMs: number,
+): number | undefined {
   const firstAmrEntry = claims?.amr?.[0];
 
   if (!firstAmrEntry || typeof firstAmrEntry === "string") {
     return undefined;
   }
 
-  return firstAmrEntry.timestamp * 1000 + getSessionLifetimeMs();
+  return firstAmrEntry.timestamp * 1000 + sessionLifetimeMs;
 }
 
 export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getClaims();
-  const sessionExpiresAt = computeSessionExpiresAt(data?.claims);
+  const sessionLifetimeMs = getSessionLifetimeMs();
+  const sessionExpiresAt = computeSessionExpiresAt(data?.claims, sessionLifetimeMs);
 
   return (
     <>
       {children}
-      {sessionExpiresAt !== undefined && <SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />}
+      {sessionExpiresAt !== undefined && (
+        <SessionExpiryNotice
+          sessionExpiresAt={sessionExpiresAt}
+          noticeWindowMs={sessionLifetimeMs / 15}
+        />
+      )}
     </>
   );
 }

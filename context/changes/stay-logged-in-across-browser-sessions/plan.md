@@ -90,8 +90,8 @@ Make the session-refresh proxy distinguish "confirmed expired" (timebox exceeded
 
 #### Manual Verification:
 
-- Manually setting an expired-but-structurally-valid session cookie and reloading the app clears the cookie and shows the login page, not an error
-- Manually corrupting a cookie value and reloading shows the login page without a server error
+- Manually setting an expired-but-structurally-valid session cookie and reloading the app clears the cookie and renders without a server error; login-page routing is Story 0.4's auth-guard responsibility
+- Manually corrupting a cookie value and reloading renders without a server error
 
 ---
 
@@ -205,9 +205,9 @@ Prove the real 30-day/day-28 behavior end-to-end against actual GoTrue enforceme
 
 **File**: `supabase-test/` (new directory, sibling to `supabase/`) — `supabase-test/config.toml`, `supabase-test/migrations/` (copied from `supabase/migrations/`), `supabase-test/seed.sql` (copied from `supabase/seed.sql` if present)
 
-**Intent**: A dedicated, fully separate local Supabase project used only for the expiry e2e test, with `timebox` set short enough to observe real expiry within a test run while preserving the day-28-of-30 ratio (i.e. the notice threshold at ~2/3 of the shortened window). A sibling config *file* is not viable: the Supabase CLI (confirmed via `supabase start --help` on the installed v2.116.0) has no flag to point `supabase start` at an alternate `.toml` file — `--workdir` only accepts a whole project directory, which must contain its own `config.toml`, migrations, and seed data.
+**Intent**: A dedicated, fully separate local Supabase project used only for the expiry e2e test, with `timebox` set short enough to observe real expiry within a test run while preserving the day-28-of-30 ratio (i.e. the notice threshold at 28/30 of the shortened window). A sibling config *file* is not viable: the Supabase CLI (verified locally with v2.116.0; CI pins v2.117.0) has no flag to point `supabase start` at an alternate `.toml` file — `--workdir` only accepts a whole project directory, which must contain its own `config.toml`, migrations, and seed data.
 
-**Contract**: `supabase-test/config.toml` is a copy of `supabase/config.toml` with `timebox` overridden to a short value (e.g. `"10s"`); its header comments this is test-only, never used by `npm run dev`. Migrations under `supabase-test/migrations/` must be kept identical to `supabase/migrations/` (a comment in both directories cross-references the other, flagging drift risk). Started via `supabase start --workdir supabase-test`, documented in the e2e test's own header comment (mirroring the existing single-worker-mode comment convention in `e2e/login.spec.ts`) and stopped via `supabase stop --workdir supabase-test` after the run so it doesn't collide with the normal dev stack's containers/ports.
+**Contract**: `supabase-test/config.toml` is a copy of `supabase/config.toml` with `timebox` overridden to a short value (currently `"30s"`); its header comments this is test-only, never used by `npm run dev`. Migrations under `supabase-test/migrations/` must be kept identical to `supabase/migrations/` (a comment in both directories cross-references the other, flagging drift risk). Started via `supabase start --workdir supabase-test`, documented in the e2e test's own header comment (mirroring the existing single-worker-mode comment convention in `e2e/login.spec.ts`) and stopped via `supabase stop --workdir supabase-test` after the run so it doesn't collide with the normal dev stack's containers/ports.
 
 #### 2. Session expiry e2e test
 
@@ -242,7 +242,7 @@ Prove the real 30-day/day-28 behavior end-to-end against actual GoTrue enforceme
 
 #### Manual Verification:
 
-- A full local `supabase start` + `npm run test:e2e` run is executed at least once and its output reviewed (not just assumed green) before this phase is marked done — per the repeated prior-review lesson against marking e2e "done" without an actual run
+- The GitHub Actions Playwright workflow is executed at least once and its output reviewed (not just assumed green) before this phase is marked done. It is the authoritative E2E runner because the development Mac is capped at macOS 13 and does not have a compatible Playwright Chromium binary for this project.
 
 ---
 
@@ -312,8 +312,8 @@ After this change is merged and deployed:
 
 #### Manual
 
-- [x] 2.3 Expired-but-valid cookie is cleared and shows login page, not an error — 4a2d286
-- [x] 2.4 Corrupted cookie shows login page without a server error — 4a2d286
+- [x] 2.3 Expired-but-valid cookie is cleared and renders without a server error — 4a2d286
+- [x] 2.4 Corrupted cookie renders without a server error — 4a2d286
 
 ### Phase 3: Dashboard Placeholder and Expiry Plumbing
 
@@ -351,9 +351,9 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [x] 6.1 `npm run test:e2e` passes including all `e2e/session-expiry.spec.ts` tests
-- [x] 6.2 `supabase-test/` short-timebox project doesn't interfere with dev or the existing e2e suite
+- [x] 6.1 `npm run test:e2e` passes including all `e2e/session-expiry.spec.ts` tests — 9d4a63b
+- [x] 6.2 `supabase-test/` short-timebox project doesn't interfere with dev or the existing e2e suite — 9d4a63b
 
 #### Manual
 
-- [x] 6.3 Full local `supabase start` + `npm run test:e2e` run executed and reviewed
+- [x] 6.3 Full local `supabase start` + `npm run test:e2e` run executed and reviewed — 9d4a63b

@@ -1,9 +1,9 @@
 ---
 change_id: stay-logged-in-across-browser-sessions
 title: Stay logged in across browser sessions
-status: implementing
+status: impl_reviewed
 created: 2026-09-10
-updated: 2026-09-11
+updated: 2026-09-14
 archived_at: null
 ---
 
