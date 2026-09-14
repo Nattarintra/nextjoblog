@@ -351,9 +351,9 @@ After this change is merged and deployed:
 
 #### Automated
 
-- [ ] 6.1 `npm run test:e2e` passes including all `e2e/session-expiry.spec.ts` tests
-- [ ] 6.2 `supabase-test/` short-timebox project doesn't interfere with dev or the existing e2e suite
+- [x] 6.1 `npm run test:e2e` passes including all `e2e/session-expiry.spec.ts` tests
+- [x] 6.2 `supabase-test/` short-timebox project doesn't interfere with dev or the existing e2e suite
 
 #### Manual
 
-- [ ] 6.3 Full local `supabase start` + `npm run test:e2e` run executed and reviewed
+- [x] 6.3 Full local `supabase start` + `npm run test:e2e` run executed and reviewed
