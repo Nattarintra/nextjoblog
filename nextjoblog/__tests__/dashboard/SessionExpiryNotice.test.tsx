@@ -1,7 +1,8 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { getNoticeState, SessionExpiryNotice } from "@/app/dashboard/SessionExpiryNotice";
+import { SessionExpiryNotice } from "@/app/dashboard/SessionExpiryNotice";
+import { getNoticeState } from "@/app/dashboard/session-expiry-notice";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const COOKIE_NAME = "session_expiry_responded";
@@ -76,6 +77,21 @@ describe("SessionExpiryNotice", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("uses an injected notice window to preserve a shortened session's relative threshold", () => {
+    const sessionExpiresAt = Date.now() + 30_000;
+    render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} />);
+
+    act(() => {
+      vi.advanceTimersByTime(27_999);
+    });
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("re-arms long waits in bounded chunks until the threshold", () => {
     const sessionExpiresAt = Date.now() + 30 * DAY_MS;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
@@ -96,6 +112,10 @@ describe("SessionExpiryNotice", () => {
     document.cookie = `${COOKIE_NAME}=1; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
 
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
+
+    act(() => {
+      vi.advanceTimersByTime(30 * DAY_MS);
+    });
 
     expect(screen.queryByRole("dialog")).toBeNull();
   });

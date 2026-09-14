@@ -282,9 +282,9 @@ max_frequency = "5s"
 [auth.sessions]
 # Force log out after the specified duration.
 # Shortened from the real 720h (30 days) so e2e/session-expiry.spec.ts can observe
-# real expiry within a test run. The day-28-of-30 notice ratio (2/3 of the window)
-# is preserved by the test: it asserts the notice at ~6.7s and expiry at 10s.
-timebox = "10s"
+# real expiry within a test run. The day-28-of-30 notice ratio (28/30 of the window)
+# is preserved by the test: it asserts the notice at 28s and expiry at 30s.
+timebox = "30s"
 # Force log out if the user has been inactive longer than the specified duration.
 # inactivity_timeout = "8h"
 

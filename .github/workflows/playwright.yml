@@ -8,6 +8,8 @@ on:
 
 jobs:
   e2e:
+    # This Ubuntu workflow is the authoritative E2E runner. The development
+    # Mac is capped at macOS 13 and cannot run this project's Playwright Chromium.
     timeout-minutes: 30
     runs-on: ubuntu-latest
     defaults:
@@ -33,7 +35,7 @@ jobs:
         with:
           # The short-timebox project relies on current auth configuration
           # support (notably auth.jwt_expiry) to force a refresh after its
-          # 10-second session timebox.
+          # 30-second session timebox.
           version: 2.117.0
 
       - name: Start local Supabase
@@ -41,13 +43,6 @@ jobs:
 
       - name: Reset test database
         run: supabase db reset
-
-      - name: Export Supabase credentials
-        shell: bash
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | sed -n 's/^API_URL=//p' | tr -d '\"')" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | sed -n 's/^ANON_KEY=//p' | tr -d '\"')" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | sed -n 's/^SERVICE_ROLE_KEY=//p' | tr -d '\"')" >> "$GITHUB_ENV"
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

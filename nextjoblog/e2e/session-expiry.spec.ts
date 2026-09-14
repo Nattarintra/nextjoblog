@@ -59,6 +59,19 @@ function accessTokenLifetimeSeconds(accessToken: string): number {
   return payload.exp - payload.iat;
 }
 
+function sessionStartedAtMs(accessToken: string): number {
+  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8")) as {
+    amr?: { timestamp?: number }[];
+  };
+  const timestamp = payload.amr?.[0]?.timestamp;
+
+  if (typeof timestamp !== "number") {
+    throw new Error("Session access token did not include an AMR timestamp");
+  }
+
+  return timestamp * 1000;
+}
+
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
 // mirrors e2e/login.spec.ts's reasoning for forcing single-worker, in-order mode,
@@ -169,7 +182,7 @@ test.describe("RLS after session restoration", () => {
 test.describe("real session expiry (short timebox)", () => {
   // A dedicated, fully separate local Supabase project rooted at
   // ../supabase-test/ (its CLI config lives at supabase-test/supabase/config.toml)
-  // with `timebox` set to "10s" so real GoTrue expiry enforcement can be
+  // with `timebox` set to "30s" so real GoTrue expiry enforcement can be
   // observed within a test run. It shares ports with the default local stack
   // (a literal copy of supabase/config.toml, per plan Phase 6), so it cannot run
   // concurrently with it — swap it in for this group only, then swap back.
@@ -190,7 +203,7 @@ test.describe("real session expiry (short timebox)", () => {
   });
 
   test("shows the expiry notice and clears the cookie once the session truly expires", async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(75_000);
 
     const email = `expiry-test+${Date.now()}@example.com`;
     await page.goto("/signup");
@@ -205,15 +218,23 @@ test.describe("real session expiry (short timebox)", () => {
     const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
     expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
 
-    // Playwright starts Next with SESSION_TIMEBOX_MS=10000, matching the
-    // short-timebox Supabase project. SessionExpiryNotice's fixed 2-day
-    // production window is therefore already past the threshold for this
-    // compressed session, so the modal shows on mount.
-    await expect(page.getByRole("dialog", { name: "Your session is expiring soon" })).toBeVisible();
+    // Playwright starts Next with a 30-second lifetime, matching the short
+    // Supabase project. The layout scales the two-day production notice window
+    // to 2 seconds, preserving the day-28-of-30 threshold at 28 seconds.
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const noticeAt = sessionStartedAt + 28_000;
+    const expiresAt = sessionStartedAt + 30_000;
+    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
 
-    // Wait past the full 10s timebox, then force a new request through
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(750);
+    await expect(dialog).toBeVisible();
+
+    // Wait past the full 30s timebox, then force a new request through
     // proxy.ts — that's what actually re-checks expiry and clears cookies.
-    await page.waitForTimeout(11_000);
+    await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
     await page.reload();
 
     const cookies = await page.context().cookies();
