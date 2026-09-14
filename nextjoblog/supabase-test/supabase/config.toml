@@ -1,14 +1,14 @@
 # TEST-ONLY project. Never used by `npm run dev` or the default `supabase start`.
-# This is a copy of ../supabase/config.toml with `timebox` shortened so
+# This is a copy of ../../supabase/config.toml with `timebox` shortened so
 # e2e/session-expiry.spec.ts can observe real GoTrue session-expiry enforcement
 # within a test run. Migrations under ./migrations must be kept identical to
-# ../supabase/migrations — see that directory's README.md for the drift-risk note.
+# ../../supabase/migrations — see that directory's README.md for the drift-risk note.
 #
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-# Deliberately distinct from ../supabase/config.toml's project_id so this project's Docker
+# Deliberately distinct from ../../supabase/config.toml's project_id so this project's Docker
 # volumes/network are fully separate and never share or corrupt the main dev stack's data.
 project_id = "nextjoblog-test"
 

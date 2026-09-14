@@ -167,10 +167,11 @@ test.describe("RLS after session restoration", () => {
 });
 
 test.describe("real session expiry (short timebox)", () => {
-  // A dedicated, fully separate local Supabase project (../supabase-test/) with
-  // `timebox` set to "10s" so real GoTrue expiry enforcement can be observed
-  // within a test run. It shares ports with the default local stack (a literal
-  // copy of supabase/config.toml, per plan Phase 6), so it cannot run
+  // A dedicated, fully separate local Supabase project rooted at
+  // ../supabase-test/ (its CLI config lives at supabase-test/supabase/config.toml)
+  // with `timebox` set to "10s" so real GoTrue expiry enforcement can be
+  // observed within a test run. It shares ports with the default local stack
+  // (a literal copy of supabase/config.toml, per plan Phase 6), so it cannot run
   // concurrently with it — swap it in for this group only, then swap back.
   // Relies on playwright.config.ts's `workers: 1` to guarantee no other spec
   // file (login.spec.ts, signup.spec.ts) is running against the default stack
