@@ -7,5 +7,16 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['__tests__/**/*.test.{ts,tsx}'],
+    coverage: {
+      enabled: true,
+      provider: 'v8',
+      exclude: ['proxy.ts', 'lib/supabase/server.ts'],
+      thresholds: {
+        lines: 80,
+        statements: 80,
+        functions: 80,
+        branches: 80,
+      },
+    },
   },
 })
