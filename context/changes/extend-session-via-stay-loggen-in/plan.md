@@ -346,13 +346,13 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [ ] 1.1 Migration applies cleanly against local `supabase/` project
-- [ ] 1.2 Mirrored migration applies cleanly against `supabase-test/` project
-- [ ] 1.3 Mirrored migration file is byte-identical to the primary migration
+- [x] 1.1 Migration applies cleanly against local `supabase/` project
+- [x] 1.2 Mirrored migration applies cleanly against `supabase-test/` project
+- [x] 1.3 Mirrored migration file is byte-identical to the primary migration
 
 #### Manual
 
-- [ ] 1.4 `supabase start` boots locally with `timebox` removed and a fresh login still succeeds
+- [x] 1.4 `supabase start` boots locally with `timebox` removed and a fresh login still succeeds
 
 ### Phase 2: Extend-Session Server Action
 

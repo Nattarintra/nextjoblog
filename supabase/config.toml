@@ -270,7 +270,6 @@ max_frequency = "5s"
 # Configure logged in session timeouts.
 [auth.sessions]
 # Force log out after the specified duration.
-timebox = "720h"
 # Force log out if the user has been inactive longer than the specified duration.
 # inactivity_timeout = "8h"
 
