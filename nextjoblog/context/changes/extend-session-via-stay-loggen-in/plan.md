@@ -346,20 +346,20 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly against local `supabase/` project
-- [x] 1.2 Mirrored migration applies cleanly against `supabase-test/` project
-- [x] 1.3 Mirrored migration file is byte-identical to the primary migration
+- [x] 1.1 Migration applies cleanly against local `supabase/` project — d06a847
+- [x] 1.2 Mirrored migration applies cleanly against `supabase-test/` project — d06a847
+- [x] 1.3 Mirrored migration file is byte-identical to the primary migration — d06a847
 
 #### Manual
 
-- [x] 1.4 `supabase start` boots locally with `timebox` removed and a fresh login still succeeds
+- [x] 1.4 `supabase start` boots locally with `timebox` removed and a fresh login still succeeds — d06a847
 
 ### Phase 2: Extend-Session Server Action
 
 #### Automated
 
-- [ ] 2.1 Type checking passes
-- [ ] 2.2 Unit tests for the action's pure expiry-math helper pass
+- [x] 2.1 Type checking passes
+- [x] 2.2 Unit tests for the action's pure expiry-math helper pass
 
 #### Manual
 
@@ -369,13 +369,13 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [ ] 3.1 Unit tests for the extension-aware expiry helper pass
-- [ ] 3.2 Type checking passes
+- [x] 3.1 Unit tests for the extension-aware expiry helper pass
+- [x] 3.2 Type checking passes
 
 #### Manual
 
-- [ ] 3.3 Letting effective expiry pass without extending redirects to `/login`
-- [ ] 3.4 Extending once and reaching only the original expiry does not sign the user out
+- [x] 3.3 Letting effective expiry pass without extending redirects to `/login`
+- [x] 3.4 Extending once and reaching only the original expiry does not sign the user out
 
 ### Phase 4: Client Wiring — Distinct Yes Handler, Cycle-Keyed Cookie, Error UX
 
