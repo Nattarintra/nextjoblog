@@ -410,4 +410,4 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Manual
 
-- [ ] 6.2 A broken unit test fails only `unit-tests`, `e2e-tests` still runs independently
+- [x] 6.2 A broken unit test fails only `unit-tests`, `e2e-tests` still runs independently
