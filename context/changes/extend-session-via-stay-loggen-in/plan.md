@@ -381,15 +381,15 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 4.1 Unit tests pass
-- [x] 4.2 Type checking passes
-- [x] 4.3 Linting passes
+- [x] 4.1 Unit tests pass — b4eb6dc
+- [x] 4.2 Type checking passes — b4eb6dc
+- [x] 4.3 Linting passes — b4eb6dc
 
 #### Manual
 
-- [x] 4.4 Yes dismisses and the notice reappears on the next cycle's schedule
-- [x] 4.5 Failed extend shows inline error with working retry
-- [x] 4.6 Existing keyboard flow (Tab/Shift+Tab/Escape) still behaves identically
+- [x] 4.4 Yes dismisses and the notice reappears on the next cycle's schedule — b4eb6dc
+- [x] 4.5 Failed extend shows inline error with working retry — b4eb6dc
+- [x] 4.6 Existing keyboard flow (Tab/Shift+Tab/Escape) still behaves identically — b4eb6dc
 
 ### Phase 5: Test Coverage
 
