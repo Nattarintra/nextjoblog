@@ -23,7 +23,8 @@ describe("getNoticeState", () => {
     expect(getNoticeState(29.5 * DAY_MS, SESSION_EXPIRY, true)).toBe(false);
   });
 
-  it("leaves expiry enforcement to the caller after the cycle expires", () => {
-    expect(getNoticeState(31 * DAY_MS, SESSION_EXPIRY, false)).toBe(true);
+  it("does not show after the cycle expires", () => {
+    expect(getNoticeState(30 * DAY_MS, SESSION_EXPIRY, false)).toBe(false);
+    expect(getNoticeState(31 * DAY_MS, SESSION_EXPIRY, false)).toBe(false);
   });
 });

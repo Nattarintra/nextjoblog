@@ -7,7 +7,11 @@ export function getNoticeState(
   hasResponded: boolean,
   noticeWindowMs = DEFAULT_NOTICE_WINDOW_MS,
 ): boolean {
-  return !hasResponded && now >= sessionExpiresAt - noticeWindowMs;
+  return (
+    !hasResponded &&
+    now >= sessionExpiresAt - noticeWindowMs &&
+    now < sessionExpiresAt
+  );
 }
 
 export function getNextNoticeCheckDelay(
