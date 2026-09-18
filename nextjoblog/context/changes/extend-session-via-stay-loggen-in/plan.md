@@ -363,7 +363,7 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Manual
 
-- [ ] 2.3 Calling the action against a local session inserts/updates the expected row
+- [x] 2.3 Calling the action against a local session inserts/updates the expected row
 
 ### Phase 3: Application-Managed Expiry and Enforced Sign-Out via Dashboard DAL
 
