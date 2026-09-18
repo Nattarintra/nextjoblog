@@ -396,7 +396,7 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 #### Automated
 
 - [x] 5.1 `npm run test:run` passes with coverage ≥80%
-- [ ] 5.2 `npm run test:e2e` passes, including new multi-cycle and RLS tests
+- [x] 5.2 `npm run test:e2e` passes, including new multi-cycle and RLS tests
 
 #### Manual
 
