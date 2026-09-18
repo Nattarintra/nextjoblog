@@ -1,9 +1,12 @@
 "use server";
 
-import { SESSION_EXTENSION_ERROR_CODES } from "@/app/actions/session-errors";
 import { SESSION_EXTENSION_MESSAGES } from "@/app/actions/session-messages";
-import { createSupabaseSessionExtensionStore } from "@/app/actions/session-extension-store";
-import { computeBaseSessionExpiry, getAuthenticatedClaims } from "@/app/actions/session-claims";
+import {
+  computeBaseSessionExpiry,
+  getAuthenticatedClaims,
+} from "@/lib/session/claims";
+import { SESSION_EXTENSION_ERROR_CODES } from "@/lib/session/errors";
+import { createSupabaseSessionExtensionStore } from "@/lib/session/extension-store";
 import {
   computeEffectiveSessionExpiresAt,
   computeNextSessionExpiry,

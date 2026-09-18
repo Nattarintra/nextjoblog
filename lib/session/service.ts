@@ -1,4 +1,5 @@
 import type { JwtPayload } from "@supabase/auth-js";
+import { cache } from "react";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -11,7 +12,7 @@ export type EffectiveSessionExpiry =
   | { status: "authenticated"; claims: JwtPayload; effectiveExpiresAt: number }
   | { status: "lookup_error"; error: unknown };
 
-export async function getEffectiveSessionExpiry(): Promise<
+async function fetchEffectiveSessionExpiry(): Promise<
   EffectiveSessionExpiry | undefined
 > {
   try {
@@ -52,3 +53,5 @@ export async function getEffectiveSessionExpiry(): Promise<
     return { status: "lookup_error", error };
   }
 }
+
+export const getEffectiveSessionExpiry = cache(fetchEffectiveSessionExpiry);
