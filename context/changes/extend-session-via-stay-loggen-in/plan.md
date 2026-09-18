@@ -406,7 +406,7 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [ ] 6.1 Workflow YAML valid; both jobs appear and complete independently
+- [x] 6.1 Workflow YAML valid; both jobs appear and complete independently
 
 #### Manual
 
