@@ -395,12 +395,12 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 5.1 `npm run test:run` passes with coverage ≥80%
-- [x] 5.2 `npm run test:e2e` passes, including new multi-cycle and RLS tests
+- [x] 5.1 `npm run test:run` passes with coverage ≥80% — 26a7613
+- [x] 5.2 `npm run test:e2e` passes, including new multi-cycle and RLS tests — 26a7613
 
 #### Manual
 
-- [x] 5.3 Coverage report confirms new/modified files are not silently excluded
+- [x] 5.3 Coverage report confirms new/modified files are not silently excluded — 26a7613
 
 ### Phase 6: CI Workflow Split
 
