@@ -19,6 +19,10 @@ export function computeEffectiveSessionExpiresAt(
   return Math.max(baseExpiresAt, extendedUntil ?? 0);
 }
 
+export function computeNextSessionExpiry(currentEffectiveExpiry: number): number {
+  return currentEffectiveExpiry + getSessionLifetimeMs();
+}
+
 export function isSessionExpired(expiresAt: number): boolean {
   return Date.now() >= expiresAt;
 }

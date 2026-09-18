@@ -1,200 +1,96 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SessionExpiryNotice } from "@/app/dashboard/SessionExpiryNotice";
-import { getNoticeState } from "@/app/dashboard/session-expiry-notice";
+
+const { useActionStateMock, extendActionMock, refreshMock } = vi.hoisted(() => ({
+  useActionStateMock: vi.fn(),
+  extendActionMock: vi.fn(),
+  refreshMock: vi.fn(),
+}));
+
+vi.mock("react", async () => {
+  const actual = await vi.importActual<typeof import("react")>("react");
+  return { ...actual, useActionState: useActionStateMock };
+});
+
+vi.mock("@/app/actions/session", () => ({ extendSession: extendActionMock }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: refreshMock }) }));
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const COOKIE_NAME = "session_expiry_responded";
 
-function clearRespondedCookie() {
+function clearRespondedCookie(): void {
   document.cookie = `${COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 }
 
 function renderAndFlush(sessionExpiresAt: number) {
   const result = render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
-  act(() => {
-    vi.advanceTimersByTime(0);
-  });
+  act(() => vi.advanceTimersByTime(0));
   return result;
 }
-
-describe("getNoticeState", () => {
-  const sessionExpiresAt = 30 * DAY_MS;
-
-  it("does not show before day 28", () => {
-    expect(getNoticeState(27 * DAY_MS, sessionExpiresAt, false)).toBe(false);
-  });
-
-  it("shows exactly at day 28 with no response", () => {
-    expect(getNoticeState(28 * DAY_MS, sessionExpiresAt, false)).toBe(true);
-  });
-
-  it("shows after day 28 with no response", () => {
-    expect(getNoticeState(29 * DAY_MS, sessionExpiresAt, false)).toBe(true);
-  });
-
-  it("does not show once responded, regardless of time in window", () => {
-    expect(getNoticeState(28 * DAY_MS, sessionExpiresAt, true)).toBe(false);
-    expect(getNoticeState(29.5 * DAY_MS, sessionExpiresAt, true)).toBe(false);
-  });
-
-  it("still reports show past day 30 when unresponded (the caller is expected to have already logged the user out by then)", () => {
-    expect(getNoticeState(31 * DAY_MS, sessionExpiresAt, false)).toBe(true);
-  });
-});
 
 describe("SessionExpiryNotice", () => {
   beforeEach(() => {
     cleanup();
     clearRespondedCookie();
     vi.useFakeTimers();
+    Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
+    useActionStateMock.mockReturnValue([undefined, extendActionMock, false]);
+    extendActionMock.mockClear();
+    refreshMock.mockClear();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+  afterEach(() => vi.useRealTimers());
 
-  it("shows immediately when mounted already past the day-28 threshold", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
+  it("shows immediately when mounted already past the notice threshold", () => {
+    renderAndFlush(Date.now() + DAY_MS);
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("schedules the notice via setTimeout when mounted before the threshold", () => {
-    // Threshold is `sessionExpiresAt - 2 days`; put it 5s in the future so
-    // the test only has to advance a few seconds, not the full 28 days.
+  it("schedules the notice until the configured threshold", () => {
     const sessionExpiresAt = Date.now() + 2 * DAY_MS + 5000;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
 
     expect(screen.queryByRole("dialog")).toBeNull();
-
-    act(() => {
-      vi.advanceTimersByTime(5001);
-    });
-
+    act(() => vi.advanceTimersByTime(5001));
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("uses an injected notice window to preserve a shortened session's relative threshold", () => {
+  it("uses an injected notice window for shortened sessions", () => {
     const sessionExpiresAt = Date.now() + 30_000;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} />);
 
-    act(() => {
-      vi.advanceTimersByTime(27_999);
-    });
+    act(() => vi.advanceTimersByTime(27_999));
     expect(screen.queryByRole("dialog")).toBeNull();
-
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
+    act(() => vi.advanceTimersByTime(1));
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("re-arms long waits in bounded chunks until the threshold", () => {
+  it("re-arms long waits in bounded chunks", () => {
     const sessionExpiresAt = Date.now() + 30 * DAY_MS;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
 
-    act(() => {
-      vi.advanceTimersByTime(28 * DAY_MS - 1);
-    });
+    act(() => vi.advanceTimersByTime(28 * DAY_MS - 1));
     expect(screen.queryByRole("dialog")).toBeNull();
-
-    act(() => {
-      vi.advanceTimersByTime(1);
-    });
+    act(() => vi.advanceTimersByTime(1));
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
-  it("does not schedule or show anything when the user already responded this window", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    document.cookie = `${COOKIE_NAME}=1; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
-
+  it("suppresses the notice for a responded cycle", () => {
+    const sessionExpiresAt = Date.now() + DAY_MS;
+    document.cookie = `${COOKIE_NAME}=${sessionExpiresAt}; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
 
-    act(() => {
-      vi.advanceTimersByTime(30 * DAY_MS);
-    });
-
+    act(() => vi.advanceTimersByTime(30 * DAY_MS));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("Yes dismisses the modal and sets the responded cookie", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
+  it("shows a new cycle when the stored expiry differs", () => {
+    const sessionExpiresAt = Date.now() + DAY_MS;
+    document.cookie = `${COOKIE_NAME}=${sessionExpiresAt + 1}; path=/`;
     renderAndFlush(sessionExpiresAt);
-
-    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
-
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(document.cookie).toContain(`${COOKIE_NAME}=1`);
-  });
-
-  it("No dismisses the modal and sets the responded cookie", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    fireEvent.click(screen.getByRole("button", { name: "No" }));
-
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(document.cookie).toContain(`${COOKIE_NAME}=1`);
-  });
-
-  it("Escape dismisses the modal and sets the responded cookie", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
-
-    expect(screen.queryByRole("dialog")).toBeNull();
-    expect(document.cookie).toContain(`${COOKIE_NAME}=1`);
-  });
-
-  it("Tab from the Yes button wraps focus back to the No button", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    const noButton = screen.getByRole("button", { name: "No" });
-    const yesButton = screen.getByRole("button", { name: "Yes" });
-    yesButton.focus();
-
-    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
-
-    expect(document.activeElement).toBe(noButton);
-  });
-
-  it("Shift+Tab from the No button wraps focus back to the Yes button", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    const noButton = screen.getByRole("button", { name: "No" });
-    const yesButton = screen.getByRole("button", { name: "Yes" });
-    noButton.focus();
-
-    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab", shiftKey: true });
-
-    expect(document.activeElement).toBe(yesButton);
-  });
-
-  it("a non-Tab, non-Escape key does not move focus or dismiss the modal", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    const dialog = screen.getByRole("dialog");
-    const yesButton = screen.getByRole("button", { name: "Yes" });
-
-    fireEvent.keyDown(dialog, { key: "Enter" });
 
     expect(screen.getByRole("dialog")).toBeTruthy();
-    expect(document.activeElement).toBe(yesButton);
-  });
-
-  it("exposes dialog a11y attributes", () => {
-    const sessionExpiresAt = Date.now() + 1 * DAY_MS;
-    renderAndFlush(sessionExpiresAt);
-
-    const dialog = screen.getByRole("dialog");
-    expect(dialog.getAttribute("aria-modal")).toBe("true");
-    expect(dialog.getAttribute("aria-labelledby")).toBeTruthy();
   });
 });

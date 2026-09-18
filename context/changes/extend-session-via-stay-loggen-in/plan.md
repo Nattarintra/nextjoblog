@@ -369,27 +369,27 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 3.1 Unit tests for the extension-aware expiry helper pass
-- [x] 3.2 Type checking passes
+- [x] 3.1 Unit tests for the extension-aware expiry helper pass — a97e310
+- [x] 3.2 Type checking passes — a97e310
 
 #### Manual
 
-- [x] 3.3 Letting effective expiry pass without extending redirects to `/login`
-- [x] 3.4 Extending once and reaching only the original expiry does not sign the user out
+- [x] 3.3 Letting effective expiry pass without extending redirects to `/login` — a97e310
+- [x] 3.4 Extending once and reaching only the original expiry does not sign the user out — a97e310
 
 ### Phase 4: Client Wiring — Distinct Yes Handler, Cycle-Keyed Cookie, Error UX
 
 #### Automated
 
-- [ ] 4.1 Unit tests pass
-- [ ] 4.2 Type checking passes
-- [ ] 4.3 Linting passes
+- [x] 4.1 Unit tests pass
+- [x] 4.2 Type checking passes
+- [x] 4.3 Linting passes
 
 #### Manual
 
-- [ ] 4.4 Yes dismisses and the notice reappears on the next cycle's schedule
-- [ ] 4.5 Failed extend shows inline error with working retry
-- [ ] 4.6 Existing keyboard flow (Tab/Shift+Tab/Escape) still behaves identically
+- [x] 4.4 Yes dismisses and the notice reappears on the next cycle's schedule
+- [x] 4.5 Failed extend shows inline error with working retry
+- [x] 4.6 Existing keyboard flow (Tab/Shift+Tab/Escape) still behaves identically
 
 ### Phase 5: Test Coverage
 

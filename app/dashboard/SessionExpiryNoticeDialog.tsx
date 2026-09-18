@@ -1,7 +1,10 @@
 "use client";
 
-import type { KeyboardEvent } from "react";
 import { useEffect, useRef } from "react";
+
+import { LoginErrorAlert } from "../login/LoginAlert";
+import { useDialogKeyboardNavigation } from "./useDialogKeyboardNavigation";
+import { useSessionExtension } from "./useSessionExtension";
 
 const styles = {
   overlay: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6",
@@ -11,9 +14,22 @@ const styles = {
   actions: "flex justify-end gap-2.5",
   noButton: "cursor-pointer rounded-[10px] px-3.5 py-2 text-[13px] font-semibold text-sky",
   yesButton: "cursor-pointer rounded-[10px] bg-azure px-3.5 py-2 text-[13px] font-semibold text-white",
+} as const;
+
+const DIALOG_HEADING_ID = "session-expiry-notice-heading";
+const DEFAULT_YES_LABEL = "Yes";
+const PENDING_YES_LABEL = "Yes…";
+
+type SessionExpiryNoticeDialogProps = {
+  onDismiss: () => void;
 };
 
-export function SessionExpiryNoticeDialog({ onDismiss }: { onDismiss: () => void }) {
+export function SessionExpiryNoticeDialog({
+  onDismiss,
+}: SessionExpiryNoticeDialogProps) {
+  const { errorMessage, extend, isPending } = useSessionExtension({
+    onSuccess: onDismiss,
+  });
   const noButtonRef = useRef<HTMLButtonElement>(null);
   const yesButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -21,26 +37,11 @@ export function SessionExpiryNoticeDialog({ onDismiss }: { onDismiss: () => void
     yesButtonRef.current?.focus();
   }, []);
 
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape") {
-      onDismiss();
-      return;
-    }
-
-    if (event.key !== "Tab") return;
-
-    const first = noButtonRef.current;
-    const last = yesButtonRef.current;
-    if (!first || !last) return;
-
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
+  const handleKeyDown = useDialogKeyboardNavigation({
+    firstFocusableRef: noButtonRef,
+    lastFocusableRef: yesButtonRef,
+    onEscape: onDismiss,
+  });
 
   return (
     <div className={styles.overlay}>
@@ -48,19 +49,27 @@ export function SessionExpiryNoticeDialog({ onDismiss }: { onDismiss: () => void
         className={styles.dialog}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="session-expiry-notice-heading"
+        aria-labelledby={DIALOG_HEADING_ID}
+        aria-busy={isPending}
         onKeyDown={handleKeyDown}
       >
-        <div id="session-expiry-notice-heading" className={styles.heading}>
+        <div id={DIALOG_HEADING_ID} className={styles.heading}>
           Your session is expiring soon
         </div>
         <div className={styles.body}>Do you want to stay logged in?</div>
+        {errorMessage && <LoginErrorAlert message={errorMessage} />}
         <div className={styles.actions}>
           <button ref={noButtonRef} type="button" className={styles.noButton} onClick={onDismiss}>
             No
           </button>
-          <button ref={yesButtonRef} type="button" className={styles.yesButton} onClick={onDismiss}>
-            Yes
+          <button
+            ref={yesButtonRef}
+            type="button"
+            className={styles.yesButton}
+            onClick={extend}
+            disabled={isPending}
+          >
+            {isPending ? PENDING_YES_LABEL : DEFAULT_YES_LABEL}
           </button>
         </div>
       </div>
