@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getEffectiveSessionExpiry, isSessionExpired } from "@/lib/session";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Dashboard — NextJobLog",
@@ -16,9 +15,7 @@ export default async function DashboardPage() {
   }
 
   if (!effective || isSessionExpired(effective.effectiveExpiresAt)) {
-    const supabase = await createServerSupabaseClient();
-    await supabase.auth.signOut();
-    redirect("/login");
+    redirect("/api/auth/session-expired");
   }
 
   return (
