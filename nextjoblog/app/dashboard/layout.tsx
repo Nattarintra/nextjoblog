@@ -1,4 +1,7 @@
-import { getEffectiveSessionExpiry, getSessionLifetimeMs } from "@/lib/session";
+import {
+  getEffectiveSessionExpiry,
+  getSessionNoticeWindowMs,
+} from "@/lib/session";
 
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
 
@@ -6,7 +9,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   const effective = await getEffectiveSessionExpiry();
   const sessionExpiresAt =
     effective?.status === "authenticated" ? effective.effectiveExpiresAt : undefined;
-  const sessionLifetimeMs = getSessionLifetimeMs();
+  const noticeWindowMs = getSessionNoticeWindowMs();
 
   return (
     <>
@@ -14,7 +17,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
       {sessionExpiresAt !== undefined && (
         <SessionExpiryNotice
           sessionExpiresAt={sessionExpiresAt}
-          noticeWindowMs={sessionLifetimeMs / 15}
+          noticeWindowMs={noticeWindowMs}
         />
       )}
     </>

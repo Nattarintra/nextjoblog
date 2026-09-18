@@ -7,3 +7,13 @@ export function getSessionLifetimeMs(): number {
     ? configuredLifetimeMs
     : DEFAULT_SESSION_LIFETIME_MS;
 }
+
+export function getSessionNoticeWindowMs(): number {
+  const configuredNoticeWindowMs = Number(process.env.SESSION_NOTICE_WINDOW_MS);
+
+  if (Number.isFinite(configuredNoticeWindowMs) && configuredNoticeWindowMs > 0) {
+    return configuredNoticeWindowMs;
+  }
+
+  return getSessionLifetimeMs() / 15;
+}

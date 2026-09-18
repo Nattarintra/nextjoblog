@@ -36,6 +36,11 @@ export function useSessionExpiryNotice({
       const now = Date.now();
       const hasResponded = hasRespondedCookie(sessionExpiresAt);
 
+      if (now >= sessionExpiresAt) {
+        setShow(false);
+        return;
+      }
+
       if (getNoticeState(now, sessionExpiresAt, hasResponded, noticeWindowMs)) {
         setShow(true);
         return;

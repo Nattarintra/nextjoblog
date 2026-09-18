@@ -33,7 +33,7 @@ describe("DashboardPage", () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it("signs out only the current session when it expires", async () => {
+  it("redirects expired sessions to the response-context logout handler", async () => {
     getEffectiveSessionExpiryMock.mockResolvedValue({
       status: "authenticated",
       claims: {},

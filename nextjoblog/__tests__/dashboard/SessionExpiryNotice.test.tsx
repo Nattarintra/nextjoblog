@@ -67,6 +67,15 @@ describe("SessionExpiryNotice", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("keeps the notice open until the user responds", () => {
+    const sessionExpiresAt = Date.now() + 1_000;
+    render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} />);
+
+    act(() => vi.advanceTimersByTime(1_000));
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("re-arms long waits in bounded chunks", () => {
     const sessionExpiresAt = Date.now() + 30 * DAY_MS;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} />);
