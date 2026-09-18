@@ -358,12 +358,12 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 2.1 Type checking passes
-- [x] 2.2 Unit tests for the action's pure expiry-math helper pass
+- [x] 2.1 Type checking passes — 3392de6
+- [x] 2.2 Unit tests for the action's pure expiry-math helper pass — 3392de6
 
 #### Manual
 
-- [x] 2.3 Calling the action against a local session inserts/updates the expected row
+- [x] 2.3 Calling the action against a local session inserts/updates the expected row — 3392de6
 
 ### Phase 3: Application-Managed Expiry and Enforced Sign-Out via Dashboard DAL
 
