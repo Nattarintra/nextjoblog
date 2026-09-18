@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const effective = await getEffectiveSessionExpiry();
 
+  if (effective?.status === "lookup_error") {
+    throw effective.error;
+  }
+
   if (!effective || isSessionExpired(effective.effectiveExpiresAt)) {
     const supabase = await createServerSupabaseClient();
     await supabase.auth.signOut();
