@@ -3,7 +3,7 @@ change_id: extend-session-via-stay-loggen-in
 title: Extend sessions through stay-logged-in confirmations
 status: implementing
 created: 2026-09-15
-updated: 2026-09-17
+updated: 2026-09-18
 archived_at: null
 ---
 
