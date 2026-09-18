@@ -96,7 +96,7 @@ test.describe("corrupted or missing session cookie", () => {
 
     expect(response?.ok()).toBe(true);
     await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByText("Log In")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 
   test("redirects to login when the auth cookie is entirely missing", async ({ page }) => {
@@ -104,7 +104,7 @@ test.describe("corrupted or missing session cookie", () => {
 
     expect(response?.ok()).toBe(true);
     await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByText("Log In")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 });
 
@@ -329,10 +329,15 @@ test.describe("real session expiry (short timebox)", () => {
     await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
     await page.reload();
 
-    const cookies = await page.context().cookies();
-    const remainingAuthCookies = cookies.filter((cookie) =>
-      isAuthSessionCookie(cookie.name, authCookieStorageKey()),
-    );
-    expect(remainingAuthCookies).toHaveLength(0);
+    // The browser's cookie store can briefly still enumerate a cookie whose
+    // Set-Cookie deletion (Expires: epoch) it just received but hasn't fully
+    // purged yet — poll instead of asserting a single snapshot.
+    await expect(async () => {
+      const cookies = await page.context().cookies();
+      const remainingAuthCookies = cookies.filter((cookie) =>
+        isAuthSessionCookie(cookie.name, authCookieStorageKey()),
+      );
+      expect(remainingAuthCookies).toHaveLength(0);
+    }).toPass({ timeout: 5_000 });
   });
 });
