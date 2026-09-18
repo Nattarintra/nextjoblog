@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SessionExpiryNotice } from "@/app/dashboard/SessionExpiryNotice";
@@ -90,6 +90,32 @@ describe("SessionExpiryNotice", () => {
     const sessionExpiresAt = Date.now() + DAY_MS;
     document.cookie = `${COOKIE_NAME}=${sessionExpiresAt + 1}; path=/`;
     renderAndFlush(sessionExpiresAt);
+
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("dismisses the current cycle and persists its exact expiry in the cookie", () => {
+    const sessionExpiresAt = Date.now() + DAY_MS;
+    renderAndFlush(sessionExpiresAt);
+
+    fireEvent.click(screen.getByRole("button", { name: "No" }));
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.cookie).toContain(`${COOKIE_NAME}=${sessionExpiresAt}`);
+
+    cleanup();
+    renderAndFlush(sessionExpiresAt);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("does not let a dismissed cycle keep a later expiry from showing", () => {
+    const firstExpiry = Date.now() + DAY_MS;
+    const nextExpiry = firstExpiry + DAY_MS;
+    renderAndFlush(firstExpiry);
+
+    fireEvent.click(screen.getByRole("button", { name: "No" }));
+    cleanup();
+    renderAndFlush(nextExpiry);
 
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
