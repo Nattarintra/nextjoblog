@@ -20,10 +20,10 @@ describe("GET /api/auth/session-expired", () => {
     });
   });
 
-  it("clears only the current session before redirecting to login", async () => {
+  it("fully signs out the session before redirecting to login", async () => {
     const response = await GET(new Request("http://localhost:3000/api/auth/session-expired"));
 
-    expect(signOutMock).toHaveBeenCalledWith({ scope: "local" });
+    expect(signOutMock).toHaveBeenCalledWith();
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("http://localhost:3000/login");
   });

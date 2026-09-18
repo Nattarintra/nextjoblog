@@ -37,7 +37,9 @@ Clicking Yes pushes the session's expiry 30 days past its current expiry and dis
 
 ## Architecture / Approach
 
-GoTrue keeps issuing/refreshing the underlying session with no fixed ceiling; NextJobLog layers its own expiry on top via `session_extensions`, read once per dashboard render through a shared `lib/session.ts` helper (never in `proxy.ts`). A Server Action upserts the row on Yes; `layout.tsx` calls the helper to compute `max(base 30-day expiry, extended_until)` for the notice UI, while `app/dashboard/page.tsx` calls the same helper and force-signs-out when that value has passed — Next.js's own docs warn a shared layout can't reliably gate access, so the actual enforcement lives in the page, not the layout.
+GoTrue keeps issuing/refreshing the underlying session with no fixed ceiling; NextJobLog layers its own expiry on top via `session_extensions`, read once per dashboard render through a shared `lib/session.ts` helper (never in `proxy.ts`). A Server Action upserts the row on Yes; `layout.tsx` calls the helper to compute `max(base 30-day expiry, extended_until)` for the notice UI, while `app/dashboard/page.tsx` calls the same helper and force-signs-out when that value has passed — Next.js's own docs warn a shared layout can't reliably gate access, so the actual enforcement lives in the page, not the layout. Because a Server Component can't reliably write response cookies during render, the actual sign-out call was moved into a dedicated route handler (`app/api/auth/session-expired/route.ts`) that `page.tsx` redirects to, rather than calling `signOut()` inline.
+
+**As-built module layout** (recorded post-implementation, impl review 2026-09-18): `lib/session.ts` is a barrel over a `lib/session/` package (`calculations.ts`, `claims.ts`, `config.ts`, `errors.ts`, `extension-store.ts`, `service.ts`), and `app/actions/session.ts` imports from those modules directly, with one sibling file, `session-messages.ts`, for user-facing copy (an earlier revision's three pure re-export shims — `session-claims.ts`, `session-errors.ts`, `session-extension-store.ts` — were removed during impl-review triage as unnecessary indirection). `getEffectiveSessionExpiry` returns a `{status: "authenticated" | "lookup_error", ...}` union rather than a flat optional, so a failed DB read fails loud (rethrown by `page.tsx`) instead of being treated as "not authenticated."
 
 ## Phases at a Glance
 
@@ -46,7 +48,7 @@ GoTrue keeps issuing/refreshing the underlying session with no fixed ceiling; Ne
 | 1. DB schema | `session_extensions` table + RLS, mirrored migration, `timebox` removed | Migration drift between `supabase/` and `supabase-test/` |
 | 2. Server Action | `extendSession()` upserting the next expiry | Compounding from current expiry, not `Date.now()` |
 | 3. Dashboard DAL enforcement | Shared expiry helper (`lib/session.ts`); `layout.tsx` reads it for the notice, `page.tsx` enforces forced sign-out | GoTrue no longer backstops a missed enforcement bug; layout alone can't reliably gate access per Next.js docs |
-| 4. Client wiring | Distinct Yes handler (direct-imported action via `useActionState`, mirroring `LoginForm.tsx`), cycle-keyed cookie, inline error/retry | Cookie logic regressing the existing keyboard/a11y tests |
+| 4. Client wiring | Distinct Yes handler (as-built: a `useSessionExtension` hook wraps the `useActionState` call rather than the dialog calling it directly), cycle-keyed cookie, inline error/retry | Cookie logic regressing the existing keyboard/a11y tests |
 | 5. Test coverage | Updated unit tests, new action tests, 2-cycle e2e, RLS e2e | Long-running short-timebox e2e test (~60s+ for 2 cycles) |
 | 6. CI split | Independent `unit-tests`/`e2e-tests` jobs | None — additive workflow change only |
 
