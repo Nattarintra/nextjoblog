@@ -10,13 +10,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createServerSupabaseClient: createServerSupabaseClientMock,
 }));
 
-import {
-  computeEffectiveSessionExpiresAt,
-  computeNextSessionExpiry,
-  getEffectiveSessionExpiry,
-  getSessionLifetimeMs,
-  isSessionExpired,
-} from "@/lib/session";
+import { getEffectiveSessionExpiry } from "@/lib/session/service";
 
 const SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
 const SESSION_STARTED_AT_SECONDS = 1_800_000_000;
@@ -40,47 +34,17 @@ function setExtensionResult(
   });
 }
 
-describe("session expiry helpers", () => {
-  beforeEach(() => {
-    vi.unstubAllEnvs();
-    vi.restoreAllMocks();
-  });
-
-  it("uses the configured session lifetime", () => {
-    vi.stubEnv("SESSION_TIMEBOX_MS", "60000");
-
-    expect(getSessionLifetimeMs()).toBe(60000);
-    expect(computeNextSessionExpiry(100)).toBe(60100);
-  });
-
-  it.each(["", "0", "-1", "not-a-number"])(
-    "uses the default lifetime for an invalid configuration: %s",
-    (configuredLifetime) => {
-      vi.stubEnv("SESSION_TIMEBOX_MS", configuredLifetime);
-
-      expect(getSessionLifetimeMs()).toBe(SESSION_LIFETIME_MS);
+function setValidClaims(): void {
+  getClaimsMock.mockResolvedValue({
+    data: {
+      claims: {
+        session_id: SESSION_ID,
+        amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }],
+      },
     },
-  );
-
-  it("detects both expired and active timestamps", () => {
-    vi.spyOn(Date, "now").mockReturnValue(1000);
-
-    expect(isSessionExpired(1000)).toBe(true);
-    expect(isSessionExpired(1001)).toBe(false);
+    error: null,
   });
-
-  it("uses the base expiry when there is no extension", () => {
-    expect(computeEffectiveSessionExpiresAt(100, undefined)).toBe(100);
-  });
-
-  it("uses an extension when it is later than the base expiry", () => {
-    expect(computeEffectiveSessionExpiresAt(100, 200)).toBe(200);
-  });
-
-  it("does not shorten the base expiry with an older extension", () => {
-    expect(computeEffectiveSessionExpiresAt(200, 100)).toBe(200);
-  });
-});
+}
 
 describe("getEffectiveSessionExpiry", () => {
   beforeEach(() => {
@@ -91,40 +55,28 @@ describe("getEffectiveSessionExpiry", () => {
   });
 
   it("returns the base expiry when no extension exists", async () => {
-    getClaimsMock.mockResolvedValue({
-      data: {
-        claims: {
-          session_id: SESSION_ID,
-          amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }],
-        },
-      },
-      error: null,
-    });
+    setValidClaims();
     setExtensionResult(null);
 
     const result = await getEffectiveSessionExpiry();
 
-    expect(result?.effectiveExpiresAt).toBe(
+    expect(result?.status).toBe("authenticated");
+    if (result?.status !== "authenticated") throw new Error("Expected an authenticated result");
+    expect(result.effectiveExpiresAt).toBe(
       SESSION_STARTED_AT_SECONDS * 1000 + SESSION_LIFETIME_MS,
     );
   });
 
   it("uses a valid extension when it is later than the base expiry", async () => {
     const extendedUntil = "2028-01-01T00:00:00.000Z";
-    getClaimsMock.mockResolvedValue({
-      data: {
-        claims: {
-          session_id: SESSION_ID,
-          amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }],
-        },
-      },
-      error: null,
-    });
+    setValidClaims();
     setExtensionResult({ extended_until: extendedUntil });
 
     const result = await getEffectiveSessionExpiry();
 
-    expect(result?.effectiveExpiresAt).toBe(Date.parse(extendedUntil));
+    expect(result?.status).toBe("authenticated");
+    if (result?.status !== "authenticated") throw new Error("Expected an authenticated result");
+    expect(result.effectiveExpiresAt).toBe(Date.parse(extendedUntil));
   });
 
   it.each([
@@ -150,33 +102,21 @@ describe("getEffectiveSessionExpiry", () => {
     expect(await getEffectiveSessionExpiry()).toBeUndefined();
   });
 
-  it("returns undefined for a malformed extension", async () => {
-    getClaimsMock.mockResolvedValue({
-      data: {
-        claims: {
-          session_id: SESSION_ID,
-          amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }],
-        },
-      },
-      error: null,
-    });
+  it("returns a lookup error when the extension is malformed", async () => {
+    setValidClaims();
     setExtensionResult({ extended_until: "not-a-date" });
 
-    expect(await getEffectiveSessionExpiry()).toBeUndefined();
+    const result = await getEffectiveSessionExpiry();
+
+    expect(result?.status).toBe("lookup_error");
   });
 
-  it("returns undefined when the extension query fails", async () => {
-    getClaimsMock.mockResolvedValue({
-      data: {
-        claims: {
-          session_id: SESSION_ID,
-          amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }],
-        },
-      },
-      error: null,
-    });
+  it("returns a lookup error when the extension query fails", async () => {
+    setValidClaims();
     setExtensionResult(null, new Error("extension query failed"));
 
-    expect(await getEffectiveSessionExpiry()).toBeUndefined();
+    const result = await getEffectiveSessionExpiry();
+
+    expect(result?.status).toBe("lookup_error");
   });
 });
