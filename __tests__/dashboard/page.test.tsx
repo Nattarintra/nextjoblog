@@ -1,28 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getEffectiveSessionExpiryMock, signOutMock } = vi.hoisted(() => ({
+const { getEffectiveSessionExpiryMock, isSessionExpiredMock, redirectMock } = vi.hoisted(() => ({
   getEffectiveSessionExpiryMock: vi.fn(),
-  signOutMock: vi.fn(),
+  isSessionExpiredMock: vi.fn(() => false),
+  redirectMock: vi.fn(),
 }));
 
 vi.mock("@/lib/session", () => ({
   getEffectiveSessionExpiry: getEffectiveSessionExpiryMock,
-  isSessionExpired: vi.fn(() => false),
+  isSessionExpired: isSessionExpiredMock,
 }));
 
-vi.mock("@/lib/supabase/server", () => ({
-  createServerSupabaseClient: vi.fn(async () => ({
-    auth: { signOut: signOutMock },
-  })),
-}));
-
-vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
+vi.mock("next/navigation", () => ({ redirect: redirectMock }));
 
 import DashboardPage from "@/app/dashboard/page";
 
 describe("DashboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    isSessionExpiredMock.mockReturnValue(false);
   });
 
   it("does not sign out when the session extension lookup fails", async () => {
@@ -34,6 +30,19 @@ describe("DashboardPage", () => {
 
     await expect(DashboardPage()).rejects.toBe(lookupError);
 
-    expect(signOutMock).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("signs out only the current session when it expires", async () => {
+    getEffectiveSessionExpiryMock.mockResolvedValue({
+      status: "authenticated",
+      claims: {},
+      effectiveExpiresAt: 1,
+    });
+    isSessionExpiredMock.mockReturnValue(true);
+
+    await DashboardPage();
+
+    expect(redirectMock).toHaveBeenCalledWith("/api/auth/session-expired");
   });
 });
