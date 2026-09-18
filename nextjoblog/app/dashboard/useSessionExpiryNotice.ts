@@ -6,12 +6,16 @@ import { DEFAULT_NOTICE_WINDOW_MS, getNextNoticeCheckDelay, getNoticeState } fro
 
 const RESPONDED_COOKIE_NAME = "session_expiry_responded";
 
-function hasRespondedCookie(): boolean {
-  return document.cookie.split("; ").some((entry) => entry.startsWith(`${RESPONDED_COOKIE_NAME}=`));
+function hasRespondedCookie(sessionExpiresAt: number): boolean {
+  const cookie = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith(`${RESPONDED_COOKIE_NAME}=`));
+
+  return cookie?.slice(`${RESPONDED_COOKIE_NAME}=`.length) === String(sessionExpiresAt);
 }
 
 function setRespondedCookie(sessionExpiresAt: number): void {
-  document.cookie = `${RESPONDED_COOKIE_NAME}=1; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
+  document.cookie = `${RESPONDED_COOKIE_NAME}=${sessionExpiresAt}; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
 }
 
 type UseSessionExpiryNoticeOptions = {
@@ -30,15 +34,20 @@ export function useSessionExpiryNotice({
 
     function checkNotice(): void {
       const now = Date.now();
-      const hasResponded = hasRespondedCookie();
+      const hasResponded = hasRespondedCookie(sessionExpiresAt);
+
+      if (now >= sessionExpiresAt) {
+        setShow(false);
+        return;
+      }
 
       if (getNoticeState(now, sessionExpiresAt, hasResponded, noticeWindowMs)) {
         setShow(true);
         return;
       }
 
-      // Once answered, the cookie is the durable source of truth for the rest
-      // of this session. Do not schedule a zero-delay check after the threshold.
+      // Once this cycle is answered, the cookie is the durable source of truth
+      // for the rest of the cycle. A different expiry represents a new cycle.
       if (!hasResponded) {
         timer = setTimeout(checkNotice, getNextNoticeCheckDelay(now, sessionExpiresAt, noticeWindowMs));
       }

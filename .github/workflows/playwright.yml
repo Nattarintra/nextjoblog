@@ -7,7 +7,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  e2e:
+  unit-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nextjoblog
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: nextjoblog/package-lock.json
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:run
+
+  e2e-tests:
     # This Ubuntu workflow is the authoritative E2E runner. The development
     # Mac is capped at macOS 13 and cannot run this project's Playwright Chromium.
     timeout-minutes: 30
