@@ -83,6 +83,17 @@ describe("SessionExpiryNoticeDialog", () => {
     expect(extendActionMock).not.toHaveBeenCalled();
   });
 
+  it("renders the pending state while extending", () => {
+    useActionStateMock.mockReturnValue([undefined, extendActionMock, true]);
+    render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
+
+    const dialog = screen.getByRole("dialog");
+    const yesButton = screen.getByRole("button", { name: "Yes…" });
+
+    expect(yesButton).toHaveProperty("disabled", true);
+    expect(dialog.getAttribute("aria-busy")).toBe("true");
+  });
+
   it("wraps keyboard focus from Yes to No and back", () => {
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
     const dialog = screen.getByRole("dialog");
