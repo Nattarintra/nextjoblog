@@ -115,6 +115,20 @@ describe("extendSession", () => {
     });
   });
 
+  it("rejects an already-expired effective session without upserting", async () => {
+    const currentEffectiveExpiry = SESSION_STARTED_AT_SECONDS * 1000 + SESSION_MS * 3;
+    configureSession({ extended_until: new Date(currentEffectiveExpiry).toISOString() });
+    vi.spyOn(Date, "now").mockReturnValue(currentEffectiveExpiry + 1);
+
+    const result = await extendSession(undefined);
+
+    expect(result).toEqual({
+      error: "unknown",
+      message: "Unable to extend the session. Please try again.",
+    });
+    expect(upsertMock).not.toHaveBeenCalled();
+  });
+
   it.each([
     "claims retrieval",
     "claims shape",
