@@ -416,8 +416,8 @@ As with Story 0.3's own `timebox` enablement, the hosted/production Supabase pro
 
 #### Automated
 
-- [x] 6.1 Workflow YAML valid; both jobs appear and complete independently
+- [x] 6.1 Workflow YAML valid; both jobs appear and complete independently — c8192ad
 
 #### Manual
 
-- [x] 6.2 A broken unit test fails only `unit-tests`, `e2e-tests` still runs independently
+- [x] 6.2 A broken unit test fails only `unit-tests`, `e2e-tests` still runs independently — 6b45178
