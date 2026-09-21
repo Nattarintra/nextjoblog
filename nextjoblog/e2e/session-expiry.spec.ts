@@ -79,13 +79,11 @@ function sessionStartedAtMs(accessToken: string): number {
 test.describe.configure({ mode: "default" });
 
 test.describe("corrupted or missing session cookie", () => {
-  // Runs against the normal (720h) local stack — this proves the app's reaction
-  // to a bad cookie shape, not real GoTrue enforcement, so it doesn't need the
-  // short-timebox config. There is no route-guard on /dashboard yet (Story 0.4
-  // is later, explicitly depends on this story) — so "treated as logged out"
-  // is observed as "renders without a server error", not a redirect to /login.
+  // Runs against the normal (no fixed timebox) local stack. These cases prove
+  // that malformed or missing auth state is treated as logged out and that the
+  // dashboard's leaf-page enforcement redirects to /login.
 
-  test("renders without a server error when the auth cookie is garbled", async ({ page, context }) => {
+  test("redirects to login when the auth cookie is garbled", async ({ page, context }) => {
     await context.addCookies([
       {
         name: authCookieStorageKey(),
@@ -97,14 +95,16 @@ test.describe("corrupted or missing session cookie", () => {
     const response = await page.goto("/dashboard");
 
     expect(response?.ok()).toBe(true);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 
-  test("renders without a server error when the auth cookie is entirely missing", async ({ page }) => {
+  test("redirects to login when the auth cookie is entirely missing", async ({ page }) => {
     const response = await page.goto("/dashboard");
 
     expect(response?.ok()).toBe(true);
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 });
 
@@ -177,6 +177,98 @@ test.describe("RLS after session restoration", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].user_id).toBe(session.user.id);
   });
+
+  test("scopes session extension rows to the signed-in user", async ({ browser }) => {
+    const email = `extension-rls+${Date.now()}@example.com`;
+
+    const seedPage = await browser.newPage({ baseURL: "http://localhost:3000" });
+    await seedPage.goto("/signup");
+    await seedPage.getByLabel("Email").fill(email);
+    await seedPage.getByLabel("Password").fill(password);
+    await seedPage.getByRole("button", { name: "Sign Up" }).click();
+    await expect(seedPage).toHaveURL(/\/dashboard$/);
+
+    const session = decodeAuthCookie(await seedPage.context().cookies(), authCookieStorageKey());
+    await seedPage.close();
+
+    const { data: otherUser, error: otherUserError } = await supabaseAdmin.auth.admin.createUser({
+      email: `extension-rls-other+${Date.now()}@example.com`,
+      password,
+      email_confirm: true,
+    });
+    expect(otherUserError).toBeNull();
+
+    const ownSessionId = `extension-rls-own-${Date.now()}`;
+    const otherSessionId = `extension-rls-other-${Date.now()}`;
+    const { error: seedError } = await supabaseAdmin.from("session_extensions").insert([
+      {
+        session_id: ownSessionId,
+        user_id: session.user.id,
+        extended_until: "2030-01-01T00:00:00.000Z",
+      },
+      {
+        session_id: otherSessionId,
+        user_id: otherUser.user!.id,
+        extended_until: "2030-01-01T00:00:00.000Z",
+      },
+    ]);
+    expect(seedError).toBeNull();
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/session_extensions?select=session_id,user_id`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      },
+    );
+    const rows = await response.json();
+
+    expect(response.ok).toBe(true);
+    expect(rows).toEqual([{ session_id: ownSessionId, user_id: session.user.id }]);
+  });
+});
+
+test.describe("application-managed session extension cycles", () => {
+  test("extends through two notice cycles and remains accessible past the original expiry", async ({
+    page,
+  }) => {
+    test.setTimeout(100_000);
+
+    const email = `extension-cycle+${Date.now()}@example.com`;
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBeGreaterThan(0);
+
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
+
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_000 - Date.now()));
+    await expect(dialog).toBeVisible();
+    await page.getByRole("button", { name: "Yes" }).click();
+    await expect(dialog).toBeHidden();
+
+    // The first extension moves the app-managed expiry to 60 seconds from
+    // session start. Prove that the original 30-second expiry is no longer a
+    // sign-out boundary before waiting for the second notice.
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + 30_500 - Date.now()));
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + 58_000 - Date.now()));
+    await expect(dialog).toBeVisible();
+    await page.getByRole("button", { name: "Yes" }).click();
+    await expect(dialog).toBeHidden();
+
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
 });
 
 test.describe("real session expiry (short timebox)", () => {
@@ -237,10 +329,15 @@ test.describe("real session expiry (short timebox)", () => {
     await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
     await page.reload();
 
-    const cookies = await page.context().cookies();
-    const remainingAuthCookies = cookies.filter((cookie) =>
-      isAuthSessionCookie(cookie.name, authCookieStorageKey()),
-    );
-    expect(remainingAuthCookies).toHaveLength(0);
+    // The browser's cookie store can briefly still enumerate a cookie whose
+    // Set-Cookie deletion (Expires: epoch) it just received but hasn't fully
+    // purged yet — poll instead of asserting a single snapshot.
+    await expect(async () => {
+      const cookies = await page.context().cookies();
+      const remainingAuthCookies = cookies.filter((cookie) =>
+        isAuthSessionCookie(cookie.name, authCookieStorageKey()),
+      );
+      expect(remainingAuthCookies).toHaveLength(0);
+    }).toPass({ timeout: 5_000 });
   });
 });
