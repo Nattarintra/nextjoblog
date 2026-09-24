@@ -1,9 +1,9 @@
 ---
 change_id: diagnose-production-auth-failure
 title: Diagnose production signup and login failure
-status: planned
+status: implementing
 created: 2026-09-21
-updated: 2026-09-21
+updated: 2026-09-24
 archived_at: null
 ---
 
