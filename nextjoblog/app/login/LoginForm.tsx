@@ -7,7 +7,7 @@ import { login } from "@/app/actions/auth";
 import { AuthLogo } from "@/app/signup/AuthLogo";
 import { authLinkClassName } from "@/app/signup/styles";
 
-import { LoginErrorAlert } from "./LoginAlert";
+import { LoginConfirmationRequiredAlert, LoginErrorAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
 
 const styles = {
@@ -20,7 +20,7 @@ const styles = {
 
 export default function LoginForm() {
   const [state, formAction, isPending] = useActionState(login, undefined);
-  const hasError = state?.error !== undefined;
+  const hasError = Boolean(state && "error" in state);
 
   return (
     <div className={styles.wrap}>
@@ -31,10 +31,18 @@ export default function LoginForm() {
         Log your job applications and track every step in one place.
       </div>
 
-      {state?.error === "invalid_credentials" && (
+      {state && "error" in state && state.error === "invalid_credentials" && (
         <LoginErrorAlert message="Email or password is incorrect" />
       )}
-      {state?.error === "unknown" && <LoginErrorAlert message={state.message} />}
+      {state && "error" in state && state.error === "unknown" && (
+        <LoginErrorAlert message={state.message} />
+      )}
+      {state && "error" in state && state.error === "configuration" && (
+        <LoginErrorAlert message="We're unable to log in right now. Please try again shortly." />
+      )}
+      {state && "status" in state && state.status === "confirmation_required" && (
+        <LoginConfirmationRequiredAlert />
+      )}
 
       <LoginFields formAction={formAction} hasError={hasError} isPending={isPending} />
 
