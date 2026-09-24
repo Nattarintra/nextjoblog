@@ -340,11 +340,11 @@ No database migration is required. Existing local `.env.local` values remain unc
 
 #### Automated
 
-- [ ] 3.1 Full unit suite passes
+- [x] 3.1 Full unit suite passes
 - [ ] 3.2 Local E2E suite passes
-- [ ] 3.3 Type checking passes
-- [ ] 3.4 Linting passes
-- [ ] 3.5 Environment example and production runbook exist without secret values
+- [x] 3.3 Type checking passes
+- [x] 3.4 Linting passes
+- [x] 3.5 Environment example and production runbook exist without secret values
 
 #### Manual
 
