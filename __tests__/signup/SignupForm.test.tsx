@@ -107,4 +107,24 @@ describe("SignupForm", () => {
     const button = screen.getByRole("button", { name: "Creating account…" });
     expect(button).toHaveProperty("disabled", true);
   });
+
+  it("shows the confirmation-required alert with a working Log In link, while keeping the fields visible", () => {
+    useActionStateMock.mockReturnValue([{ status: "confirmation_required" }, vi.fn(), false]);
+    render(<SignupForm />);
+
+    const alert = screen.getByRole("alert");
+    expect(alert.textContent).toContain("check your email");
+    expect(within(alert).getByRole("link", { name: "Log In" })).toHaveProperty("href", expect.stringContaining("/login"));
+    expect(screen.getByLabelText("Email")).toBeTruthy();
+    expect(screen.getByLabelText("Password")).toBeTruthy();
+  });
+
+  it("shows the configuration-error alert without exposing provider details", () => {
+    useActionStateMock.mockReturnValue([{ error: "configuration" }, vi.fn(), false]);
+    render(<SignupForm />);
+
+    expect(screen.getByRole("alert").textContent).toBe(
+      "We're unable to create accounts right now. Please try again shortly.",
+    );
+  });
 });

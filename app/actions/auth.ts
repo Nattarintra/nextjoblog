@@ -3,20 +3,34 @@
 import { isAuthApiError } from "@supabase/auth-js";
 import { redirect } from "next/navigation";
 
+import { SupabaseConfigError } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const AUTH_LOG_EVENT = {
+  signupConfiguration: "auth.signup.configuration_error",
+  signupProviderError: "auth.signup.provider_error",
+  signupUnexpected: "auth.signup.unexpected_error",
+  loginConfiguration: "auth.login.configuration_error",
+  loginProviderError: "auth.login.provider_error",
+  loginUnexpected: "auth.login.unexpected_error",
+} as const;
 
 export type SignupFormState =
   | undefined
   | { error: "duplicate_email" }
   | { error: "weak_password" }
-  | { error: "unknown"; message: string };
+  | { error: "configuration" }
+  | { error: "unknown"; message: string }
+  | { status: "confirmation_required" };
 
 export type LoginFormState =
   | undefined
   | { error: "invalid_credentials" }
-  | { error: "unknown"; message: string };
+  | { error: "configuration" }
+  | { error: "unknown"; message: string }
+  | { status: "confirmation_required" };
 
 function isDuplicateEmailError(error: unknown): boolean {
   return (
@@ -28,6 +42,19 @@ function isDuplicateEmailError(error: unknown): boolean {
 
 function isInvalidCredentialsError(error: unknown): boolean {
   return isAuthApiError(error) && error.code === "invalid_credentials";
+}
+
+function isEmailNotConfirmedError(error: unknown): boolean {
+  return isAuthApiError(error) && error.code === "email_not_confirmed";
+}
+
+// Safe diagnostic fields only: event label plus a stable provider code/status.
+// Never pass the raw error object, form data, or config error message here.
+function logAuthEvent(
+  event: string,
+  details?: { code?: string; status?: number },
+): void {
+  console.error(event, details ?? {});
 }
 
 export async function signup(
@@ -59,7 +86,10 @@ export async function signup(
         return { error: "duplicate_email" };
       }
 
-      console.error("Signup failed", error);
+      logAuthEvent(AUTH_LOG_EVENT.signupProviderError, {
+        code: error.code,
+        status: error.status,
+      });
       return {
         error: "unknown",
         message: "Unable to create account. Please try again.",
@@ -73,12 +103,20 @@ export async function signup(
       };
     }
 
+    if (!data.session) {
+      return { status: "confirmation_required" };
+    }
   } catch (error) {
+    if (error instanceof SupabaseConfigError) {
+      logAuthEvent(AUTH_LOG_EVENT.signupConfiguration, { code: error.reason });
+      return { error: "configuration" };
+    }
+
     if (isDuplicateEmailError(error)) {
       return { error: "duplicate_email" };
     }
 
-    console.error("Signup failed", error);
+    logAuthEvent(AUTH_LOG_EVENT.signupUnexpected);
     return {
       error: "unknown",
       message: "Unable to create account. Please try again.",
@@ -113,18 +151,34 @@ export async function login(
         return { error: "invalid_credentials" };
       }
 
-      console.error("Login failed", error);
+      if (isEmailNotConfirmedError(error)) {
+        return { status: "confirmation_required" };
+      }
+
+      logAuthEvent(AUTH_LOG_EVENT.loginProviderError, {
+        code: error.code,
+        status: error.status,
+      });
       return {
         error: "unknown",
         message: "Unable to log in. Please try again.",
       };
     }
   } catch (error) {
+    if (error instanceof SupabaseConfigError) {
+      logAuthEvent(AUTH_LOG_EVENT.loginConfiguration, { code: error.reason });
+      return { error: "configuration" };
+    }
+
     if (isInvalidCredentialsError(error)) {
       return { error: "invalid_credentials" };
     }
 
-    console.error("Login failed", error);
+    if (isEmailNotConfirmedError(error)) {
+      return { status: "confirmation_required" };
+    }
+
+    logAuthEvent(AUTH_LOG_EVENT.loginUnexpected);
     return {
       error: "unknown",
       message: "Unable to log in. Please try again.",

@@ -7,7 +7,12 @@ import { signup } from "@/app/actions/auth";
 
 import { AuthLogo } from "./AuthLogo";
 import { getPasswordValidationError, PASSWORD_HELPER_TEXT } from "./password-validation";
-import { DuplicateEmailAlert, UnknownErrorAlert } from "./SignupAlerts";
+import {
+  ConfigurationErrorAlert,
+  ConfirmationRequiredAlert,
+  DuplicateEmailAlert,
+  UnknownErrorAlert,
+} from "./SignupAlerts";
 import { SignupFields } from "./SignupFields";
 import { authLinkClassName } from "./styles";
 
@@ -23,7 +28,8 @@ export default function SignupForm() {
   const [state, formAction, isPending] = useActionState(signup, undefined);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const passwordMessage =
-    passwordError ?? (state?.error === "weak_password" ? PASSWORD_HELPER_TEXT : null);
+    passwordError ??
+    (state && "error" in state && state.error === "weak_password" ? PASSWORD_HELPER_TEXT : null);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const formData = new FormData(event.currentTarget);
@@ -49,8 +55,14 @@ export default function SignupForm() {
         Your application data is encrypted and visible only to you.
       </div>
 
-      {state?.error === "duplicate_email" && <DuplicateEmailAlert />}
-      {state?.error === "unknown" && <UnknownErrorAlert message={state.message} />}
+      {state && "error" in state && state.error === "duplicate_email" && <DuplicateEmailAlert />}
+      {state && "error" in state && state.error === "unknown" && (
+        <UnknownErrorAlert message={state.message} />
+      )}
+      {state && "error" in state && state.error === "configuration" && <ConfigurationErrorAlert />}
+      {state && "status" in state && state.status === "confirmation_required" && (
+        <ConfirmationRequiredAlert />
+      )}
 
       <SignupFields
         formAction={formAction}
