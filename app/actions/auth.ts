@@ -48,6 +48,14 @@ function isEmailNotConfirmedError(error: unknown): boolean {
   return isAuthApiError(error) && error.code === "email_not_confirmed";
 }
 
+// When hosted email confirmation is enabled, Supabase intentionally returns an
+// obfuscated user (no session, no error) for an address that already has an
+// account, so it doesn't leak which emails are registered. That user has an
+// empty identities array; a genuinely new signup does not.
+function isObfuscatedDuplicateUser(user: { identities?: unknown[] | null }): boolean {
+  return Array.isArray(user.identities) && user.identities.length === 0;
+}
+
 // Safe diagnostic fields only: event label plus a stable provider code/status.
 // Never pass the raw error object, form data, or config error message here.
 function logAuthEvent(
@@ -104,6 +112,10 @@ export async function signup(
     }
 
     if (!data.session) {
+      if (isObfuscatedDuplicateUser(data.user)) {
+        return { error: "duplicate_email" };
+      }
+
       return { status: "confirmation_required" };
     }
   } catch (error) {
