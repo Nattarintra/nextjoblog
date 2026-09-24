@@ -324,17 +324,17 @@ No database migration is required. Existing local `.env.local` values remain unc
 
 #### Automated
 
-- [x] 2.1 Auth Server Action tests pass
-- [x] 2.2 Signup and login component tests pass for new and existing states
-- [x] 2.3 Full unit suite passes with coverage thresholds
-- [x] 2.4 Type checking passes
-- [x] 2.5 Linting passes
+- [x] 2.1 Auth Server Action tests pass — 3a70684
+- [x] 2.2 Signup and login component tests pass for new and existing states — 3a70684
+- [x] 2.3 Full unit suite passes with coverage thresholds — 3a70684
+- [x] 2.4 Type checking passes — 3a70684
+- [x] 2.5 Linting passes — 3a70684
 
 #### Manual
 
-- [x] 2.6 Confirmation-required signup stays on signup with verification guidance
-- [x] 2.7 Confirmed login, invalid credentials, and unconfirmed login show the intended outcomes
-- [x] 2.8 Auth UI and diagnostics contain no sensitive values
+- [x] 2.6 Confirmation-required signup stays on signup with verification guidance — 3a70684
+- [x] 2.7 Confirmed login, invalid credentials, and unconfirmed login show the intended outcomes — 3a70684
+- [x] 2.8 Auth UI and diagnostics contain no sensitive values — 3a70684
 
 ### Phase 3: Regression Coverage and Production Runbook
 
