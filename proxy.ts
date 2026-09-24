@@ -2,42 +2,60 @@ import { isAuthApiError } from "@supabase/auth-js";
 import { createServerClient, isChunkLike } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// `@supabase/supabase-js` derives its cookie storage key from the project
-// URL's hostname (e.g. `sb-127-auth-token` locally, `sb-<ref>-auth-token`
-// hosted) when no explicit `cookieOptions.name` is configured, which this app
-// does not set. Matching that derivation (rather than a fixed literal name)
-// is what lets us find every auth cookie to clear, chunked or not.
-const authCookieStorageKey = `sb-${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0]}-auth-token`;
+import {
+  getSupabaseAuthCookieStorageKey,
+  getSupabaseConfig,
+  SupabaseConfigError,
+} from "@/lib/supabase/config";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet, headers) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
-          });
+  let config;
+  try {
+    config = getSupabaseConfig();
+  } catch (error) {
+    if (!(error instanceof SupabaseConfigError)) {
+      throw error;
+    }
 
-          response = NextResponse.next({ request });
+    // Fail open: pass the request through unauthenticated rather than
+    // exposing provider credentials or a stack trace to the browser. Server
+    // Actions independently validate configuration on the render tier.
+    console.error("Supabase configuration invalid", {
+      event: "supabase_config_invalid",
+      reason: error.reason,
+    });
+    return response;
+  }
 
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
+  // Matching the request-time URL's hostname derivation (rather than a fixed
+  // literal name) is what lets us find every auth cookie to clear, chunked
+  // or not. See getSupabaseAuthCookieStorageKey for the formula contract.
+  const authCookieStorageKey = getSupabaseAuthCookieStorageKey(config.url);
 
-          Object.entries(headers).forEach(([name, value]) => {
-            response.headers.set(name, value);
-          });
-        },
+  const supabase = createServerClient(config.url, config.anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet, headers) {
+        cookiesToSet.forEach(({ name, value }) => {
+          request.cookies.set(name, value);
+        });
+
+        response = NextResponse.next({ request });
+
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+
+        Object.entries(headers).forEach(([name, value]) => {
+          response.headers.set(name, value);
+        });
       },
     },
-  );
+  });
 
   const { error } = await supabase.auth.getClaims();
 
