@@ -89,11 +89,15 @@ URL Configuration):
   whichever value Vercel serves at request time is what `getSupabaseConfig()`
   validates and both the Server Actions and `proxy.ts` (via
   `lib/supabase/config.ts`) use it.
-- Because `getSupabaseConfig()` re-reads `process.env` on every call rather
-  than caching a module-level value, a corrected Vercel variable takes
-  effect on the next request without a rebuild — but a bad deploy should
-  still be redeployed with corrected variables (Vercel environment variable
-  changes alone do not always retrigger a build).
+- Changing a Vercel Production environment variable does **not** update the
+  already-running deployment. Vercel only bakes environment variables into
+  a deployment at build time, and `NEXT_PUBLIC_*` values specifically can be
+  inlined into the built output, so `getSupabaseConfig()` re-reading
+  `process.env` on every call does not bypass this — the existing
+  deployment keeps serving the old values until a new deployment is
+  triggered. After correcting any variable in section 1, trigger a new
+  deployment (redeploy or push a commit) before retesting; testing against
+  the pre-existing deployment will keep reproducing the failure.
 
 ## 4. Log signals
 
