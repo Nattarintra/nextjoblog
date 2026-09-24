@@ -310,15 +310,15 @@ No database migration is required. Existing local `.env.local` values remain unc
 
 #### Automated
 
-- [x] 1.1 Configuration-boundary tests pass
-- [x] 1.2 Existing auth/session unit tests pass with the shared configuration seam
-- [x] 1.3 Type checking passes
-- [x] 1.4 Linting passes
+- [x] 1.1 Configuration-boundary tests pass — 57def74
+- [x] 1.2 Existing auth/session unit tests pass with the shared configuration seam — 57def74
+- [x] 1.3 Type checking passes — 57def74
+- [x] 1.4 Linting passes — 57def74
 
 #### Manual
 
-- [x] 1.5 Valid local configuration still starts auth/session behavior
-- [x] 1.6 Invalid configuration produces a controlled response and redacted diagnostic
+- [x] 1.5 Valid local configuration still starts auth/session behavior — 57def74
+- [x] 1.6 Invalid configuration produces a controlled response and redacted diagnostic — 57def74
 
 ### Phase 2: Harden Auth Actions and User-Facing States
 
