@@ -341,14 +341,14 @@ No database migration is required. Existing local `.env.local` values remain unc
 #### Automated
 
 - [x] 3.1 Full unit suite passes
-- [ ] 3.2 Local E2E suite passes
+- [x] 3.2 Local E2E suite passes
 - [x] 3.3 Type checking passes
 - [x] 3.4 Linting passes
 - [x] 3.5 Environment example and production runbook exist without secret values
 
 #### Manual
 
-- [ ] 3.6 Vercel Production variables are configured for the hosted Supabase project
-- [ ] 3.7 Hosted Supabase Auth settings match the selected confirmation behavior
-- [ ] 3.8 Deployed production smoke tests pass
-- [ ] 3.9 Production failure diagnosis and rollback checklist is actionable
+- [x] 3.6 Vercel Production variables are configured for the hosted Supabase project
+- [x] 3.7 Hosted Supabase Auth settings match the selected confirmation behavior
+- [x] 3.8 Deployed production smoke tests pass
+- [x] 3.9 Production failure diagnosis and rollback checklist is actionable
