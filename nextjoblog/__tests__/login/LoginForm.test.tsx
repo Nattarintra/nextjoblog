@@ -63,4 +63,22 @@ describe("LoginForm", () => {
     const button = screen.getByRole("button", { name: "Logging in…" });
     expect(button).toHaveProperty("disabled", true);
   });
+
+  it("shows the confirmation-required alert without marking the fields invalid", () => {
+    useActionStateMock.mockReturnValue([{ status: "confirmation_required" }, vi.fn(), false]);
+    render(<LoginForm />);
+
+    expect(screen.getByRole("alert").textContent).toContain("verify your email");
+    expect(screen.getByLabelText("Email").getAttribute("aria-invalid")).toBe("false");
+    expect(screen.getByLabelText("Password").getAttribute("aria-invalid")).toBe("false");
+  });
+
+  it("shows the configuration-error alert without exposing provider details", () => {
+    useActionStateMock.mockReturnValue([{ error: "configuration" }, vi.fn(), false]);
+    render(<LoginForm />);
+
+    expect(screen.getByRole("alert").textContent).toBe(
+      "We're unable to log in right now. Please try again shortly.",
+    );
+  });
 });

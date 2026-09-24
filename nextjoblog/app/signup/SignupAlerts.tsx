@@ -26,3 +26,26 @@ export function UnknownErrorAlert({ message }: { message: string }) {
     </div>
   );
 }
+
+export function ConfirmationRequiredAlert() {
+  return (
+    <div className={`${alertBaseClassName} text-warning-fg`} role="alert" data-testid="signup-alert">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
+        <path d="M4 5h16v14H4V5z" className="stroke-warning-fg" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M4 6l8 7 8-7" className="stroke-warning-fg" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+      <span>
+        Your account was created — check your email to verify it before you{" "}
+        <Link className={`${authLinkClassName} underline`} href="/login">Log In</Link>
+      </span>
+    </div>
+  );
+}
+
+export function ConfigurationErrorAlert() {
+  return (
+    <div className={`${alertBaseClassName} text-auth-danger`} role="alert" data-testid="signup-alert">
+      We&apos;re unable to create accounts right now. Please try again shortly.
+    </div>
+  );
+}
