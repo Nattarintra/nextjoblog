@@ -1,10 +1,10 @@
 ---
 change_id: normalize-repo-root
 title: Normalize repo root
-status: impl_reviewed
+status: archived
 created: 2026-09-28
 updated: 2026-09-30
-archived_at: null
+archived_at: 2026-09-30T17:45:27Z
 ---
 
 ## Notes
