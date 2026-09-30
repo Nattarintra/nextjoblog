@@ -265,6 +265,14 @@ None — this is a repository/metadata migration with no runtime code changes.
 
 This plan performs an in-place Git history rewrite on a solo-owned repository with a real GitHub remote. Per the project owner's resolved decision in `research.md`, there are no other contributor clones or worktrees to coordinate — the mirror backup (Phase 1) and rollback procedure are the sole safety net. `supabase/` and `supabase-test/` are not touched, moved, or merged by this migration.
 
+### Addendum (impl-review F1)
+
+Phase 2 §5 called for quarantining the old flattened parent checkout and its `.git`. No quarantine directory exists; `/Users/natta/Desktop/Nextjs/` now contains only `nextjoblog/`. The mirror at `/Users/natta/Desktop/Nextjs-backup-normalize-repo-root.git` is the only recovery copy and covers committed history only.
+
+### Addendum (impl-review F3)
+
+After Phase 4, PR #14 was merged on GitHub, so `origin/main` is the merge commit `4ba6513`, while `origin/dev` remains `549cd46` and `chore/normalize-repo-root` is `3596b0a`. The "all three refs identical" check held at push time (Phase 2/4) but no longer holds after the PR merge.
+
 ## References
 
 - Related research: `context/changes/normalize-repo-root/research.md`
@@ -308,11 +316,11 @@ This plan performs an in-place Git history rewrite on a solo-owned repository wi
 - [x] 3.2 npm run lint passes
 - [x] 3.3 npm run test:coverage passes with 80% thresholds intact
 - [x] 3.4 npm run build succeeds
-- [x] 3.5 npm run test:e2e passes (skipped: local Supabase/Chrome environment unavailable)
+- [x] 3.5 npm run test:e2e passes (skipped locally: Supabase/Chrome unavailable; verified by CI e2e-tests job, run 36713900634 on 549cd46)
 
 #### Manual
 
-- [x] 3.6 npm run dev loads correctly in a browser
+- [x] 3.6 npm run dev loads correctly in a browser — d6005af
 
 ### Phase 4: Push rewritten history & verify CI
 
@@ -323,12 +331,12 @@ This plan performs an in-place Git history rewrite on a solo-owned repository wi
 
 #### Manual
 
-- [ ] 4.3 GitHub Actions run passes for both jobs
+- [x] 4.3 GitHub Actions run passes for both jobs
 
 ### Phase 5: Vercel cutover
 
 #### Manual
 
-- [ ] 5.1 Vercel Root Directory updated to `.`
-- [ ] 5.2 New Vercel deployment builds and deploys successfully
-- [ ] 5.3 Deployed app loads correctly with production env vars intact
+- [x] 5.1 Vercel Root Directory updated to `.`
+- [x] 5.2 New Vercel deployment builds and deploys successfully
+- [x] 5.3 Deployed app loads correctly with production env vars intact
