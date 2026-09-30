@@ -12,3 +12,4 @@ archived_at: null
 <!-- Free-form notes for this change: links, ad-hoc context, decisions that don't belong in research/frame/plan. -->
 
 - Phase 1 mirror backup: `/Users/natta/Desktop/Nextjs-backup-normalize-repo-root.git`
+- Correct GitHub Actions location: `.github/workflows/playwright.yml` now lives inside `nextjoblog/` (the repo root). Previously it sat one level above `nextjoblog/` in the old parent repo. Docs and plan references to the old location are historical; this layout is the correct one.
