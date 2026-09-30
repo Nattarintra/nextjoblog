@@ -308,11 +308,11 @@ This plan performs an in-place Git history rewrite on a solo-owned repository wi
 - [x] 3.2 npm run lint passes
 - [x] 3.3 npm run test:coverage passes with 80% thresholds intact
 - [x] 3.4 npm run build succeeds
-- [x] 3.5 npm run test:e2e passes (skipped: local Supabase/Chrome environment unavailable)
+- [x] 3.5 npm run test:e2e passes (skipped: local Supabase/Chrome environment unavailable) — d6005af
 
 #### Manual
 
-- [x] 3.6 npm run dev loads correctly in a browser
+- [x] 3.6 npm run dev loads correctly in a browser — d6005af
 
 ### Phase 4: Push rewritten history & verify CI
 
@@ -323,12 +323,12 @@ This plan performs an in-place Git history rewrite on a solo-owned repository wi
 
 #### Manual
 
-- [ ] 4.3 GitHub Actions run passes for both jobs
+- [x] 4.3 GitHub Actions run passes for both jobs
 
 ### Phase 5: Vercel cutover
 
 #### Manual
 
-- [ ] 5.1 Vercel Root Directory updated to `.`
-- [ ] 5.2 New Vercel deployment builds and deploys successfully
-- [ ] 5.3 Deployed app loads correctly with production env vars intact
+- [x] 5.1 Vercel Root Directory updated to `.`
+- [x] 5.2 New Vercel deployment builds and deploys successfully
+- [x] 5.3 Deployed app loads correctly with production env vars intact
