@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useActionState } from "react";
 
 import { login } from "@/app/actions/auth";
-import { AuthLogo } from "@/app/signup/AuthLogo";
-import { authLinkClassName } from "@/app/signup/styles";
+import { AuthLogo } from "@/components/auth/AuthLogo";
+import { authLinkClassName } from "@/components/auth/styles";
 
 import { LoginConfirmationRequiredAlert, LoginErrorAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";

@@ -5,7 +5,7 @@ import { useActionState, useState } from "react";
 
 import { signup } from "@/app/actions/auth";
 
-import { AuthLogo } from "./AuthLogo";
+import { AuthLogo } from "@/components/auth/AuthLogo";
 import { getPasswordValidationError, PASSWORD_HELPER_TEXT } from "./password-validation";
 import {
   ConfigurationErrorAlert,
@@ -14,7 +14,7 @@ import {
   UnknownErrorAlert,
 } from "./SignupAlerts";
 import { SignupFields } from "./SignupFields";
-import { authLinkClassName } from "./styles";
+import { authLinkClassName } from "@/components/auth/styles";
 
 const styles = {
   wrap: "relative box-border flex min-h-[100svh] flex-col overflow-hidden px-6.5 pt-13 pb-7.5 text-white",

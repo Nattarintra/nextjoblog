@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { authLinkClassName } from "./styles";
+import { authLinkClassName } from "@/components/auth/styles";
 
 const alertBaseClassName =
   "flex items-start gap-2.25 rounded-[10px] bg-warning-tint px-3 py-2.75 mb-4 text-xs leading-normal";

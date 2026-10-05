@@ -494,28 +494,28 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 1.1 New unit tests pass for lib/auth core
-- [x] 1.2 resolvePostLoginPath table covers every story and NFR case
-- [x] 1.3 Coverage for lib/auth/** is at least 90%
-- [x] 1.4 Type checking passes
-- [x] 1.5 Linting passes
+- [x] 1.1 New unit tests pass for lib/auth core — 6fa5609
+- [x] 1.2 resolvePostLoginPath table covers every story and NFR case — 6fa5609
+- [x] 1.3 Coverage for lib/auth/** is at least 90% — 6fa5609
+- [x] 1.4 Type checking passes — 6fa5609
+- [x] 1.5 Linting passes — 6fa5609
 
 #### Manual
 
-- [x] 1.6 Code review: no magic strings or numbers outside paths.ts, no framework imports in pure modules
+- [x] 1.6 Code review: no magic strings or numbers outside paths.ts, no framework imports in pure modules — 6fa5609
 
 ### Phase 2: Promote shared auth UI
 
 #### Automated
 
-- [ ] 2.1 All existing tests still pass
-- [ ] 2.2 No stale imports from app/signup AuthLogo or styles
-- [ ] 2.3 Type checking passes
-- [ ] 2.4 Linting passes
+- [x] 2.1 All existing tests still pass
+- [x] 2.2 No stale imports from app/signup AuthLogo or styles
+- [x] 2.3 Type checking passes
+- [x] 2.4 Linting passes
 
 #### Manual
 
-- [ ] 2.5 Login and signup render identically to before
+- [x] 2.5 Login and signup render identically to before
 
 ### Phase 3: Login honours next
 
