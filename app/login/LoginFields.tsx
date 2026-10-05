@@ -10,13 +10,16 @@ export function LoginFields({
   formAction,
   hasError,
   isPending,
+  nextPath,
 }: {
   formAction: ComponentProps<"form">["action"];
   hasError: boolean;
   isPending: boolean;
+  nextPath: string;
 }) {
   return (
     <form action={formAction}>
+      <input type="hidden" name="next" value={nextPath} />
       <div className="mb-3.5">
         <label htmlFor="email" className={authFieldLabelClassName}>
           Email

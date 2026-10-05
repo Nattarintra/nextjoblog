@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Archivo, Work_Sans } from "next/font/google";
 
+import { describeDestination } from "@/lib/auth/describe-destination";
+import { resolvePostLoginPath } from "@/lib/auth/next-path";
+
 import LoginForm from "./LoginForm";
 
 const archivo = Archivo({
@@ -31,12 +34,16 @@ export const metadata: Metadata = {
   title: "Log In — NextJobLog",
 };
 
-export default function LoginPage() {
+export default async function LoginPage(props: PageProps<"/login">) {
+  const { next } = await props.searchParams;
+  const nextPath = resolvePostLoginPath(next);
+  const destinationLabel = describeDestination(nextPath);
+
   return (
     <div
       className={authPageClassName}
     >
-      <LoginForm />
+      <LoginForm nextPath={nextPath} destinationLabel={destinationLabel} />
     </div>
   );
 }

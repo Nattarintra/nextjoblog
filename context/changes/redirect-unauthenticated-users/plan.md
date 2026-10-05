@@ -508,28 +508,28 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 2.1 All existing tests still pass
-- [x] 2.2 No stale imports from app/signup AuthLogo or styles
-- [x] 2.3 Type checking passes
-- [x] 2.4 Linting passes
+- [x] 2.1 All existing tests still pass — aaafbf6
+- [x] 2.2 No stale imports from app/signup AuthLogo or styles — aaafbf6
+- [x] 2.3 Type checking passes — aaafbf6
+- [x] 2.4 Linting passes — aaafbf6
 
 #### Manual
 
-- [x] 2.5 Login and signup render identically to before
+- [x] 2.5 Login and signup render identically to before — aaafbf6
 
 ### Phase 3: Login honours next
 
 #### Automated
 
-- [ ] 3.1 login() action tests cover valid, malicious, auth-path, and missing next values
-- [ ] 3.2 Login page and form tests cover hidden field, return strip, and heading variants
-- [ ] 3.3 Coverage thresholds hold including app/actions/auth.ts
-- [ ] 3.4 Type checking and lint pass
+- [x] 3.1 login() action tests cover valid, malicious, auth-path, and missing next values
+- [x] 3.2 Login page and form tests cover hidden field, return strip, and heading variants
+- [x] 3.3 Coverage thresholds hold including app/actions/auth.ts
+- [x] 3.4 Type checking and lint pass
 
 #### Manual
 
-- [ ] 3.5 Login with a valid next shows the return strip; malicious next shows the plain login page
-- [ ] 3.6 Keyboard navigation and focus rings verified on the login page
+- [x] 3.5 Login with a valid next shows the return strip; malicious next shows the plain login page
+- [x] 3.6 Keyboard navigation and focus rings verified on the login page
 
 ### Phase 4: Session classification and DAL
 

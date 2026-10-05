@@ -157,14 +157,43 @@ describe("login", () => {
     });
   });
 
-  it("redirects to /dashboard on successful login", async () => {
+  it.each([
+    ["/dashboard?tab=recent", "/dashboard?tab=recent"],
+    ["https://evil.com", "/dashboard"],
+    ["//evil.com", "/dashboard"],
+    ["/\\evil.com", "/dashboard"],
+    ["/login", "/dashboard"],
+    ["/reset-password", "/dashboard"],
+    [undefined, "/dashboard"],
+  ])("sanitizes next %s before redirecting to %s", async (next, expected) => {
     signInWithPasswordMock.mockResolvedValue({ data: {}, error: null });
 
     await expect(
-      login(undefined, formData({ email: VALID_EMAIL, password: VALID_PASSWORD })),
+      login(
+        undefined,
+        formData({
+          email: VALID_EMAIL,
+          password: VALID_PASSWORD,
+          ...(next === undefined ? {} : { next }),
+        }),
+      ),
     ).rejects.toThrow("NEXT_REDIRECT");
 
-    expect(redirectMock).toHaveBeenCalledWith("/dashboard");
+    expect(redirectMock).toHaveBeenCalledWith(expected);
+  });
+
+  it("does not redirect after a failed login", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: {},
+      error: new AuthApiError("Invalid login credentials", 400, "invalid_credentials"),
+    });
+
+    await login(
+      undefined,
+      formData({ email: VALID_EMAIL, password: VALID_PASSWORD, next: "/dashboard" }),
+    );
+
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 
   it("returns invalid_credentials for a wrong password", async () => {

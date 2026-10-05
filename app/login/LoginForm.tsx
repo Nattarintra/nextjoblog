@@ -9,6 +9,7 @@ import { authLinkClassName } from "@/components/auth/styles";
 
 import { LoginConfirmationRequiredAlert, LoginErrorAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
+import { ReturnStrip } from "./ReturnStrip";
 
 const styles = {
   wrap: "relative box-border flex min-h-[100svh] flex-col overflow-hidden px-6.5 pt-13 pb-7.5 text-white",
@@ -18,7 +19,13 @@ const styles = {
   footer: "mt-auto pt-5.5 text-center text-[12.5px] text-white/55",
 };
 
-export default function LoginForm() {
+export default function LoginForm({
+  nextPath = "/dashboard",
+  destinationLabel,
+}: {
+  nextPath?: string;
+  destinationLabel?: string;
+}) {
   const [state, formAction, isPending] = useActionState(login, undefined);
   const hasError = Boolean(state && "error" in state);
 
@@ -26,10 +33,14 @@ export default function LoginForm() {
     <div className={styles.wrap}>
       <div className={styles.glow} aria-hidden="true" />
       <AuthLogo />
-      <div className={styles.heading}>Log In</div>
+      <h1 className={styles.heading}>{destinationLabel ? "Log In to Continue" : "Log In"}</h1>
       <div className={styles.subheading}>
-        Log your job applications and track every step in one place.
+        {destinationLabel
+          ? "You need to be logged in to open this page."
+          : "Log your job applications and track every step in one place."}
       </div>
+
+      {destinationLabel && <ReturnStrip label={destinationLabel} />}
 
       {state && "error" in state && state.error === "invalid_credentials" && (
         <LoginErrorAlert message="Email or password is incorrect" />
@@ -44,7 +55,12 @@ export default function LoginForm() {
         <LoginConfirmationRequiredAlert />
       )}
 
-      <LoginFields formAction={formAction} hasError={hasError} isPending={isPending} />
+      <LoginFields
+        formAction={formAction}
+        hasError={hasError}
+        isPending={isPending}
+        nextPath={nextPath}
+      />
 
       <div className={styles.footer}>
         Don&apos;t have an account? <Link className={authLinkClassName} href="/signup">Sign Up</Link>
