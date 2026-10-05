@@ -16,6 +16,12 @@ export default defineConfig({
         statements: 80,
         functions: 80,
         branches: 80,
+        "lib/auth/**": {
+          lines: 90,
+          statements: 90,
+          functions: 90,
+          branches: 90,
+        },
       },
     },
   },

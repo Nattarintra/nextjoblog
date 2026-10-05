@@ -494,15 +494,15 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [ ] 1.1 New unit tests pass for lib/auth core
-- [ ] 1.2 resolvePostLoginPath table covers every story and NFR case
-- [ ] 1.3 Coverage for lib/auth/** is at least 90%
-- [ ] 1.4 Type checking passes
-- [ ] 1.5 Linting passes
+- [x] 1.1 New unit tests pass for lib/auth core
+- [x] 1.2 resolvePostLoginPath table covers every story and NFR case
+- [x] 1.3 Coverage for lib/auth/** is at least 90%
+- [x] 1.4 Type checking passes
+- [x] 1.5 Linting passes
 
 #### Manual
 
-- [ ] 1.6 Code review: no magic strings or numbers outside paths.ts, no framework imports in pure modules
+- [x] 1.6 Code review: no magic strings or numbers outside paths.ts, no framework imports in pure modules
 
 ### Phase 2: Promote shared auth UI
 
