@@ -90,33 +90,37 @@ describe("getEffectiveSessionExpiry", () => {
       claims: { session_id: "", amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }] },
       description: "missing session id",
     },
-  ])("returns undefined for $description", async ({ claims }) => {
+  ])("returns unauthenticated for $description", async ({ claims }) => {
     getClaimsMock.mockResolvedValue({ data: { claims }, error: null });
 
-    expect(await getEffectiveSessionExpiry()).toBeUndefined();
+    expect(await getEffectiveSessionExpiry()).toEqual(
+      claims === null
+        ? { status: "unauthenticated", reason: "missing" }
+        : { status: "unauthenticated", reason: "invalid" },
+    );
   });
 
-  it("returns undefined when claims retrieval fails", async () => {
+  it("returns verification_failed when claims retrieval fails", async () => {
     getClaimsMock.mockResolvedValue({ data: null, error: new Error("claims failed") });
 
-    expect(await getEffectiveSessionExpiry()).toBeUndefined();
+    expect(await getEffectiveSessionExpiry()).toEqual({ status: "verification_failed" });
   });
 
-  it("returns a lookup error when the extension is malformed", async () => {
+  it("returns verification_failed when the extension is malformed", async () => {
     setValidClaims();
     setExtensionResult({ extended_until: "not-a-date" });
 
     const result = await getEffectiveSessionExpiry();
 
-    expect(result?.status).toBe("lookup_error");
+    expect(result?.status).toBe("verification_failed");
   });
 
-  it("returns a lookup error when the extension query fails", async () => {
+  it("returns verification_failed when the extension query fails", async () => {
     setValidClaims();
     setExtensionResult(null, new Error("extension query failed"));
 
     const result = await getEffectiveSessionExpiry();
 
-    expect(result?.status).toBe("lookup_error");
+    expect(result?.status).toBe("verification_failed");
   });
 });

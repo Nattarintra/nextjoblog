@@ -123,6 +123,12 @@ describe("claims classification", () => {
         error: new AuthRetryableFetchError("offline", 0),
       }),
     ).toEqual({ kind: "verification_failed" });
+    expect(
+      classifyClaimsResult({
+        data: null,
+        error: new AuthApiError("server", 503, "server_error"),
+      }),
+    ).toEqual({ kind: "verification_failed" });
     expect(classifyClaimsResult({ data: null, error: new Error("unknown") })).toEqual({
       kind: "verification_failed",
     });

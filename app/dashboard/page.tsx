@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const effective = await getEffectiveSessionExpiry();
 
-  if (effective?.status === "lookup_error") {
-    throw effective.error;
+  if (effective.status === "verification_failed") {
+    throw effective.error ?? new Error("Unable to verify session");
   }
 
-  if (!effective || isSessionExpired(effective.effectiveExpiresAt)) {
+  if (effective.status !== "authenticated" || isSessionExpired(effective.effectiveExpiresAt)) {
     redirect("/api/auth/session-expired");
   }
 

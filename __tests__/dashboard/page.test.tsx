@@ -24,7 +24,7 @@ describe("DashboardPage", () => {
   it("does not sign out when the session extension lookup fails", async () => {
     const lookupError = new Error("database unavailable");
     getEffectiveSessionExpiryMock.mockResolvedValue({
-      status: "lookup_error",
+      status: "verification_failed",
       error: lookupError,
     });
 

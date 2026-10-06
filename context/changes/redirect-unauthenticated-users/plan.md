@@ -521,30 +521,30 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 3.1 login() action tests cover valid, malicious, auth-path, and missing next values
-- [x] 3.2 Login page and form tests cover hidden field, return strip, and heading variants
-- [x] 3.3 Coverage thresholds hold including app/actions/auth.ts
-- [x] 3.4 Type checking and lint pass
+- [x] 3.1 login() action tests cover valid, malicious, auth-path, and missing next values — f595bf7
+- [x] 3.2 Login page and form tests cover hidden field, return strip, and heading variants — f595bf7
+- [x] 3.3 Coverage thresholds hold including app/actions/auth.ts — f595bf7
+- [x] 3.4 Type checking and lint pass — f595bf7
 
 #### Manual
 
-- [x] 3.5 Login with a valid next shows the return strip; malicious next shows the plain login page
-- [x] 3.6 Keyboard navigation and focus rings verified on the login page
+- [x] 3.5 Login with a valid next shows the return strip; malicious next shows the plain login page — f595bf7
+- [x] 3.6 Keyboard navigation and focus rings verified on the login page — f595bf7
 
 ### Phase 4: Session classification and DAL
 
 #### Automated
 
-- [ ] 4.1 Classifier and service tests cover all failure paths without signOut
-- [ ] 4.2 DAL tests with injected dependencies cover all branches
-- [ ] 4.3 Test seam is inert unless both env conditions and cookie hold
-- [ ] 4.4 session-expired route forwards sanitized next and sets Cache-Control
-- [ ] 4.5 Coverage gates hold (80% global, 90% lib/auth)
-- [ ] 4.6 Type checking and lint pass
+- [x] 4.1 Classifier and service tests cover all failure paths without signOut
+- [x] 4.2 DAL tests with injected dependencies cover all branches
+- [x] 4.3 Test seam is inert unless both env conditions and cookie hold
+- [x] 4.4 session-expired route forwards sanitized next and sets Cache-Control
+- [x] 4.5 Coverage gates hold (80% global, 90% lib/auth)
+- [x] 4.6 Type checking and lint pass
 
 #### Manual
 
-- [ ] 4.7 Session cookies are not cleared when Supabase is unreachable
+- [x] 4.7 Session cookies are not cleared when Supabase is unreachable
 
 ### Phase 5: Protected route group and screens
 
