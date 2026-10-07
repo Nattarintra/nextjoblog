@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SessionExpiryNoticeDialog } from "@/app/dashboard/SessionExpiryNoticeDialog";
+import { SessionExpiryNoticeDialog } from "@/app/(protected)/_components/SessionExpiryNoticeDialog";
 
 const { useActionStateMock, extendActionMock, refreshMock } = vi.hoisted(() => ({
   useActionStateMock: vi.fn(),

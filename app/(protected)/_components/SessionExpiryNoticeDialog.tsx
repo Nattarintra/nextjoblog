@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-import { LoginErrorAlert } from "../login/LoginAlert";
+import { LoginErrorAlert } from "@/app/login/LoginAlert";
+
 import { useDialogKeyboardNavigation } from "./useDialogKeyboardNavigation";
 import { useSessionExtension } from "./useSessionExtension";
 
@@ -24,12 +25,8 @@ type SessionExpiryNoticeDialogProps = {
   onDismiss: () => void;
 };
 
-export function SessionExpiryNoticeDialog({
-  onDismiss,
-}: SessionExpiryNoticeDialogProps) {
-  const { errorMessage, extend, isPending } = useSessionExtension({
-    onSuccess: onDismiss,
-  });
+export function SessionExpiryNoticeDialog({ onDismiss }: SessionExpiryNoticeDialogProps) {
+  const { errorMessage, extend, isPending } = useSessionExtension({ onSuccess: onDismiss });
   const noButtonRef = useRef<HTMLButtonElement>(null);
   const yesButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -45,30 +42,13 @@ export function SessionExpiryNoticeDialog({
 
   return (
     <div className={styles.overlay}>
-      <div
-        className={styles.dialog}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={DIALOG_HEADING_ID}
-        aria-busy={isPending}
-        onKeyDown={handleKeyDown}
-      >
-        <div id={DIALOG_HEADING_ID} className={styles.heading}>
-          Your session is expiring soon
-        </div>
+      <div className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby={DIALOG_HEADING_ID} aria-busy={isPending} onKeyDown={handleKeyDown}>
+        <div id={DIALOG_HEADING_ID} className={styles.heading}>Your session is expiring soon</div>
         <div className={styles.body}>Do you want to stay logged in?</div>
         {errorMessage && <LoginErrorAlert message={errorMessage} />}
         <div className={styles.actions}>
-          <button ref={noButtonRef} type="button" className={styles.noButton} onClick={onDismiss}>
-            No
-          </button>
-          <button
-            ref={yesButtonRef}
-            type="button"
-            className={styles.yesButton}
-            onClick={extend}
-            disabled={isPending}
-          >
+          <button ref={noButtonRef} type="button" className={styles.noButton} onClick={onDismiss}>No</button>
+          <button ref={yesButtonRef} type="button" className={styles.yesButton} onClick={extend} disabled={isPending}>
             {isPending ? PENDING_YES_LABEL : DEFAULT_YES_LABEL}
           </button>
         </div>

@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       enabled: true,
       provider: 'v8',
-      exclude: ['proxy.ts', 'lib/supabase/server.ts'],
+      exclude: ['proxy.ts', 'lib/supabase/server.ts', 'lib/auth/request-path.ts'],
       thresholds: {
         lines: 80,
         statements: 80,

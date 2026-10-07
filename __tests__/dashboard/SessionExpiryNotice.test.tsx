@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SessionExpiryNotice } from "@/app/dashboard/SessionExpiryNotice";
+import { SessionExpiryNotice } from "@/app/(protected)/_components/SessionExpiryNotice";
 
 const { useActionStateMock, extendActionMock, refreshMock } = vi.hoisted(() => ({
   useActionStateMock: vi.fn(),

@@ -1,48 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getEffectiveSessionExpiryMock, isSessionExpiredMock, redirectMock } = vi.hoisted(() => ({
-  getEffectiveSessionExpiryMock: vi.fn(),
-  isSessionExpiredMock: vi.fn(() => false),
-  redirectMock: vi.fn(),
-}));
+const { requireSessionMock } = vi.hoisted(() => ({ requireSessionMock: vi.fn() }));
+vi.mock("@/lib/auth/require-session", () => ({ requireSession: requireSessionMock }));
 
-vi.mock("@/lib/session", () => ({
-  getEffectiveSessionExpiry: getEffectiveSessionExpiryMock,
-  isSessionExpired: isSessionExpiredMock,
-}));
-
-vi.mock("next/navigation", () => ({ redirect: redirectMock }));
-
-import DashboardPage from "@/app/dashboard/page";
+import DashboardPage from "@/app/(protected)/dashboard/page";
 
 describe("DashboardPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    isSessionExpiredMock.mockReturnValue(false);
+  beforeEach(() => vi.clearAllMocks());
+
+  it("renders the dashboard for an authenticated session", async () => {
+    requireSessionMock.mockResolvedValue({ status: "authenticated", claims: { sub: "user" }, effectiveExpiresAt: Date.now() + 10_000 });
+    expect((await DashboardPage()).props.children.props.children).toBe("Dashboard");
   });
 
-  it("does not sign out when the session extension lookup fails", async () => {
-    const lookupError = new Error("database unavailable");
-    getEffectiveSessionExpiryMock.mockResolvedValue({
-      status: "verification_failed",
-      error: lookupError,
-    });
-
-    await expect(DashboardPage()).rejects.toBe(lookupError);
-
-    expect(redirectMock).not.toHaveBeenCalled();
+  it("renders the session failure screen without dashboard content", async () => {
+    requireSessionMock.mockResolvedValue({ status: "verification_failed", loginHref: "/login?next=%2Fdashboard" });
+    const result = await DashboardPage();
+    expect(result.type.name).toBe("SessionCheckFailed");
+    expect(result.props.loginHref).toBe("/login?next=%2Fdashboard");
   });
 
-  it("redirects expired sessions to the response-context logout handler", async () => {
-    getEffectiveSessionExpiryMock.mockResolvedValue({
-      status: "authenticated",
-      claims: {},
-      effectiveExpiresAt: 1,
-    });
-    isSessionExpiredMock.mockReturnValue(true);
-
-    await DashboardPage();
-
-    expect(redirectMock).toHaveBeenCalledWith("/api/auth/session-expired");
+  it("delegates authentication redirects to requireSession", async () => {
+    const redirectError = new Error("redirect");
+    requireSessionMock.mockRejectedValue(redirectError);
+    await expect(DashboardPage()).rejects.toBe(redirectError);
   });
 });

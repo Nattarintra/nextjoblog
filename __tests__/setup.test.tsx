@@ -1,11 +1,12 @@
-import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Page from '../app/page'
 
-describe('home page', () => {
-  it('renders successfully', () => {
-    const result = render(<Page />)
+const { redirectMock } = vi.hoisted(() => ({ redirectMock: vi.fn() }))
+vi.mock('next/navigation', () => ({ redirect: redirectMock }))
 
-    expect(result).toBeDefined()
+describe('home page', () => {
+  it('redirects home to the dashboard', () => {
+    Page()
+    expect(redirectMock).toHaveBeenCalledWith('/dashboard')
   })
 })

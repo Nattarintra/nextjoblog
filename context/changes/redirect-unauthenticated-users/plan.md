@@ -535,33 +535,33 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 4.1 Classifier and service tests cover all failure paths without signOut
-- [x] 4.2 DAL tests with injected dependencies cover all branches
-- [x] 4.3 Test seam is inert unless both env conditions and cookie hold
-- [x] 4.4 session-expired route forwards sanitized next and sets Cache-Control
-- [x] 4.5 Coverage gates hold (80% global, 90% lib/auth)
-- [x] 4.6 Type checking and lint pass
+- [x] 4.1 Classifier and service tests cover all failure paths without signOut — 542c558
+- [x] 4.2 DAL tests with injected dependencies cover all branches — 542c558
+- [x] 4.3 Test seam is inert unless both env conditions and cookie hold — 542c558
+- [x] 4.4 session-expired route forwards sanitized next and sets Cache-Control — 542c558
+- [x] 4.5 Coverage gates hold (80% global, 90% lib/auth) — 542c558
+- [x] 4.6 Type checking and lint pass — 542c558
 
 #### Manual
 
-- [x] 4.7 Session cookies are not cleared when Supabase is unreachable
+- [x] 4.7 Session cookies are not cleared when Supabase is unreachable — 542c558
 
 ### Phase 5: Protected route group and screens
 
 #### Automated
 
-- [ ] 5.1 Dashboard page tests cover authenticated and verification_failed states
-- [ ] 5.2 SessionCheckFailed component tests pass
-- [ ] 5.3 not-found page and notFoundIfMissing tests pass
-- [ ] 5.4 Home page redirect test passes
-- [ ] 5.5 Full suite and coverage gate pass
-- [ ] 5.6 Production build succeeds
-- [ ] 5.7 Type checking and lint pass
+- [x] 5.1 Dashboard page tests cover authenticated and verification_failed states
+- [x] 5.2 SessionCheckFailed component tests pass
+- [x] 5.3 not-found page and notFoundIfMissing tests pass
+- [x] 5.4 Home page redirect test passes
+- [x] 5.5 Full suite and coverage gate pass
+- [x] 5.6 Production build succeeds
+- [x] 5.7 Type checking and lint pass
 
 #### Manual
 
-- [ ] 5.8 Both / and /dashboard end at /dashboard when logged in
-- [ ] 5.9 Screens 00.6 and 00.7 match the wireframe and are keyboard and screen-reader accessible
+- [x] 5.8 Both / and /dashboard end at /dashboard when logged in
+- [x] 5.9 Screens 00.6 and 00.7 match the wireframe and are keyboard and screen-reader accessible
 
 ### Phase 6: Proxy wiring and E2E
 
