@@ -29,11 +29,30 @@ describe("LoginForm", () => {
   it("renders the login fields, links, and button", () => {
     render(<LoginForm />);
 
+    expect(screen.getByRole("heading", { name: "Log In" })).toBeTruthy();
+    expect(screen.getByDisplayValue("/dashboard")).toHaveProperty("type", "hidden");
     expect(screen.getByLabelText("Email")).toBeTruthy();
     expect(screen.getByLabelText("Password")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Log In" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Forgot password?" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Sign Up" })).toBeTruthy();
+  });
+
+  it("shows the return destination and carries the safe path in the hidden field", () => {
+    render(<LoginForm nextPath="/applications/123?tab=notes" destinationLabel="An application" />);
+
+    expect(screen.getByRole("heading", { name: "Log In to Continue" })).toBeTruthy();
+    expect(screen.getByText("You need to be logged in to open this page.")).toBeTruthy();
+    expect(screen.getByText("You'll return to the page you opened")).toBeTruthy();
+    expect(screen.getByText("An application")).toBeTruthy();
+    expect(screen.getByDisplayValue("/applications/123?tab=notes")).toHaveProperty("type", "hidden");
+  });
+
+  it("does not show a return strip when there is no destination label", () => {
+    render(<LoginForm nextPath="/dashboard" />);
+
+    expect(screen.queryByText("You'll return to the page you opened")).toBeNull();
+    expect(screen.getByText("Log your job applications and track every step in one place.")).toBeTruthy();
   });
 
   it("shows the generic invalid-credentials alert without revealing which field failed", () => {

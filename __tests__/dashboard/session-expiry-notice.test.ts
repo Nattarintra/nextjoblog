@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getNoticeState } from "@/app/dashboard/session-expiry-notice";
+import { getNoticeState } from "@/app/(protected)/_components/session-expiry-notice";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SESSION_EXPIRY = 30 * DAY_MS;

@@ -1,5 +1,5 @@
 import { PASSWORD_HELPER_TEXT } from "./password-validation";
-import { authFieldLabelClassName, authInputClassName } from "./styles";
+import { authFieldLabelClassName, authInputClassName } from "@/components/auth/styles";
 
 const helperClassName = "mt-1.25 text-[11px]";
 

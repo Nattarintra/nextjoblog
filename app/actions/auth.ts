@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { SupabaseConfigError } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { resolvePostLoginPath } from "@/lib/auth/next-path";
 
 const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -146,6 +147,7 @@ export async function login(
   const passwordValue = formData.get("password");
   const email = typeof emailValue === "string" ? emailValue.trim() : "";
   const password = typeof passwordValue === "string" ? passwordValue : "";
+  const redirectTarget = resolvePostLoginPath(formData.get("next"));
 
   if (!emailShapePattern.test(email)) {
     return { error: "unknown", message: "Please enter a valid email address." };
@@ -197,5 +199,5 @@ export async function login(
     };
   }
 
-  redirect("/dashboard");
+  redirect(redirectTarget);
 }

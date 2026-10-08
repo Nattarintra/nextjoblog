@@ -42,3 +42,29 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.session-steps {
+  counter-reset: session-step;
+  list-style: none;
+  padding-left: 0;
+}
+
+.session-step {
+  counter-increment: session-step;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.session-step::before {
+  content: counter(session-step);
+  flex: none;
+  margin-top: 1px;
+  border: 1px solid rgb(181 212 244 / 40%);
+  border-radius: 5px;
+  padding: 1px 5px;
+  color: var(--sky);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  line-height: 1.4;
+}

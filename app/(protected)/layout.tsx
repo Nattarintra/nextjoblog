@@ -3,12 +3,12 @@ import {
   getSessionNoticeWindowMs,
 } from "@/lib/session";
 
-import { SessionExpiryNotice } from "./SessionExpiryNotice";
+import { SessionExpiryNotice } from "./_components/SessionExpiryNotice";
 
-export default async function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
+export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
   const effective = await getEffectiveSessionExpiry();
   const sessionExpiresAt =
-    effective?.status === "authenticated" ? effective.effectiveExpiresAt : undefined;
+    effective.status === "authenticated" ? effective.effectiveExpiresAt : undefined;
   const noticeWindowMs = getSessionNoticeWindowMs();
 
   return (

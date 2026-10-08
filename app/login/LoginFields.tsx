@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ComponentProps } from "react";
 
-import { authFieldLabelClassName, authInputClassName, authLinkClassName } from "@/app/signup/styles";
+import { authFieldLabelClassName, authInputClassName, authLinkClassName } from "@/components/auth/styles";
 
 const submitButtonClassName =
   "flex w-full cursor-pointer items-center justify-center rounded-xl bg-azure px-4.5 py-3.25 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70";
@@ -10,13 +10,16 @@ export function LoginFields({
   formAction,
   hasError,
   isPending,
+  nextPath,
 }: {
   formAction: ComponentProps<"form">["action"];
   hasError: boolean;
   isPending: boolean;
+  nextPath: string;
 }) {
   return (
     <form action={formAction}>
+      <input type="hidden" name="next" value={nextPath} />
       <div className="mb-3.5">
         <label htmlFor="email" className={authFieldLabelClassName}>
           Email
