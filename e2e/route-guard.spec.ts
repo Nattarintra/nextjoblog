@@ -31,7 +31,7 @@ test("preserves a deep link through login and shows the generic not-found screen
   await page.getByRole("button", { name: "Log In" }).click();
   await expect(page).toHaveURL("/applications/123?tab=notes");
   await expect(page.getByRole("heading", { name: /can't find this application/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Go to Dashboard" })).toHaveAttribute("href", "/dashboard");
+  await expect(page.getByText("Go to Dashboard", { exact: true })).toHaveAttribute("href", "/dashboard");
 });
 
 test("rejects unsafe next values", async ({ page }) => {
@@ -54,8 +54,8 @@ test("fails closed and recovers with Try Again", async ({ page }) => {
   await page.context().addCookies([{ name: "e2e-session-check", value: "fail", url: "http://localhost:3000" }]);
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: /couldn't verify your session/i })).toBeVisible();
-  await expect(page.getByText("Your Applications")).not.toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
   await page.context().clearCookies({ name: "e2e-session-check" });
   await page.getByRole("button", { name: "Try Again" }).click();
-  await expect(page.getByText("Your Applications")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 });
