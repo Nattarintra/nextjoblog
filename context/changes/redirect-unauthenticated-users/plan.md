@@ -567,15 +567,15 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 6.1 Unit suite and coverage gates pass
-- [x] 6.2 Lint, types, and build pass
-- [x] 6.3 GitHub Actions unit-tests and e2e-tests jobs are green including route-guard.spec.ts
+- [x] 6.1 Unit suite and coverage gates pass — 1cfe3ba
+- [x] 6.2 Lint, types, and build pass — 1cfe3ba
+- [x] 6.3 GitHub Actions unit-tests and e2e-tests jobs are green including route-guard.spec.ts — 1cfe3ba
 
 #### Manual
 
-- [x] 6.4 Vercel preview redirect returns 307 with correct Location and no-store headers
-- [x] 6.5 Test seam confirmed inert on the preview build
-- [x] 6.6 Full deep-link journey walked by hand
+- [x] 6.4 Vercel preview redirect returns 307 with correct Location and no-store headers — 1cfe3ba
+- [x] 6.5 Test seam confirmed inert on the preview build — 1cfe3ba
+- [x] 6.6 Full deep-link journey walked by hand — 1cfe3ba
 
 ### Deferred
 

@@ -12,18 +12,17 @@ export function SessionCheckFailed({ loginHref }: SessionCheckFailedProps) {
   const router = useRouter()
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [isPending, startTransition] = useTransition()
-  const [retryMessage, setRetryMessage] = useState<string | null>(null)
+  const [retryAttempted, setRetryAttempted] = useState(false)
 
   useEffect(() => {
     headingRef.current?.focus()
   }, [])
 
   function tryAgain(): void {
-    setRetryMessage(null)
+    setRetryAttempted(true)
     startTransition(() => {
       router.refresh()
     })
-    setRetryMessage("Still unable to verify your session")
   }
 
   return (
@@ -59,7 +58,7 @@ export function SessionCheckFailed({ loginHref }: SessionCheckFailedProps) {
           </Link>
         </div>
         <div role="status" aria-live="polite" className="sr-only">
-          {retryMessage}
+          {isPending ? "Checking your session" : retryAttempted ? "Still unable to verify your session" : null}
         </div>
         <p className="mt-8 text-center font-mono text-[10.5px] tracking-[0.04em] text-white/60">No application data was loaded</p>
       </div>

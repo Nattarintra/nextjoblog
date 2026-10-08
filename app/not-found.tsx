@@ -35,30 +35,9 @@ export default function NotFound() {
             >
               Go to Dashboard
             </Link>
-            <Link
-              href="/applications"
-              className="flex min-h-11 items-center justify-center rounded-xl px-[18px] py-[13px] text-sm font-semibold text-[#185fa5] outline-none focus-visible:ring-2 focus-visible:ring-navy"
-            >
-              View All Applications
-            </Link>
           </div>
         </section>
       </div>
-
-      <nav aria-label="Primary navigation" className="fixed bottom-0 left-0 right-0 flex h-[66px] border-t border-[#e1ddd0] bg-white">
-        <Link href="/dashboard" className="flex flex-1 flex-col items-center justify-center gap-1 text-[#8a8272] outline-none focus-visible:ring-2 focus-visible:ring-navy">
-          <span aria-hidden="true">⌂</span><span className="text-[9.5px] font-semibold">Dashboard</span>
-        </Link>
-        <Link href="/applications" aria-current="page" className="flex flex-1 flex-col items-center justify-center gap-1 text-azure outline-none focus-visible:ring-2 focus-visible:ring-navy">
-          <span aria-hidden="true">▤</span><span className="text-[9.5px] font-semibold">Applications</span>
-        </Link>
-        <Link href="/calendar" className="flex flex-1 flex-col items-center justify-center gap-1 text-[#8a8272] outline-none focus-visible:ring-2 focus-visible:ring-navy">
-          <span aria-hidden="true">□</span><span className="text-[9.5px] font-semibold">Calendar</span>
-        </Link>
-        <Link href="/analytics" className="flex flex-1 flex-col items-center justify-center gap-1 text-[#8a8272] outline-none focus-visible:ring-2 focus-visible:ring-navy">
-          <span aria-hidden="true">◌</span><span className="text-[9.5px] font-semibold">Analytics</span>
-        </Link>
-      </nav>
     </main>
   );
 }
