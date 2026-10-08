@@ -1,4 +1,3 @@
-import { isAuthApiError } from "@supabase/auth-js";
 import { createServerClient, isChunkLike } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -7,9 +6,25 @@ import {
   getSupabaseConfig,
   SupabaseConfigError,
 } from "@/lib/supabase/config";
+import { createAuthRedirect } from "@/lib/auth/redirect-response";
+import { REQUEST_PATH_HEADER } from "@/lib/auth/request-path";
+import { decideRouteAccess } from "@/lib/auth/route-access";
+import { classifyClaimsResult, classifyThrown } from "@/lib/auth/session-state";
+
+function requestSearchWithoutRsc(search: string): string {
+  const params = new URLSearchParams(search);
+  params.delete("_rsc");
+  const result = params.toString();
+  return result === "" ? "" : `?${result}`;
+}
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  let response = NextResponse.next({ request });
+  const pathname = request.nextUrl.pathname;
+  const search = requestSearchWithoutRsc(request.nextUrl.search);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(REQUEST_PATH_HEADER, `${pathname}${search}`);
+  const forwardedRequest = { request: { headers: requestHeaders } };
+  let response = NextResponse.next(forwardedRequest);
 
   let config;
   try {
@@ -44,7 +59,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
           request.cookies.set(name, value);
         });
 
-        response = NextResponse.next({ request });
+        response = NextResponse.next(forwardedRequest);
 
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
@@ -57,21 +72,35 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     },
   });
 
-  const { error } = await supabase.auth.getClaims();
+  let authState;
+  try {
+    const { data, error } = await supabase.auth.getClaims();
+    authState = classifyClaimsResult({ data, error });
+  } catch (error) {
+    authState = classifyThrown(error);
+  }
 
   // A confirmed-expired session (GoTrue's `session_expired`, i.e. the
   // timebox was exceeded) was a real session that is now dead — clear its
   // cookies so the browser stops presenting it. A missing/corrupted session
   // (no error, or any other error shape) has nothing meaningful to clear and
   // must not surface as an error; it just falls through as logged-out.
-  if (isAuthApiError(error) && error.code === "session_expired") {
+  if (authState.kind === "unauthenticated" && authState.reason === "expired") {
     request.cookies
       .getAll()
       .filter(({ name }) => isChunkLike(name, authCookieStorageKey))
       .forEach(({ name }) => response.cookies.delete(name));
   }
 
-  return response;
+  const decision = decideRouteAccess({
+    pathname,
+    search,
+    authState: authState.kind,
+  });
+
+  return decision.action === "redirect"
+    ? createAuthRedirect(decision.location, request.url, response)
+    : response;
 }
 
 export const config = {

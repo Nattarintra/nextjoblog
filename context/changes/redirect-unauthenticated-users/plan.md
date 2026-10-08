@@ -550,30 +550,33 @@ No database migration. File moves: `app/dashboard/*` → `app/(protected)/…` a
 
 #### Automated
 
-- [x] 5.1 Dashboard page tests cover authenticated and verification_failed states
-- [x] 5.2 SessionCheckFailed component tests pass
-- [x] 5.3 not-found page and notFoundIfMissing tests pass
-- [x] 5.4 Home page redirect test passes
-- [x] 5.5 Full suite and coverage gate pass
-- [x] 5.6 Production build succeeds
-- [x] 5.7 Type checking and lint pass
+- [x] 5.1 Dashboard page tests cover authenticated and verification_failed states — d5c1d2a
+- [x] 5.2 SessionCheckFailed component tests pass — d5c1d2a
+- [x] 5.3 not-found page and notFoundIfMissing tests pass — d5c1d2a
+- [x] 5.4 Home page redirect test passes — d5c1d2a
+- [x] 5.5 Full suite and coverage gate pass — d5c1d2a
+- [x] 5.6 Production build succeeds — d5c1d2a
+- [x] 5.7 Type checking and lint pass — d5c1d2a
 
 #### Manual
 
-- [x] 5.8 Both / and /dashboard end at /dashboard when logged in
-- [x] 5.9 Screens 00.6 and 00.7 match the wireframe and are keyboard and screen-reader accessible
+- [x] 5.8 Both / and /dashboard end at /dashboard when logged in — d5c1d2a
+- [x] 5.9 Screens 00.6 and 00.7 match the wireframe and are keyboard and screen-reader accessible — d5c1d2a
 
 ### Phase 6: Proxy wiring and E2E
 
 #### Automated
 
-- [ ] 6.1 Unit suite and coverage gates pass
-- [ ] 6.2 Lint, types, and build pass
-- [ ] 6.3 GitHub Actions unit-tests and e2e-tests jobs are green including route-guard.spec.ts
+- [x] 6.1 Unit suite and coverage gates pass
+- [x] 6.2 Lint, types, and build pass
+- [x] 6.3 GitHub Actions unit-tests and e2e-tests jobs are green including route-guard.spec.ts
 
 #### Manual
 
-- [ ] 6.4 Vercel preview redirect returns 307 with correct Location and no-store headers
-- [ ] 6.5 Test seam confirmed inert on the preview build
-- [ ] 6.6 Full deep-link journey walked by hand
-- [ ] 6.7 Client-side navigation with an expired session yields a clean next value
+- [x] 6.4 Vercel preview redirect returns 307 with correct Location and no-store headers
+- [x] 6.5 Test seam confirmed inert on the preview build
+- [x] 6.6 Full deep-link journey walked by hand
+
+### Deferred
+
+- [ ] 6.7 Client-side navigation with an expired session yields a clean next value — deferred by user; not verified

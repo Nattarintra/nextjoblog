@@ -95,7 +95,7 @@ test.describe("corrupted or missing session cookie", () => {
     const response = await page.goto("/dashboard");
 
     expect(response?.ok()).toBe(true);
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fdashboard$/);
     await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 
@@ -103,7 +103,7 @@ test.describe("corrupted or missing session cookie", () => {
     const response = await page.goto("/dashboard");
 
     expect(response?.ok()).toBe(true);
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fdashboard$/);
     await expect(page.getByRole("button", { name: "Log In" })).toBeVisible();
   });
 });
