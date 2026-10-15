@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { SupabaseConfigError } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { logAuthEvent } from "@/lib/auth/log";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
 
 const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,15 +56,6 @@ function isEmailNotConfirmedError(error: unknown): boolean {
 // empty identities array; a genuinely new signup does not.
 function isObfuscatedDuplicateUser(user: { identities?: unknown[] | null }): boolean {
   return Array.isArray(user.identities) && user.identities.length === 0;
-}
-
-// Safe diagnostic fields only: event label plus a stable provider code/status.
-// Never pass the raw error object, form data, or config error message here.
-function logAuthEvent(
-  event: string,
-  details?: { code?: string; status?: number },
-): void {
-  console.error(event, details ?? {});
 }
 
 export async function signup(

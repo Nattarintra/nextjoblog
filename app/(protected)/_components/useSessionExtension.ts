@@ -4,8 +4,8 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { extendSession, type ExtendSessionState } from "@/app/actions/session";
+import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
 
-const OFFLINE_ERROR_MESSAGE = "You appear to be offline. Please reconnect and try again.";
 type SuccessfulExtensionState = { ok: true; extendedUntil: number };
 type UseSessionExtensionOptions = { onSuccess: () => void };
 

@@ -1,4 +1,6 @@
 import {
+  LOGGED_OUT_PARAM_NAME,
+  LOGGED_OUT_PARAM_VALUE,
   LOGIN_PATH,
   NEXT_PARAM_NAME,
   SESSION_EXPIRED_PATH,
@@ -16,4 +18,8 @@ export function buildLoginRedirectUrl(requestedPath: string): string {
 
 export function buildSessionExpiredUrl(requestedPath: string): string {
   return buildRedirectUrl(SESSION_EXPIRED_PATH, requestedPath);
+}
+
+export function buildLoggedOutLoginUrl(): string {
+  return `${LOGIN_PATH}?${LOGGED_OUT_PARAM_NAME}=${LOGGED_OUT_PARAM_VALUE}`;
 }

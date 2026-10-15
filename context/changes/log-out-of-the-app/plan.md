@@ -394,15 +394,15 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [ ] 1.1 Unit tests for sign-out service and logout orchestration pass
-- [ ] 1.2 signOut is called once with scope local and every failure branch is covered
-- [ ] 1.3 Coverage for lib/auth/** is at least 90%
-- [ ] 1.4 Type checking passes
-- [ ] 1.5 Linting passes
+- [x] 1.1 Unit tests for sign-out service and logout orchestration pass
+- [x] 1.2 signOut is called once with scope local and every failure branch is covered
+- [x] 1.3 Coverage for lib/auth/** is at least 90%
+- [x] 1.4 Type checking passes
+- [x] 1.5 Linting passes
 
 #### Manual
 
-- [ ] 1.6 Code review: no magic strings outside paths and messages, no framework imports in pure modules
+- [x] 1.6 Code review: no magic strings outside paths and messages, no framework imports in pure modules
 
 ### Phase 2: Server Action and hook
 
