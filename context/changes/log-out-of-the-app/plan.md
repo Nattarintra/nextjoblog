@@ -450,12 +450,12 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [ ] 5.1 Unit suite with coverage and Playwright logout spec pass locally
+- [ ] 5.1 Unit suite with coverage and Playwright logout spec pass locally (unit: 230 pass, 94.8% stmts, lib/auth 98.6%; `e2e/logout.spec.ts` written but NOT yet run — local Supabase would not start and Playwright can't install Chromium on this macOS 13 host)
 - [ ] 5.2 GitHub Actions unit-tests and e2e-tests jobs are green
-- [ ] 5.3 Lint, types, and build pass
+- [x] 5.3 Lint, types, and build pass
 
 #### Manual
 
 - [ ] 5.4 Two-tab logout journey verified by hand
 - [ ] 5.5 Vercel preview logout and no-store headers verified
-- [ ] 5.6 Docs updated and fix-expired-session-local-sign-out change created
+- [x] 5.6 Docs updated and fix-expired-session-local-sign-out change created
