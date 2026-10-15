@@ -6,6 +6,10 @@ const password = "abcdef";
 const BASE_URL = "http://localhost:3000";
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
+const DASHBOARD_URL = /\/dashboard$/;
+const LOGGED_OUT_LOGIN_URL = /\/login\?loggedOut=1$/;
+const APPLICATION_LOGIN_REDIRECT_URL = /\/login\?next=%2Fapplications%2F123$/;
+
 test.describe.configure({ mode: "default" });
 
 async function signUp(browser: Browser, label: string) {
@@ -16,7 +20,7 @@ async function signUp(browser: Browser, label: string) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign Up" }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(DASHBOARD_URL);
   return { email, context, page };
 }
 
@@ -44,12 +48,12 @@ test("logs out, lands on the login banner, and Back never shows the dashboard", 
 
   await sheet.getByRole("button", { name: "Log Out" }).click();
 
-  await expect(page).toHaveURL(/\/login\?loggedOut=1$/);
+  await expect(page).toHaveURL(LOGGED_OUT_LOGIN_URL);
   await expect(page.getByRole("status")).toContainText("You've been logged out");
   await expect(async () => expect(await authCookieCount(page)).toBe(0)).toPass({ timeout: 5_000 });
 
   await page.goBack();
-  await expect(page).toHaveURL(/\/login\?next=%2Fapplications%2F123$/);
+  await expect(page).toHaveURL(APPLICATION_LOGIN_REDIRECT_URL);
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
 
   await context.close();
@@ -69,14 +73,14 @@ test("logging out in one context leaves another context of the same user logged 
   await secondPage.getByLabel("Email").fill(email);
   await secondPage.getByLabel("Password").fill(password);
   await secondPage.getByRole("button", { name: "Log In" }).click();
-  await expect(secondPage).toHaveURL(/\/dashboard$/);
+  await expect(secondPage).toHaveURL(DASHBOARD_URL);
 
   const sheet = await openAccountSheet(page);
   await sheet.getByRole("button", { name: "Log Out" }).click();
-  await expect(page).toHaveURL(/\/login\?loggedOut=1$/);
+  await expect(page).toHaveURL(LOGGED_OUT_LOGIN_URL);
 
   await secondPage.reload();
-  await expect(secondPage).toHaveURL(/\/dashboard$/);
+  await expect(secondPage).toHaveURL(DASHBOARD_URL);
   await expect(secondPage.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 
   await second.close();
@@ -92,11 +96,11 @@ test.describe("failure outcomes", () => {
     await sheet.getByRole("button", { name: "Log Out" }).click();
 
     await expect(sheet.getByRole("alert")).toContainText("You're still logged in on this device");
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(DASHBOARD_URL);
 
     await context.clearCookies({ name: "e2e-logout" });
     await sheet.getByRole("button", { name: "Try Again" }).click();
-    await expect(page).toHaveURL(/\/login\?loggedOut=1$/);
+    await expect(page).toHaveURL(LOGGED_OUT_LOGIN_URL);
     await expect(async () => expect(await authCookieCount(page)).toBe(0)).toPass({ timeout: 5_000 });
 
     await context.close();
@@ -124,11 +128,11 @@ test.describe("failure outcomes", () => {
     await context.setOffline(true);
     await sheet.getByRole("button", { name: "Log Out" }).click();
     await expect(sheet.getByRole("alert")).toBeVisible();
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(DASHBOARD_URL);
 
     await context.setOffline(false);
     await sheet.getByRole("button", { name: "Try Again" }).click();
-    await expect(page).toHaveURL(/\/login\?loggedOut=1$/);
+    await expect(page).toHaveURL(LOGGED_OUT_LOGIN_URL);
     await expect(async () => expect(await authCookieCount(page)).toBe(0)).toPass({ timeout: 5_000 });
 
     await context.close();
