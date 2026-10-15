@@ -450,8 +450,8 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [ ] 5.1 Deviation (found by E2E): useLogout uses window.location.replace instead of router.replace so Back cannot show a Next client-cache page. Unit suite with coverage and Playwright logout spec pass locally (unit: 230 pass, 94.8% stmts, lib/auth 98.6%; `e2e/logout.spec.ts` written but NOT yet run — local Supabase would not start and Playwright can't install Chromium on this macOS 13 host)
-- [ ] 5.2 GitHub Actions unit-tests and e2e-tests jobs are green
+- [x] 5.1 Unit suite with coverage and Playwright logout spec pass locally (unit: 230 pass, 94.8% stmts, lib/auth 98.6%; E2E ran green in CI — not locally, Chromium unsupported on macOS 13). Deviation found by E2E: useLogout uses window.location.replace instead of router.replace so Back cannot show a Next client-cache page — f922b50
+- [x] 5.2 GitHub Actions unit-tests and e2e-tests jobs are green
 - [x] 5.3 Lint, types, and build pass
 
 #### Manual
