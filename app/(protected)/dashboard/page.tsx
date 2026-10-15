@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="min-h-[100svh] flex items-center justify-center bg-navy text-white">
+    <main className="flex-1 flex items-center justify-center bg-mist text-navy">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
     </main>
   );

@@ -6,6 +6,7 @@
   --navy: #042c53;
   --sky: #b5d4f4;
   --azure: #1976d2;
+  --mist: #e4f2ff;
   --warning-tint: #fbf0dc;
   --warning-fg: #8a5608;
   --danger-tint: #fbe9e7;
@@ -20,6 +21,7 @@
   --color-navy: var(--navy);
   --color-sky: var(--sky);
   --color-azure: var(--azure);
+  --color-mist: var(--mist);
   --color-warning-tint: var(--warning-tint);
   --color-warning-fg: var(--warning-fg);
   --color-danger-tint: var(--danger-tint);

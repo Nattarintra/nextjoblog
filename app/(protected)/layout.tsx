@@ -3,6 +3,7 @@ import {
   getSessionNoticeWindowMs,
 } from "@/lib/session";
 
+import { AppTopBar } from "./_components/AppTopBar";
 import { SessionExpiryNotice } from "./_components/SessionExpiryNotice";
 
 export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
@@ -12,7 +13,8 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
   const noticeWindowMs = getSessionNoticeWindowMs();
 
   return (
-    <>
+    <div className="flex min-h-[100svh] flex-col bg-mist">
+      {effective.status === "authenticated" && <AppTopBar />}
       {children}
       {sessionExpiresAt !== undefined && (
         <SessionExpiryNotice
@@ -20,6 +22,6 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
           noticeWindowMs={noticeWindowMs}
         />
       )}
-    </>
+    </div>
   );
 }

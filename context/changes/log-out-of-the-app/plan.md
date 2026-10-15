@@ -218,6 +218,10 @@ Wire the core into a `"use server"` action and the client hook.
 
 - Spike gate: after Log Out on the throwaway button, final URL is `/login?loggedOut=1` (no `next=`), history entry replaced, in both `next dev` and a production build. Result recorded in this plan.
 
+**Spike result (2026-10-15, `next dev`, Chrome via Playwright, local Supabase): FAILED.** After Log Out on the throwaway button, cookies were cleared (sign-out worked) but the final URL was `/login?next=%2Fdashboard`, not `/login?loggedOut=1`; history length was unchanged at 3. The Server Action's cookie-mutation re-render ran the page's `requireSession()` and its redirect won the race against the client `router.replace`. Production build not tested (dev result already triggers the stop condition). Re-plan needed before Phase 3: Route Handler / `fetch` logout with no router re-render (fallback named in Critical Implementation Details).
+
+**Deviation (decided after spike): logout is a Route Handler, not a Server Action.** `POST /api/auth/logout` (`app/api/auth/logout/route.ts`, `/api/auth` is already public in the proxy) runs `createLogout` and returns the `LogoutState` as JSON with `no-store`; `app/actions/logout.ts` was removed. `useLogout` now uses `fetch` + local state and `router.replace(buildLoggedOutLoginUrl())` on `{ ok: true }`. The `e2e-logout` cookie hook is read in the route. **Re-run result: PASS** in `next dev` and a production build — final URL `/login?loggedOut=1`, no `next=`, auth cookies cleared, history length unchanged (entry replaced), Back goes to the pre-dashboard page, not the dashboard.
+
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
 ---
@@ -408,14 +412,14 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [ ] 2.1 Logout action tests pass
-- [ ] 2.2 useLogout tests cover retry, replace navigation, double-click, and offline
-- [ ] 2.3 Coverage gates, types, and lint pass
-- [ ] 2.5 E2E logout test hook unit tests pass and are inert in production
+- [x] 2.1 Logout action tests pass
+- [x] 2.2 useLogout tests cover retry, replace navigation, double-click, and offline
+- [x] 2.3 Coverage gates, types, and lint pass
+- [x] 2.5 E2E logout test hook unit tests pass and are inert in production
 
 #### Manual
 
-- [ ] 2.4 Spike gate: logout via the action ends on /login?loggedOut=1 with no next in dev and production build
+- [x] 2.4 Spike gate: logout via the action ends on /login?loggedOut=1 with no next in dev and production build
 
 ### Phase 3: Tokens, top bar, Account sheet
 
