@@ -29,9 +29,15 @@ describe("AuthHistoryGuard", () => {
   it("also protects unknown protected paths outside the route-group layout", () => {
     render(<AuthHistoryGuard />);
 
-    const event = new Event("pageshow") as PageTransitionEvent;
-    Object.defineProperty(event, "persisted", { value: true });
-    window.dispatchEvent(event);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+
+    expect(reloadMock).toHaveBeenCalledOnce();
+  });
+
+  it("reloads when history navigation is reported without BFCache", () => {
+    render(<AuthHistoryGuard />);
+
+    window.dispatchEvent(new Event("popstate"));
 
     expect(reloadMock).toHaveBeenCalledOnce();
   });
