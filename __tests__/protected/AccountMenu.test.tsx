@@ -1,12 +1,10 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { replaceMock, logoutState } = vi.hoisted(() => ({
-  replaceMock: vi.fn(),
+const { logoutState } = vi.hoisted(() => ({
   logoutState: { logout: vi.fn(), errorMessage: null as string | null, isPending: false },
 }));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: replaceMock }) }));
 vi.mock("@/app/(protected)/_components/useLogout", () => ({ useLogout: () => logoutState }));
 
 import { AccountMenu } from "@/app/(protected)/_components/AccountMenu";

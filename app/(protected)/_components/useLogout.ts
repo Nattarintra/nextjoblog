@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
 import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
@@ -25,15 +24,17 @@ async function postLogout(): Promise<LogoutState> {
 }
 
 export function useLogout(request: LogoutRequest = postLogout) {
-  const router = useRouter();
   const [state, setState] = useState<LogoutState>(undefined);
   const [isRequesting, setIsRequesting] = useState(false);
   const inFlight = useRef(false);
   const loggedOut = state !== undefined && "ok" in state;
 
   useEffect(() => {
-    if (loggedOut) router.replace(buildLoggedOutLoginUrl());
-  }, [loggedOut, router]);
+    // A full navigation, not router.replace: Next reuses cached pages on
+    // Back/Forward and a Route Handler's cookie change does not clear that
+    // client cache, so Back would otherwise show a cached authenticated page.
+    if (loggedOut) window.location.replace(buildLoggedOutLoginUrl());
+  }, [loggedOut]);
 
   const logout = useCallback(async (): Promise<void> => {
     if (inFlight.current || loggedOut) return;

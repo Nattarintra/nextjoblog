@@ -1,14 +1,7 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { replaceMock, pushMock } = vi.hoisted(() => ({
-  replaceMock: vi.fn(),
-  pushMock: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: replaceMock, push: pushMock }),
-}));
+const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
 
 import { useLogout } from "@/app/(protected)/_components/useLogout";
 import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
@@ -24,6 +17,7 @@ describe("useLogout", () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.stubGlobal("location", { replace: replaceMock });
     setOnline(true);
   });
 
@@ -41,13 +35,12 @@ describe("useLogout", () => {
     expect(action).toHaveBeenCalledTimes(2);
   });
 
-  it("navigates with replace to the logged-out login URL, never push", async () => {
+  it("hard-navigates with location.replace to the logged-out login URL", async () => {
     const action = vi.fn().mockResolvedValue({ ok: true });
     const { result } = renderHook(() => useLogout(action));
 
     await act(async () => { await result.current.logout(); });
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith("/login?loggedOut=1"));
-    expect(pushMock).not.toHaveBeenCalled();
   });
 
   it("stays pending after success until navigation and ignores further calls", async () => {
