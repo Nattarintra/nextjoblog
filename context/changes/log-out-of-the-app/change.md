@@ -1,7 +1,7 @@
 ---
 change_id: log-out-of-the-app
 title: Log out of the app
-status: plan_reviewed
+status: implementing
 created: 2026-10-15
 updated: 2026-10-15
 archived_at: null

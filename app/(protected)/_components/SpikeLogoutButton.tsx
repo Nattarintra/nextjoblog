@@ -1,6 +1,6 @@
 "use client";
 
-// THROWAWAY (Phase 2 spike gate): remove in Phase 3 when AccountSheet lands.
+// Desktop-only inline Log Out shown beside the Account button (mobile uses AccountSheet).
 import { useLogout } from "./useLogout";
 
 // Styled after .btn-logout in the MVP screens; uses --danger-fg for contrast.

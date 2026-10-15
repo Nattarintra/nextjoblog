@@ -425,14 +425,14 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [ ] 3.1 AccountMenu and AccountSheet component tests pass
-- [ ] 3.2 Protected layout test passes
-- [ ] 3.3 Full suite, build, types, and lint pass
+- [x] 3.1 AccountMenu and AccountSheet component tests pass
+- [x] 3.2 Protected layout test passes
+- [x] 3.3 Full suite, build, types, and lint pass
 
 #### Manual
 
-- [ ] 3.4 Sheet matches wireframes and Log Out contrast is at least 4.5:1
-- [ ] 3.5 Keyboard and screen-reader pass; expiry notice stacks above the sheet
+- [x] 3.4 Sheet matches wireframes and Log Out contrast is at least 4.5:1
+- [x] 3.5 Keyboard and screen-reader pass; expiry notice stacks above the sheet
 
 ### Phase 4: Login banner and no-store
 
