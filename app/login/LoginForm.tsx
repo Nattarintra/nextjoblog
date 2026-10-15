@@ -7,7 +7,8 @@ import { login } from "@/app/actions/auth";
 import { AuthLogo } from "@/components/auth/AuthLogo";
 import { authLinkClassName } from "@/components/auth/styles";
 
-import { LoginConfirmationRequiredAlert, LoginErrorAlert } from "./LoginAlert";
+import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LoginConfirmationRequiredAlert, LoginErrorAlert, LoginLoggedOutAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
 import { ReturnStrip } from "./ReturnStrip";
 
@@ -22,10 +23,13 @@ const styles = {
 export default function LoginForm({
   nextPath = "/dashboard",
   destinationLabel,
+  loggedOut = false,
 }: {
   nextPath?: string;
   destinationLabel?: string;
+  loggedOut?: boolean;
 }) {
+  const returnLabel = loggedOut ? undefined : destinationLabel;
   const [state, formAction, isPending] = useActionState(login, undefined);
   const hasError = Boolean(state && "error" in state);
 
@@ -33,14 +37,15 @@ export default function LoginForm({
     <div className={styles.wrap}>
       <div className={styles.glow} aria-hidden="true" />
       <AuthLogo />
-      <h1 className={styles.heading}>{destinationLabel ? "Log In to Continue" : "Log In"}</h1>
+      <h1 className={styles.heading}>{returnLabel ? "Log In to Continue" : "Log In"}</h1>
       <div className={styles.subheading}>
-        {destinationLabel
+        {returnLabel
           ? "You need to be logged in to open this page."
           : "Log your job applications and track every step in one place."}
       </div>
 
-      {destinationLabel && <ReturnStrip label={destinationLabel} />}
+      {loggedOut && <LoginLoggedOutAlert message={LOGOUT_MESSAGES.loggedOutBanner} />}
+      {returnLabel && <ReturnStrip label={returnLabel} />}
 
       {state && "error" in state && state.error === "invalid_credentials" && (
         <LoginErrorAlert message="Email or password is incorrect" />

@@ -6,6 +6,7 @@ import {
   getSupabaseConfig,
   SupabaseConfigError,
 } from "@/lib/supabase/config";
+import { applyProtectedCacheControl } from "@/lib/auth/protected-cache";
 import { createAuthRedirect } from "@/lib/auth/redirect-response";
 import { REQUEST_PATH_HEADER } from "@/lib/auth/request-path";
 import { decideRouteAccess } from "@/lib/auth/route-access";
@@ -100,7 +101,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 
   return decision.action === "redirect"
     ? createAuthRedirect(decision.location, request.url, response)
-    : response;
+    : applyProtectedCacheControl(response, pathname);
 }
 
 export const config = {

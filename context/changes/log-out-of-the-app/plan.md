@@ -425,26 +425,26 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [x] 3.1 AccountMenu and AccountSheet component tests pass
-- [x] 3.2 Protected layout test passes
-- [x] 3.3 Full suite, build, types, and lint pass
+- [x] 3.1 AccountMenu and AccountSheet component tests pass — 66b1c82
+- [x] 3.2 Protected layout test passes — 66b1c82
+- [x] 3.3 Full suite, build, types, and lint pass — 66b1c82
 
 #### Manual
 
-- [x] 3.4 Sheet matches wireframes and Log Out contrast is at least 4.5:1
-- [x] 3.5 Keyboard and screen-reader pass; expiry notice stacks above the sheet
+- [x] 3.4 Sheet matches wireframes and Log Out contrast is at least 4.5:1 — 66b1c82
+- [x] 3.5 Keyboard and screen-reader pass; expiry notice stacks above the sheet — 66b1c82
 
 ### Phase 4: Login banner and no-store
 
 #### Automated
 
-- [ ] 4.1 Login page and alert tests pass
-- [ ] 4.2 Protected cache header helper and proxy tests pass
-- [ ] 4.3 Coverage gates, types, and lint pass
+- [x] 4.1 Login page and alert tests pass
+- [x] 4.2 Protected cache header helper and proxy tests pass
+- [x] 4.3 Coverage gates, types, and lint pass
 
 #### Manual
 
-- [ ] 4.4 Protected response shows cache-control no-store via curl
+- [x] 4.4 Protected response shows cache-control no-store via curl (verified on a production build: `private, no-store, max-age=0`; `next dev` sends `no-cache, must-revalidate` — framework dev override)
 
 ### Phase 5: E2E, docs, follow-up
 

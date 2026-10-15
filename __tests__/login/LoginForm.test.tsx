@@ -48,6 +48,19 @@ describe("LoginForm", () => {
     expect(screen.getByDisplayValue("/applications/123?tab=notes")).toHaveProperty("type", "hidden");
   });
 
+  it("shows the logged-out status banner and suppresses the return strip", () => {
+    render(<LoginForm loggedOut nextPath="/dashboard" destinationLabel="Dashboard" />);
+
+    expect(screen.getByRole("status").textContent).toContain("You've been logged out.");
+    expect(screen.queryByText("You'll return to the page you opened")).toBeNull();
+    expect(screen.getByRole("heading", { name: "Log In" })).toBeTruthy();
+  });
+
+  it("shows no banner by default", () => {
+    render(<LoginForm />);
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
   it("does not show a return strip when there is no destination label", () => {
     render(<LoginForm nextPath="/dashboard" />);
 
