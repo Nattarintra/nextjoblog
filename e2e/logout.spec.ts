@@ -34,9 +34,11 @@ async function openAccountSheet(page: Page) {
 
 test("logs out, lands on the login banner, and Back never shows the dashboard", async ({ browser }) => {
   const { email, context, page } = await signUp(browser, "happy");
-  // Signup leaves [/signup, /dashboard]; add a second protected entry so Back
-  // from the replaced entry lands on a protected page, not on /signup.
+  // Signup leaves [/signup, /dashboard]. Visit another protected page and come
+  // back so Back from the replaced entry lands on a protected page, not /signup.
+  // (The not-found screen has no top bar, so the sheet is opened on /dashboard.)
   await page.goto("/applications/123");
+  await page.goto("/dashboard");
   const sheet = await openAccountSheet(page);
   await expect(sheet.getByText(email)).toBeVisible();
 
@@ -47,7 +49,7 @@ test("logs out, lands on the login banner, and Back never shows the dashboard", 
   await expect(async () => expect(await authCookieCount(page)).toBe(0)).toPass({ timeout: 5_000 });
 
   await page.goBack();
-  await expect(page).toHaveURL(/\/login\?next=%2Fdashboard$/);
+  await expect(page).toHaveURL(/\/login\?next=%2Fapplications%2F123$/);
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
 
   await context.close();
