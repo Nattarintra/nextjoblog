@@ -34,6 +34,9 @@ async function openAccountSheet(page: Page) {
 
 test("logs out, lands on the login banner, and Back never shows the dashboard", async ({ browser }) => {
   const { email, context, page } = await signUp(browser, "happy");
+  // Signup leaves [/signup, /dashboard]; add a second protected entry so Back
+  // from the replaced entry lands on a protected page, not on /signup.
+  await page.goto("/applications/123");
   const sheet = await openAccountSheet(page);
   await expect(sheet.getByText(email)).toBeVisible();
 
@@ -50,14 +53,10 @@ test("logs out, lands on the login banner, and Back never shows the dashboard", 
   await context.close();
 });
 
-test("protected pages respond with no-store", async ({ browser }) => {
-  const { context, page } = await signUp(browser, "cache");
-
-  const response = await page.goto("/dashboard");
-  expect(response?.headers()["cache-control"]).toContain("no-store");
-
-  await context.close();
-});
+// The `no-store` header on protected responses is not asserted here: `next dev`
+// (used by this suite) overrides it with `no-cache, must-revalidate`. It is
+// covered by the protected-cache unit tests and verified on a production build
+// (plan step 4.4); route-guard.spec.ts asserts it on the redirect response.
 
 test("logging out in one context leaves another context of the same user logged in", async ({ browser }) => {
   const { email, context, page } = await signUp(browser, "scope");
