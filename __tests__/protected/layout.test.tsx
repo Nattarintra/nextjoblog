@@ -7,8 +7,8 @@ vi.mock("@/lib/session", () => ({
   getEffectiveSessionExpiry: effectiveMock,
   getSessionNoticeWindowMs: () => 1000,
 }));
-vi.mock("@/app/(protected)/_components/ProtectedChrome", () => ({
-  ProtectedChrome: ({ email }: { email?: string }) => <div data-testid="chrome">{email ?? "no-email"}</div>,
+vi.mock("@/app/(protected)/_components/ProtectedAppShell", () => ({
+  ProtectedAppShell: ({ email }: { email?: string }) => <div data-testid="chrome">{email ?? "no-email"}</div>,
 }));
 
 import ProtectedLayout from "@/app/(protected)/layout";
