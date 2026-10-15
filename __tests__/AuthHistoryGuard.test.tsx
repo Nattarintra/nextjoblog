@@ -9,6 +9,8 @@ describe("AuthHistoryGuard", () => {
   beforeEach(() => {
     cleanup();
     vi.clearAllMocks();
+    Reflect.deleteProperty(window, "__nextJobLogHistoryGuardInstalled");
+    Reflect.deleteProperty(window, "__nextJobLogHistoryReloading");
     vi.stubGlobal("location", { pathname: "/dashboard", reload: reloadMock });
   });
 
@@ -17,13 +19,14 @@ describe("AuthHistoryGuard", () => {
   });
 
   it("reloads a protected page restored from BFCache", () => {
-    render(<AuthHistoryGuard />);
+    const { container } = render(<AuthHistoryGuard />);
 
     const event = new Event("pageshow") as PageTransitionEvent;
     Object.defineProperty(event, "persisted", { value: true });
     window.dispatchEvent(event);
 
     expect(reloadMock).toHaveBeenCalledOnce();
+    expect(container.querySelector("script")?.textContent).toContain("back_forward");
   });
 
   it("also protects unknown protected paths outside the route-group layout", () => {
