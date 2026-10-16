@@ -2,32 +2,40 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
-import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
 import { buildLoggedOutLoginUrl } from "@/lib/auth/login-redirect";
-import type { LogoutState } from "@/lib/auth/logout";
+import {
+  getLogoutFailure,
+  isLogoutSuccess,
+  LOGOUT_FAILURES,
+} from "@/lib/auth/logout-state";
+import type { LogoutState } from "@/lib/auth/logout-state";
 import { LOGOUT_API_PATH } from "@/lib/auth/paths";
 
 type LogoutRequest = () => Promise<LogoutState>;
 
-const UNKNOWN_FAILURE: LogoutState = { error: "unknown", message: LOGOUT_MESSAGES.unknown };
+export type LogoutControl = {
+  logout: () => void;
+  errorMessage: string | null;
+  isPending: boolean;
+};
+
 
 async function postLogout(): Promise<LogoutState> {
   try {
     const response = await fetch(LOGOUT_API_PATH, { method: "POST", credentials: "same-origin" });
-    if (!response.ok) return UNKNOWN_FAILURE;
+    if (!response.ok) return LOGOUT_FAILURES.unknown;
     const body = (await response.json()) as LogoutState | null;
-    return body ?? UNKNOWN_FAILURE;
+    return body ?? LOGOUT_FAILURES.unknown;
   } catch {
-    return UNKNOWN_FAILURE;
+    return LOGOUT_FAILURES.unknown;
   }
 }
 
-export function useLogout(request: LogoutRequest = postLogout) {
+export function useLogout(request: LogoutRequest = postLogout): LogoutControl {
   const [state, setState] = useState<LogoutState>(undefined);
   const [isRequesting, setIsRequesting] = useState(false);
   const inFlight = useRef(false);
-  const loggedOut = state !== undefined && "ok" in state;
+  const loggedOut = isLogoutSuccess(state);
 
   useEffect(() => {
     // A full navigation, not router.replace: Next reuses cached pages on
@@ -39,7 +47,7 @@ export function useLogout(request: LogoutRequest = postLogout) {
   const logout = useCallback(async (): Promise<void> => {
     if (inFlight.current || loggedOut) return;
     if (!navigator.onLine) {
-      setState({ error: "unknown", message: OFFLINE_ERROR_MESSAGE });
+      setState(LOGOUT_FAILURES.offline);
       return;
     }
     inFlight.current = true;
@@ -55,7 +63,7 @@ export function useLogout(request: LogoutRequest = postLogout) {
 
   return {
     logout,
-    errorMessage: state && "error" in state ? state.message : null,
+    errorMessage: getLogoutFailure(state)?.message ?? null,
     // Stays true after success until navigation so the button cannot be re-clicked.
     isPending: isRequesting || loggedOut,
   };

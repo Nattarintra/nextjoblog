@@ -5,7 +5,9 @@ const { replaceMock } = vi.hoisted(() => ({ replaceMock: vi.fn() }));
 
 import { useLogout } from "@/app/(protected)/_components/useLogout";
 import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
-import type { LogoutState } from "@/lib/auth/logout";
+import { LOGOUT_FAILURES } from "@/lib/auth/logout-state";
+import type { LogoutState } from "@/lib/auth/logout-state";
+import { LOGOUT_API_PATH } from "@/lib/auth/paths";
 
 function setOnline(value: boolean): void {
   Object.defineProperty(window.navigator, "onLine", { value, configurable: true });
@@ -84,5 +86,55 @@ describe("useLogout", () => {
     await act(async () => { await result.current.logout(); });
     await waitFor(() => expect(replaceMock).toHaveBeenCalledTimes(1));
     expect(result.current.errorMessage).toBeNull();
+  });
+
+  describe("default fetch request", () => {
+    const fetchMock = vi.fn();
+
+    beforeEach(() => {
+      fetchMock.mockReset();
+      vi.stubGlobal("fetch", fetchMock);
+    });
+
+    async function runLogout() {
+      const { result } = renderHook(() => useLogout());
+      await act(async () => { await result.current.logout(); });
+      return result;
+    }
+
+    it("POSTs to the logout route and navigates on { ok: true }", async () => {
+      fetchMock.mockResolvedValue(Response.json({ ok: true }));
+      await runLogout();
+
+      expect(fetchMock).toHaveBeenCalledWith(LOGOUT_API_PATH, { method: "POST", credentials: "same-origin" });
+      await waitFor(() => expect(replaceMock).toHaveBeenCalledTimes(1));
+    });
+
+    it("surfaces the server failure message without navigating", async () => {
+      fetchMock.mockResolvedValue(Response.json(failure));
+      const result = await runLogout();
+
+      expect(result.current.errorMessage).toBe("still in");
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["a null body", () => Response.json(null)],
+      ["a non-OK response", () => new Response("boom", { status: 500 })],
+    ])("falls back to the unknown failure on %s", async (_label, makeResponse) => {
+      fetchMock.mockResolvedValue(makeResponse());
+      const result = await runLogout();
+
+      expect(result.current.errorMessage).toBe(LOGOUT_FAILURES.unknown.message);
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the unknown failure when fetch throws", async () => {
+      fetchMock.mockRejectedValue(new TypeError("network"));
+      const result = await runLogout();
+
+      expect(result.current.errorMessage).toBe(LOGOUT_FAILURES.unknown.message);
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
   });
 });

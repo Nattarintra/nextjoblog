@@ -3,17 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 
 import { AccountSheet } from "./AccountSheet";
+import type { LogoutControl } from "./useLogout";
 
 const TRIGGER_CLASS =
   "inline-flex size-11 cursor-pointer items-center justify-center rounded-full bg-sky text-[14px] font-bold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
 type AccountMenuProps = {
   email?: string;
+  logoutControl: LogoutControl;
   // True while another modal (the session expiry notice) owns the screen.
   suspended?: boolean;
 };
 
-export function AccountMenu({ email, suspended = false }: AccountMenuProps) {
+export function AccountMenu({ email, logoutControl, suspended = false }: AccountMenuProps) {
   const [open, setOpen] = useState(false);
   const [prevSuspended, setPrevSuspended] = useState(suspended);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -48,7 +50,7 @@ export function AccountMenu({ email, suspended = false }: AccountMenuProps) {
           <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </button>
-      {open && <AccountSheet email={email} onClose={() => setOpen(false)} />}
+      {open && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setOpen(false)} />}
     </>
   );
 }

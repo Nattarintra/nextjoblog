@@ -1,14 +1,9 @@
-import { LOGOUT_LOG_EVENT, LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LOGOUT_FAILURES, LOGOUT_SUCCESS } from "@/lib/auth/logout-state";
+import type { LogoutState } from "@/lib/auth/logout-state";
+import { LOGOUT_LOG_EVENT } from "@/lib/auth/messages";
 import { signOutCurrentSession } from "@/lib/auth/sign-out";
 import type { SignOutResult } from "@/lib/auth/sign-out";
 import { SupabaseConfigError } from "@/lib/supabase/config";
-
-type LogoutErrorKind = "still_signed_in" | "unconfirmed" | "configuration" | "unknown";
-
-export type LogoutState =
-  | undefined
-  | { ok: true }
-  | { error: LogoutErrorKind; message: string };
 
 type LogoutAuth = Parameters<typeof signOutCurrentSession>[0];
 
@@ -19,32 +14,25 @@ type LogoutDependencies = {
   forcedOutcome?: () => Promise<"fail" | "unconfirmed" | undefined>;
 };
 
-const ERROR_STATES: Record<LogoutErrorKind, { error: LogoutErrorKind; message: string }> = {
-  still_signed_in: { error: "still_signed_in", message: LOGOUT_MESSAGES.stillSignedIn },
-  unconfirmed: { error: "unconfirmed", message: LOGOUT_MESSAGES.unconfirmed },
-  configuration: { error: "configuration", message: LOGOUT_MESSAGES.configuration },
-  unknown: { error: "unknown", message: LOGOUT_MESSAGES.unknown },
-};
-
 const FORCED_RESULTS: Record<"fail" | "unconfirmed", SignOutResult> = {
   fail: { kind: "still_signed_in" },
   unconfirmed: { kind: "unconfirmed" },
 };
 
 function mapResult(result: SignOutResult, log: LogoutDependencies["log"]): LogoutState {
-  if (result.kind === "signed_out") return { ok: true };
+  if (result.kind === "signed_out") return LOGOUT_SUCCESS;
 
   const event =
     result.kind === "still_signed_in"
       ? LOGOUT_LOG_EVENT.providerError
       : LOGOUT_LOG_EVENT.unconfirmed;
   log(event, { code: result.code, status: result.status });
-  return ERROR_STATES[result.kind];
+  return LOGOUT_FAILURES[result.kind];
 }
 
 export function createLogout(
   deps: LogoutDependencies,
-): (state: LogoutState) => Promise<LogoutState> {
+): () => Promise<LogoutState> {
   return async () => {
     try {
       const forced = await deps.forcedOutcome?.();
@@ -55,11 +43,11 @@ export function createLogout(
     } catch (error) {
       if (error instanceof SupabaseConfigError) {
         deps.log(LOGOUT_LOG_EVENT.configuration, { code: error.reason });
-        return ERROR_STATES.configuration;
+        return LOGOUT_FAILURES.configuration;
       }
 
       deps.log(LOGOUT_LOG_EVENT.unexpected);
-      return ERROR_STATES.unknown;
+      return LOGOUT_FAILURES.unknown;
     }
   };
 }

@@ -7,7 +7,7 @@ import { login } from "@/app/actions/auth";
 import { AuthLogo } from "@/components/auth/AuthLogo";
 import { authLinkClassName } from "@/components/auth/styles";
 
-import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
 import { LoginConfirmationRequiredAlert, LoginErrorAlert, LoginLoggedOutAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
 import { ReturnStrip } from "./ReturnStrip";

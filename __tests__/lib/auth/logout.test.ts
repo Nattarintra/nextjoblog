@@ -1,7 +1,7 @@
 import { AuthApiError } from "@supabase/auth-js";
 import { describe, expect, it, vi } from "vitest";
 
-import { LOGOUT_LOG_EVENT, LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LOGOUT_LOG_EVENT, LOGOUT_MESSAGES } from "@/lib/auth/messages";
 import { createLogout } from "@/lib/auth/logout";
 import { SupabaseConfigError } from "@/lib/supabase/config";
 
@@ -22,7 +22,7 @@ describe("createLogout", () => {
   it("returns ok on success without logging", async () => {
     const { logout, log } = setup({ signOut: async () => ({ error: null }) });
 
-    await expect(logout(undefined)).resolves.toEqual({ ok: true });
+    await expect(logout()).resolves.toEqual({ ok: true });
     expect(log).not.toHaveBeenCalled();
   });
 
@@ -31,7 +31,7 @@ describe("createLogout", () => {
       signOut: async () => ({ error: new AuthApiError("secret a@b.co", 500, "unexpected_failure") }),
     });
 
-    await expect(logout(undefined)).resolves.toEqual({
+    await expect(logout()).resolves.toEqual({
       error: "still_signed_in",
       message: LOGOUT_MESSAGES.stillSignedIn,
     });
@@ -48,7 +48,7 @@ describe("createLogout", () => {
       getClaims: async () => ({ data: null, error: new Error("net") }),
     });
 
-    const state = await logout(undefined);
+    const state = await logout();
 
     expect(state).toEqual({ error: "unconfirmed", message: LOGOUT_MESSAGES.unconfirmed });
     expect(state && "message" in state && state.message).not.toMatch(/still logged in/i);
@@ -67,7 +67,7 @@ describe("createLogout", () => {
       log,
     });
 
-    await expect(logout(undefined)).resolves.toMatchObject({ error: "configuration" });
+    await expect(logout()).resolves.toMatchObject({ error: "configuration" });
     expect(log).toHaveBeenCalledWith(LOGOUT_LOG_EVENT.configuration, { code: "missing_url" });
   });
 
@@ -80,7 +80,7 @@ describe("createLogout", () => {
       log,
     });
 
-    await expect(logout(undefined)).resolves.toMatchObject({ error: "unknown" });
+    await expect(logout()).resolves.toMatchObject({ error: "unknown" });
     expect(log).toHaveBeenCalledWith(LOGOUT_LOG_EVENT.unexpected);
   });
 
@@ -89,14 +89,14 @@ describe("createLogout", () => {
       { signOut: async () => ({ error: null }) },
       { forcedOutcome: async () => "fail" },
     );
-    await expect(forced.logout(undefined)).resolves.toMatchObject({ error: "still_signed_in" });
+    await expect(forced.logout()).resolves.toMatchObject({ error: "still_signed_in" });
     expect(forced.createClient).not.toHaveBeenCalled();
 
     const unconfirmed = setup(
       { signOut: async () => ({ error: null }) },
       { forcedOutcome: async () => "unconfirmed" },
     );
-    await expect(unconfirmed.logout(undefined)).resolves.toMatchObject({ error: "unconfirmed" });
+    await expect(unconfirmed.logout()).resolves.toMatchObject({ error: "unconfirmed" });
   });
 
   it("proceeds normally when no outcome is forced", async () => {
@@ -104,6 +104,6 @@ describe("createLogout", () => {
       { signOut: async () => ({ error: null }) },
       { forcedOutcome: async () => undefined },
     );
-    await expect(logout(undefined)).resolves.toEqual({ ok: true });
+    await expect(logout()).resolves.toEqual({ ok: true });
   });
 });

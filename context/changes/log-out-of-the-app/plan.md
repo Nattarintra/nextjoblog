@@ -48,19 +48,21 @@ Four layers, pure-first, each single-responsibility and injected for testability
 
 1. `lib/auth/sign-out.ts` — `signOutCurrentSession(client)` knows Supabase only; returns a discriminated `SignOutResult`.
 2. `lib/auth/logout.ts` — `createLogout({ createClient, log })` factory maps the result to `LogoutState` (success / still-signed-in / verification-failed / configuration / unknown) and logs code/status only.
-3. `app/actions/logout.ts` — `"use server"`, exports only the default-wired async `logout`.
-4. UI — `useLogout` hook (offline guard, `router.replace` on success) + `AccountMenu` / `AccountSheet` presentational components, mounted by the presentational protected layout.
+3. `app/api/auth/logout/route.ts` — `POST` Route Handler wiring the core (replaced the planned Server Action; see Implementation addenda).
+4. UI — `useLogout` hook (offline guard, full-page navigation on success) owned by `AccountControls`; `AccountMenu` / `AccountSheet` / `LogoutButton` are presentational and receive the hook's control as props.
 
 ```
 app/
-  actions/logout.ts                       ★ "use server": logout(_state)
-  actions/logout-messages.ts              ★ user-facing strings + log label
+  api/auth/logout/route.ts                ★ POST Route Handler (replaces the Server Action)
   (protected)/
     layout.tsx                              + <AppTopBar email=…/>
     _components/
-      AppTopBar.tsx                       ★ server-safe: title + <AccountMenu/>
+      AppTopBar.tsx                       ★ server-safe: title + <AccountControls/>
+      ProtectedAppShell.tsx               ★ client: top bar + expiry notice, shares "notice open" signal
+      AccountControls.tsx                 ★ client: owns the single useLogout; mobile menu + desktop inline Log Out
       AccountMenu.tsx                     ★ client: trigger + open state + focus return
-      AccountSheet.tsx                    ★ client: dialog markup
+      AccountSheet.tsx                    ★ client: presentational dialog markup
+      LogoutButton.tsx                    ★ presentational button (sheet / inline variants)
       useLogout.ts                        ★ hook
       account-initial.ts                  ★ pure
   login/page.tsx, LoginForm.tsx, LoginAlert.tsx   + loggedOut banner
@@ -68,8 +70,11 @@ lib/auth/
   paths.ts                                + LOGGED_OUT_PARAM_NAME/VALUE, PROTECTED_CACHE_CONTROL
   login-redirect.ts                       + buildLoggedOutLoginUrl()
   sign-out.ts, logout.ts                  ★
+  logout-state.ts                         ★ pure, client-safe LogoutState + helpers
+  messages.ts                             + LOGOUT_MESSAGES, LOGOUT_LOG_EVENT, OFFLINE_ERROR_MESSAGE
   protected-cache.ts                      ★ applyProtectedCacheControl(response, pathname)
-app/globals.css                           + --success-*, --paper tokens
+app/globals.css                           + --success-*, --paper, --mist tokens
+app/AuthHistoryGuard.tsx                  ★ root-layout history reload guard (see addenda)
 ```
 
 ## Critical Implementation Details
@@ -145,7 +150,7 @@ createLogout(deps: { createClient: () => Promise<{ auth: … }>; log: (event, me
 
 #### 5. Messages and initial helper
 
-**Files**: `app/actions/logout-messages.ts`, `app/(protected)/_components/account-initial.ts`
+**Files**: `lib/auth/messages.ts` (originally planned as `app/actions/logout-messages.ts`), `app/(protected)/_components/account-initial.ts`
 
 **Contract**: message constants (still-signed-in, unconfirmed, configuration, unknown, offline, pending label, logged-out banner); `deriveAccountInitial(email: string | undefined): string` → uppercase first letter, fallback glyph for empty/non-letter.
 
@@ -354,6 +359,16 @@ Prove every acceptance criterion in a real browser and record the housekeeping.
 
 ---
 
+## Implementation addenda
+
+Changes made after the original plan, recorded so later reviews use the right ground truth:
+
+- **Route Handler instead of Server Action** (Phase 2 spike): `POST /api/auth/logout`; `app/actions/logout.ts` never shipped.
+- **Full-page navigation on success**: `useLogout` calls `window.location.replace(...)` rather than `router.replace` so Back cannot show a Next client-cache page (found by E2E, Progress 5.1).
+- **`AuthHistoryGuard`** (root layout): a single inline script that reloads non-public pages restored by `pageshow` (BFCache / `back_forward`) or `popstate`. Public prefixes are injected from `PUBLIC_PATH_PREFIXES`. Documented in `docs/route-guard.md`.
+- **Desktop inline Log Out**: from `md` up the top bar shows an identity chip and an inline Log Out (`LogoutButton` `inline` variant) instead of the Account sheet, which is mobile-only.
+- **Implementation review refactors** (`reviews/impl-review.md`): `useLogout` lifted into the always-mounted `AccountControls` (a request in flight now navigates even if the sheet is closed); presentational `LogoutButton`; shared `lib/auth/logout-state.ts`; messages moved to `lib/auth/messages.ts`; `isE2eHooksEnabled` gate; `createLogout` takes no arguments; the dialog is labelled "Account".
+
 ## Testing Strategy
 
 ### Unit Tests:
@@ -412,7 +427,7 @@ No database migration. `session_extensions` row for the ended session is intenti
 
 #### Automated
 
-- [x] 2.1 Logout action tests pass
+- [x] 2.1 Logout route handler tests pass (originally: Logout action tests)
 - [x] 2.2 useLogout tests cover retry, replace navigation, double-click, and offline
 - [x] 2.3 Coverage gates, types, and lint pass
 - [x] 2.5 E2E logout test hook unit tests pass and are inert in production

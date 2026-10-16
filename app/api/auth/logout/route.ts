@@ -22,7 +22,7 @@ const logout = createLogout({
 });
 
 export async function POST(): Promise<Response> {
-  const state = await logout(undefined);
+  const state = await logout();
   return NextResponse.json(state ?? null, {
     headers: { "Cache-Control": PROTECTED_CACHE_CONTROL },
   });

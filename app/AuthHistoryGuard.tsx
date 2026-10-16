@@ -1,23 +1,17 @@
-"use client";
+import { PUBLIC_PATH_PREFIXES } from "@/lib/auth/paths";
 
-import { useEffect, useRef } from "react";
-
-import { isPublicPath } from "@/lib/auth/route-access";
-
-declare global {
-  interface Window {
-    __nextJobLogHistoryReloading?: boolean;
-  }
-}
-
+// One inline script, installed before hydration, so a protected page restored
+// by Back/Forward (BFCache or history traversal) is reloaded and re-guarded.
+// The public-path list is injected from paths.ts so it cannot drift from the
+// proxy's own definition.
 const HISTORY_GUARD_SCRIPT = `
 (() => {
   if (window.__nextJobLogHistoryGuardInstalled) return;
   window.__nextJobLogHistoryGuardInstalled = true;
 
+  const publicPrefixes = ${JSON.stringify(PUBLIC_PATH_PREFIXES)};
   const isPublicPath = (pathname) =>
-    ["/login", "/signup", "/forgot-password", "/reset-password", "/api/auth"]
-      .some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"));
+    publicPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"));
 
   const reloadProtectedHistoryPage = () => {
     if (isPublicPath(window.location.pathname) || window.__nextJobLogHistoryReloading) return;
@@ -36,37 +30,5 @@ const HISTORY_GUARD_SCRIPT = `
 `;
 
 export function AuthHistoryGuard() {
-  const reloadStarted = useRef(false);
-
-  useEffect(() => {
-    const reloadProtectedHistoryPage = () => {
-      if (
-        !isPublicPath(window.location.pathname) &&
-        !reloadStarted.current &&
-        !window.__nextJobLogHistoryReloading
-      ) {
-        reloadStarted.current = true;
-        window.__nextJobLogHistoryReloading = true;
-        window.location.reload();
-      }
-    };
-
-    const handlePageShow = (event: PageTransitionEvent) => {
-      const navigation = performance.getEntriesByType("navigation")[0] as
-        | PerformanceNavigationTiming
-        | undefined;
-      const restoredByHistory = navigation?.type === "back_forward";
-
-      if (event.persisted || restoredByHistory) reloadProtectedHistoryPage();
-    };
-
-    window.addEventListener("pageshow", handlePageShow);
-    window.addEventListener("popstate", reloadProtectedHistoryPage);
-    return () => {
-      window.removeEventListener("pageshow", handlePageShow);
-      window.removeEventListener("popstate", reloadProtectedHistoryPage);
-    };
-  }, []);
-
   return <script dangerouslySetInnerHTML={{ __html: HISTORY_GUARD_SCRIPT }} />;
 }

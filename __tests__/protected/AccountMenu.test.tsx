@@ -5,8 +5,6 @@ const { logoutState } = vi.hoisted(() => ({
   logoutState: { logout: vi.fn(), errorMessage: null as string | null, isPending: false },
 }));
 
-vi.mock("@/app/(protected)/_components/useLogout", () => ({ useLogout: () => logoutState }));
-
 import { AccountMenu } from "@/app/(protected)/_components/AccountMenu";
 
 describe("AccountMenu / AccountSheet", () => {
@@ -18,7 +16,7 @@ describe("AccountMenu / AccountSheet", () => {
   });
 
   it("exposes an accessible trigger and toggles aria-expanded", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     const trigger = screen.getByRole("button", { name: "Account" });
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     fireEvent.click(trigger);
@@ -26,8 +24,14 @@ describe("AccountMenu / AccountSheet", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("names the dialog Account, not the email", () => {
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
+    fireEvent.click(screen.getByRole("button", { name: "Account" }));
+    expect(screen.getByRole("dialog", { name: "Account" })).toBeTruthy();
+  });
+
   it("renders the email, initial and device note", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     expect(screen.getByText("ada@example.com")).toBeTruthy();
     expect(screen.getByText("A")).toBeTruthy();
@@ -35,14 +39,14 @@ describe("AccountMenu / AccountSheet", () => {
   });
 
   it("falls back to a neutral label when the email is undefined", () => {
-    render(<AccountMenu />);
+    render(<AccountMenu logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     expect(screen.getByText("Your account")).toBeTruthy();
     expect(screen.getByText("?")).toBeTruthy();
   });
 
   it("focuses Log Out on open and calls logout on click", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     const logout = screen.getByRole("button", { name: "Log Out" });
     expect(document.activeElement).toBe(logout);
@@ -52,7 +56,7 @@ describe("AccountMenu / AccountSheet", () => {
 
   it("is disabled and aria-busy while pending", () => {
     logoutState.isPending = true;
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     const button = screen.getByRole("button", { name: "Logging out…" }) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
@@ -61,14 +65,14 @@ describe("AccountMenu / AccountSheet", () => {
 
   it("shows the error alert and a Try Again label after a failure", () => {
     logoutState.errorMessage = "still in";
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     expect(screen.getByRole("alert").textContent).toContain("still in");
     expect(screen.getByRole("button", { name: "Try Again" })).toBeTruthy();
   });
 
   it("closes on Escape and returns focus to the trigger", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     const trigger = screen.getByRole("button", { name: "Account" });
     fireEvent.click(trigger);
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
@@ -77,14 +81,14 @@ describe("AccountMenu / AccountSheet", () => {
   });
 
   it("closes with the Close button", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("traps Tab between Log Out and Close", () => {
-    render(<AccountMenu email="ada@example.com" />);
+    render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     const close = screen.getByRole("button", { name: "Close" });
     act(() => close.focus());
@@ -93,13 +97,13 @@ describe("AccountMenu / AccountSheet", () => {
   });
 
   it("closes the sheet when suspended by the expiry notice", () => {
-    const { rerender } = render(<AccountMenu email="ada@example.com" />);
+    const { rerender } = render(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     expect(screen.getByRole("dialog")).toBeTruthy();
-    rerender(<AccountMenu email="ada@example.com" suspended />);
+    rerender(<AccountMenu email="ada@example.com" logoutControl={logoutState} suspended />);
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).not.toBe(screen.getByRole("button", { name: "Account" }));
-    rerender(<AccountMenu email="ada@example.com" />);
+    rerender(<AccountMenu email="ada@example.com" logoutControl={logoutState} />);
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 });

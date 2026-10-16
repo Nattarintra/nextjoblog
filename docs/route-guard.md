@@ -13,3 +13,7 @@ Log Out ends only the current device's session (`signOut({ scope: "local" })`), 
 If sign-out errors, the handler re-checks the session: gone is treated as success, still valid shows the "still logged in" error with Try Again, and a failed check shows the generic confirmation error. The `e2e-logout` cookie (`fail` | `unconfirmed`) forces those outcomes in tests and is inert unless `NODE_ENV !== production` and `E2E_TEST_HOOKS=1`.
 
 Back after logout never shows an authenticated page: the replaced history entry, the proxy/DAL guard, and `Cache-Control: private, no-store, max-age=0` on protected responses (applied to the final proxy response, so the browser re-requests rather than restoring from cache) mean Back lands on `/login?next=%2Fdashboard`.
+
+## History guard
+
+`app/AuthHistoryGuard.tsx` (mounted in the root layout) emits one inline script, installed before hydration. On `pageshow` (BFCache restore or `back_forward` navigation) and on `popstate` it reloads any non-public page, so Back/Forward can never display a stale authenticated page and the proxy/DAL guard runs again. The public-path list is injected from `PUBLIC_PATH_PREFIXES` in `lib/auth/paths.ts`, so it cannot drift from the proxy's own definition. Trade-off: every history traversal on a protected page is a full reload, including Next's in-app Back.

@@ -16,7 +16,7 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/auth/log", () => ({ logAuthEvent: vi.fn() }));
 
 import { POST } from "@/app/api/auth/logout/route";
-import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
 
 function setCookie(value: string | undefined): void {
   cookiesMock.mockResolvedValue({ get: () => (value === undefined ? undefined : { value }) });

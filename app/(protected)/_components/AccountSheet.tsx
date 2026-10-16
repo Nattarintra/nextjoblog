@@ -2,37 +2,37 @@
 
 import { useEffect, useRef } from "react";
 
-import { LOGOUT_MESSAGES } from "@/app/actions/logout-messages";
+import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
 import { LoginErrorAlert } from "@/app/login/LoginAlert";
 
 import { deriveAccountInitial } from "./account-initial";
 import { useDialogKeyboardNavigation } from "./useDialogKeyboardNavigation";
-import { useLogout } from "./useLogout";
+import { LogoutButton } from "./LogoutButton";
+import type { LogoutControl } from "./useLogout";
 
 const styles = {
   overlay: "fixed inset-0 z-40 flex items-end justify-center bg-black/50 md:hidden",
   sheet: "w-full max-w-md rounded-t-[18px] bg-paper px-5 pb-6 pt-5 text-navy shadow-xl",
   identity: "mb-4 flex items-center gap-3",
   avatar: "flex size-11 shrink-0 items-center justify-center rounded-full bg-navy text-[16px] font-bold text-white",
+  heading: "text-[12px] font-semibold uppercase tracking-wide text-navy/70",
   email: "min-w-0 break-words text-[14px] font-semibold",
   device: "text-xs text-navy/70",
   actions: "flex flex-col gap-2.5",
-  logout:
-    "min-h-11 cursor-pointer rounded-[10px] border border-danger-fg bg-white px-3.5 py-2 text-[14px] font-semibold text-danger-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure disabled:cursor-not-allowed disabled:opacity-60",
   close:
     "min-h-11 cursor-pointer rounded-[10px] px-3.5 py-2 text-[14px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure",
 } as const;
 
 const HEADING_ID = "account-sheet-heading";
-const EMAIL_FALLBACK = "Your account";
 
 type AccountSheetProps = {
   email?: string;
+  logoutControl: LogoutControl;
   onClose: () => void;
 };
 
-export function AccountSheet({ email, onClose }: AccountSheetProps) {
-  const { logout, errorMessage, isPending } = useLogout();
+export function AccountSheet({ email, logoutControl, onClose }: AccountSheetProps) {
+  const { errorMessage, isPending } = logoutControl;
   const closeRef = useRef<HTMLButtonElement>(null);
   const logoutRef = useRef<HTMLButtonElement>(null);
 
@@ -45,12 +45,6 @@ export function AccountSheet({ email, onClose }: AccountSheetProps) {
     lastFocusableRef: closeRef,
     onEscape: onClose,
   });
-
-  const label = isPending
-    ? LOGOUT_MESSAGES.pendingLabel
-    : errorMessage
-      ? LOGOUT_MESSAGES.retryLabel
-      : "Log Out";
 
   return (
     <div className={styles.overlay}>
@@ -65,17 +59,16 @@ export function AccountSheet({ email, onClose }: AccountSheetProps) {
         <div className={styles.identity}>
           <div className={styles.avatar} aria-hidden="true">{deriveAccountInitial(email)}</div>
           <div>
-            <h2 id={HEADING_ID} className={styles.email}>{email ?? EMAIL_FALLBACK}</h2>
-            <p className={styles.device}>Logged in on this device</p>
+            <h2 id={HEADING_ID} className={styles.heading}>{LOGOUT_MESSAGES.accountHeading}</h2>
+            <p className={styles.email}>{email ?? LOGOUT_MESSAGES.accountEmailFallback}</p>
+            <p className={styles.device}>{LOGOUT_MESSAGES.deviceNote}</p>
           </div>
         </div>
         {errorMessage && <LoginErrorAlert message={errorMessage} />}
         <div className={styles.actions}>
-          <button ref={logoutRef} type="button" className={styles.logout} onClick={logout} disabled={isPending}>
-            {label}
-          </button>
+          <LogoutButton ref={logoutRef} variant="sheet" control={logoutControl} />
           <button ref={closeRef} type="button" className={styles.close} onClick={onClose}>
-            Close
+            {LOGOUT_MESSAGES.closeLabel}
           </button>
         </div>
       </div>
