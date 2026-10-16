@@ -3,6 +3,21 @@ const alertClassName =
 const warningAlertClassName =
   "flex items-start gap-2.25 rounded-[10px] bg-warning-tint px-3 py-2.75 mb-4 text-xs leading-normal text-warning-fg";
 
+const successAlertClassName =
+  "flex items-start gap-2.25 rounded-[10px] bg-success-tint px-3 py-2.75 mb-4 text-xs leading-normal text-success-fg";
+
+export function LoginLoggedOutAlert({ message }: { message: string }) {
+  return (
+    <div className={successAlertClassName} role="status" data-testid="login-logged-out">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" className="stroke-success-fg" strokeWidth="2" />
+        <path d="M8 12.5l3 3 5-6" className="stroke-success-fg" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span>{message}</span>
+    </div>
+  );
+}
+
 export function LoginErrorAlert({ message }: { message: string }) {
   return (
     <div className={alertClassName} role="alert" data-testid="login-alert">

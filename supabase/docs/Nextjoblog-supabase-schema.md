@@ -204,6 +204,22 @@ create table public.conversation_notes (
 create index conversation_notes_application_idx on public.conversation_notes(application_id, noted_at);
 ```
 
+### `session_extensions`
+
+Application-managed session lifetime extensions (Story 0.3). One row per Supabase session id, owner-only via RLS (`auth.uid() = user_id`).
+
+```sql
+create table public.session_extensions (
+  session_id text primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  extended_until timestamptz not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+```
+
+> Rows are **not** deleted at logout. A logged-out session id can never be presented again, so the orphaned row is harmless and is removed with the user (`on delete cascade`).
+
 ---
 
 ## 3. Row Level Security (RLS)

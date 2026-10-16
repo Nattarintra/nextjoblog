@@ -14,3 +14,7 @@ export const AUTH_PATH_PREFIXES = [
 export const PUBLIC_PATH_PREFIXES = AUTH_PATH_PREFIXES;
 export const SESSION_EXPIRED_PATH = "/api/auth/session-expired";
 export const AUTH_REDIRECT_CACHE_CONTROL = "private, no-store, max-age=0";
+export const LOGGED_OUT_PARAM_NAME = "loggedOut";
+export const LOGGED_OUT_PARAM_VALUE = "1";
+export const PROTECTED_CACHE_CONTROL = AUTH_REDIRECT_CACHE_CONTROL;
+export const LOGOUT_API_PATH = "/api/auth/logout";

@@ -1,4 +1,4 @@
-export function Logo({ size = 40 }: { size?: number }) {
+export function Logo({ size = 80 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 140 140" aria-hidden="true">
       <circle cx="70" cy="70" r="62" className="fill-navy" />
@@ -6,5 +6,5 @@ export function Logo({ size = 40 }: { size?: number }) {
       <circle cx="104" cy="40" r="15" className="fill-azure" />
       <path d="M97 40 l5 5 l10 -11" fill="none" className="stroke-white" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  );
+  )
 }

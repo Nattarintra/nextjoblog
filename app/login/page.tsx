@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, Work_Sans } from "next/font/google";
 
 import { describeDestination } from "@/lib/auth/describe-destination";
+import { LOGGED_OUT_PARAM_NAME, LOGGED_OUT_PARAM_VALUE } from "@/lib/auth/paths";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
 
 import LoginForm from "./LoginForm";
@@ -35,7 +36,9 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage(props: PageProps<"/login">) {
-  const { next } = await props.searchParams;
+  const params = await props.searchParams;
+  const { next } = params;
+  const loggedOut = params[LOGGED_OUT_PARAM_NAME] === LOGGED_OUT_PARAM_VALUE;
   const nextPath = resolvePostLoginPath(next);
   const destinationLabel = describeDestination(nextPath);
 
@@ -43,7 +46,11 @@ export default async function LoginPage(props: PageProps<"/login">) {
     <div
       className={authPageClassName}
     >
-      <LoginForm nextPath={nextPath} destinationLabel={destinationLabel} />
+      <LoginForm
+        nextPath={nextPath}
+         destinationLabel={destinationLabel}
+        loggedOut={loggedOut}
+      />
     </div>
   );
 }

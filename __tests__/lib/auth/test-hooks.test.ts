@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyTestSessionOverride } from "@/lib/auth/test-hooks";
+import { applyTestLogoutOverride, applyTestSessionOverride } from "@/lib/auth/test-hooks";
 
 const state = {
   status: "authenticated" as const,
@@ -28,5 +28,23 @@ describe("applyTestSessionOverride", () => {
     [{ NODE_ENV: "development", E2E_TEST_HOOKS: "1" }, "pass"],
   ])("is inert for env/cookie combination %j", (env, cookieValue) => {
     expect(applyTestSessionOverride(state, { env, cookieValue })).toBe(state);
+  });
+});
+
+describe("applyTestLogoutOverride", () => {
+  const dev = { NODE_ENV: "development", E2E_TEST_HOOKS: "1" };
+
+  it.each(["fail", "unconfirmed"] as const)("returns %s when hooks are enabled", (cookieValue) => {
+    expect(applyTestLogoutOverride({ env: dev, cookieValue })).toBe(cookieValue);
+  });
+
+  it.each([
+    [{ NODE_ENV: "production", E2E_TEST_HOOKS: "1" }, "fail"],
+    [{ NODE_ENV: "development", E2E_TEST_HOOKS: "0" }, "fail"],
+    [{ NODE_ENV: "development" }, "unconfirmed"],
+    [dev, "other"],
+    [dev, undefined],
+  ])("is inert for env/cookie combination %j / %s", (env, cookieValue) => {
+    expect(applyTestLogoutOverride({ env, cookieValue })).toBeUndefined();
   });
 });

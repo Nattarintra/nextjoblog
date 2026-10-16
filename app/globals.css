@@ -6,10 +6,14 @@
   --navy: #042c53;
   --sky: #b5d4f4;
   --azure: #1976d2;
+  --mist: #e4f2ff;
   --warning-tint: #fbf0dc;
   --warning-fg: #8a5608;
   --danger-tint: #fbe9e7;
   --danger-fg: #8a271f;
+  --success-tint: #e3f4e8;
+  --success-fg: #1c5c34;
+  --paper: #fbfaf7;
   --auth-label: #cfe1f5;
   --auth-danger: #ffb4ab;
 }
@@ -20,10 +24,14 @@
   --color-navy: var(--navy);
   --color-sky: var(--sky);
   --color-azure: var(--azure);
+  --color-mist: var(--mist);
   --color-warning-tint: var(--warning-tint);
   --color-warning-fg: var(--warning-fg);
   --color-danger-tint: var(--danger-tint);
   --color-danger-fg: var(--danger-fg);
+  --color-success-tint: var(--success-tint);
+  --color-success-fg: var(--success-fg);
+  --color-paper: var(--paper);
   --color-auth-label: var(--auth-label);
   --color-auth-danger: var(--auth-danger);
   --font-sans: var(--font-geist-sans);

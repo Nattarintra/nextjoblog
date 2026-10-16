@@ -3,25 +3,13 @@ import { execSync } from "node:child_process";
 import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
+import { authCookieStorageKey, isAuthSessionCookie } from "./helpers/auth-cookies";
+
 const password = "abcdef";
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
-
-// Mirrors proxy.ts's own derivation of the @supabase/ssr cookie storage key.
-function authCookieStorageKey(): string {
-  return `sb-${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0]}-auth-token`;
-}
-
-// Match @supabase/ssr's `isChunkLike` behavior: the session is either stored
-// directly at the storage key or split into numeric `.0`, `.1`, … chunks.
-// Do not use `startsWith(storageKey)`: auth-js also creates PKCE verifier
-// cookies such as `<storageKey>-flow-…-code-verifier`, which are not session
-// cookies and are deliberately left alone by proxy.ts.
-function isAuthSessionCookie(cookieName: string, storageKey: string): boolean {
-  return cookieName === storageKey || new RegExp(`^${storageKey.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.\\d+$`).test(cookieName);
-}
 
 // @supabase/ssr writes the session as `base64-<base64url(JSON.stringify(session))>`,
 // optionally split across `<key>.0`, `<key>.1`, ... chunk cookies for large sessions

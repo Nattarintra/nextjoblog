@@ -52,6 +52,15 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
   });
 
+  it("sets no-store on authenticated protected responses only", async () => {
+    setupClaims({ data: { claims: { sub: "user" } }, error: null });
+    const protectedResponse = await proxy(new NextRequest("https://example.test/dashboard"));
+    expect(protectedResponse.headers.get("cache-control")).toBe("private, no-store, max-age=0");
+
+    const loginResponse = await proxy(new NextRequest("https://example.test/login"));
+    expect(loginResponse.headers.get("cache-control")).toBeNull();
+  });
+
   it("keeps the forwarded path header when Supabase refreshes cookies", async () => {
     setupClaims({ data: { claims: { sub: "user" } }, error: null });
     createServerClient.mockImplementation((_url, _key, options) => ({
