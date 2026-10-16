@@ -1,10 +1,10 @@
 ---
 change_id: log-out-of-the-app
 title: Log out of the app
-status: implementing
+status: archived
 created: 2026-10-15
-updated: 2026-10-15
-archived_at: null
+updated: 2026-10-16
+archived_at: 2026-10-16T14:23:24Z
 ---
 
 ## Notes
