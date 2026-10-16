@@ -457,5 +457,5 @@ No database migration. `session_extensions` row for the ended session is intenti
 #### Manual
 
 - [x] 5.4 Two-tab logout journey verified by hand (Back after login-from-/login lands on plain /login, no authenticated content; redirect-to-next case covered by E2E)
-- [ ] 5.5 Vercel preview logout and no-store headers verified
+- [x] 5.5 Vercel preview logout and no-store headers verified (logged-out /dashboard: 307 + private, no-store, max-age=0 via vercel curl; logout confirmed by hand)
 - [x] 5.6 Docs updated and fix-expired-session-local-sign-out change created
