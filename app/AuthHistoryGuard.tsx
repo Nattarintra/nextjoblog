@@ -4,6 +4,12 @@ import { useEffect, useRef } from "react";
 
 import { isPublicPath } from "@/lib/auth/route-access";
 
+declare global {
+  interface Window {
+    __nextJobLogHistoryReloading?: boolean;
+  }
+}
+
 const HISTORY_GUARD_SCRIPT = `
 (() => {
   if (window.__nextJobLogHistoryGuardInstalled) return;
