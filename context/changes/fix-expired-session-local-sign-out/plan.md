@@ -270,13 +270,13 @@ None. No data or schema changes; backward compatible.
 
 #### Automated
 
-- [ ] 3.1 Existing logout E2E unaffected
-- [ ] 3.2 New E2E spec passes
-- [ ] 3.3 New E2E isolation assertion fails against the unfixed route
-- [x] 3.4 Lint and type check pass
-- [x] 3.5 Full unit run with coverage passes
+- [x] 3.1 Existing logout E2E unaffected — 7a6a153
+- [x] 3.2 New E2E spec passes — 7a6a153
+- [x] 3.3 New E2E isolation assertion fails against the unfixed route — 7a6a153
+- [x] 3.4 Lint and type check pass — 7a6a153
+- [x] 3.5 Full unit run with coverage passes — 7a6a153
 
 #### Manual
 
-- [ ] 3.6 CI E2E green if not runnable locally
-- [ ] 3.7 docs/route-guard.md reads correctly
+- [x] 3.6 CI E2E green if not runnable locally — 7a6a153
+- [x] 3.7 docs/route-guard.md reads correctly — 7a6a153
