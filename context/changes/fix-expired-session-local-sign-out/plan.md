@@ -255,16 +255,16 @@ None. No data or schema changes; backward compatible.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass
-- [x] 2.2 Coverage thresholds met (>= 80 % global, >= 90 % lib/auth)
-- [x] 2.3 New lib/auth files at 100 % statements and branches
-- [x] 2.4 Lint passes
-- [x] 2.5 Type check passes
-- [x] 2.6 Regression guard proven by reverting to global signOut
+- [x] 2.1 Unit tests pass — 28b7bdb
+- [x] 2.2 Coverage thresholds met (>= 80 % global, >= 90 % lib/auth) — 28b7bdb
+- [x] 2.3 New lib/auth files at 100 % statements and branches — 28b7bdb
+- [x] 2.4 Lint passes — 28b7bdb
+- [x] 2.5 Type check passes — 28b7bdb
+- [x] 2.6 Regression guard proven by reverting to global signOut — 28b7bdb
 
 #### Manual
 
-- [x] 2.7 Route contains only parse, delegate, redirect
+- [x] 2.7 Route contains only parse, delegate, redirect — 28b7bdb
 
 ### Phase 3: E2E isolation test, shared helpers, docs
 
@@ -273,8 +273,8 @@ None. No data or schema changes; backward compatible.
 - [ ] 3.1 Existing logout E2E unaffected
 - [ ] 3.2 New E2E spec passes
 - [ ] 3.3 New E2E isolation assertion fails against the unfixed route
-- [ ] 3.4 Lint and type check pass
-- [ ] 3.5 Full unit run with coverage passes
+- [x] 3.4 Lint and type check pass
+- [x] 3.5 Full unit run with coverage passes
 
 #### Manual
 
