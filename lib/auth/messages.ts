@@ -25,3 +25,9 @@ export const LOGOUT_LOG_EVENT = {
   configuration: "auth.logout.configuration_error",
   unexpected: "auth.logout.unexpected_error",
 } as const;
+
+export const EXPIRED_SESSION_LOG_EVENT = {
+  providerError: "auth.expired_session.provider_error",
+  configuration: "auth.expired_session.configuration_error",
+  unexpected: "auth.expired_session.unexpected_error",
+} as const;

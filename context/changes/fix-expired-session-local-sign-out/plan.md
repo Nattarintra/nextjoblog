@@ -246,10 +246,10 @@ None. No data or schema changes; backward compatible.
 
 #### Automated
 
-- [ ] 1.1 Unit tests pass
-- [ ] 1.2 Existing sign-out and logout tests still pass unchanged
-- [ ] 1.3 Lint passes
-- [ ] 1.4 Type check passes
+- [x] 1.1 Unit tests pass
+- [x] 1.2 Existing sign-out and logout tests still pass unchanged
+- [x] 1.3 Lint passes
+- [x] 1.4 Type check passes
 
 ### Phase 2: Injectable cleanup unit and route
 

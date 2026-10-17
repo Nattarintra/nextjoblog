@@ -1,10 +1,10 @@
 ---
 change_id: fix-expired-session-local-sign-out
 title: Fix expired-session route to sign out with local scope
-status: plan_reviewed
+status: implementing
 priority: high
 created: 2026-10-15
-updated: 2026-10-16
+updated: 2026-10-17
 archived_at: null
 ---
 
