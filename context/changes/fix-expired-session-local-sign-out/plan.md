@@ -246,25 +246,25 @@ None. No data or schema changes; backward compatible.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass
-- [x] 1.2 Existing sign-out and logout tests still pass unchanged
-- [x] 1.3 Lint passes
-- [x] 1.4 Type check passes
+- [x] 1.1 Unit tests pass — b2f64b7
+- [x] 1.2 Existing sign-out and logout tests still pass unchanged — b2f64b7
+- [x] 1.3 Lint passes — b2f64b7
+- [x] 1.4 Type check passes — b2f64b7
 
 ### Phase 2: Injectable cleanup unit and route
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass
-- [ ] 2.2 Coverage thresholds met (>= 80 % global, >= 90 % lib/auth)
-- [ ] 2.3 New lib/auth files at 100 % statements and branches
-- [ ] 2.4 Lint passes
-- [ ] 2.5 Type check passes
-- [ ] 2.6 Regression guard proven by reverting to global signOut
+- [x] 2.1 Unit tests pass
+- [x] 2.2 Coverage thresholds met (>= 80 % global, >= 90 % lib/auth)
+- [x] 2.3 New lib/auth files at 100 % statements and branches
+- [x] 2.4 Lint passes
+- [x] 2.5 Type check passes
+- [x] 2.6 Regression guard proven by reverting to global signOut
 
 #### Manual
 
-- [ ] 2.7 Route contains only parse, delegate, redirect
+- [x] 2.7 Route contains only parse, delegate, redirect
 
 ### Phase 3: E2E isolation test, shared helpers, docs
 
