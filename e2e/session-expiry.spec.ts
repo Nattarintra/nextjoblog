@@ -48,7 +48,7 @@ test.describe("corrupted or missing session cookie", () => {
       {
         name: authCookieStorageKey(),
         value: "not-a-valid-session-cookie",
-        url: "http://localhost:3000",
+        url: BASE_URL,
       },
     ]);
 
@@ -91,7 +91,7 @@ test.describe("RLS after session restoration", () => {
 
     // Simulate reopening the browser: a fresh context restored purely from
     // the persisted cookies, not a new sign-in.
-    const restoredContext = await browser.newContext({ baseURL: "http://localhost:3000" });
+    const restoredContext = await browser.newContext({ baseURL: BASE_URL });
     await restoredContext.addCookies(persistedCookies);
     const session = decodeAuthCookie(await restoredContext.cookies(), authCookieStorageKey());
     await restoredContext.close();

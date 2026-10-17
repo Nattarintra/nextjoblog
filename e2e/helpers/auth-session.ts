@@ -1,4 +1,4 @@
-import type { Browser, Page } from "@playwright/test";
+import { expect, type Browser, type Page } from "@playwright/test";
 
 import { authCookieStorageKey, isAuthSessionCookie } from "./auth-cookies";
 
@@ -14,6 +14,7 @@ export async function signUpNewUser(browser: Browser, label: string) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign Up" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
   return { email, context, page };
 }
 

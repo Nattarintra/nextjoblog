@@ -86,7 +86,7 @@ Introduce the reusable pieces first so Phase 2 has no duplication.
 #### Automated Verification:
 
 - Unit tests pass: `npm run test:run`
-- Existing sign-out and logout tests still pass unchanged: `npx vitest run __tests__/lib/auth/sign-out.test.ts __tests__/api/auth/logout.test.ts`
+- Existing sign-out and logout tests still pass unchanged: `npx vitest run --coverage.enabled=false __tests__/lib/auth/sign-out.test.ts __tests__/api/auth/logout.test.ts`
 - Lint passes: `npm run lint`
 - Type check passes: `npx tsc --noEmit`
 

@@ -1,20 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  createServerSupabaseClientMock,
-  logAuthEventMock,
-  signOutMock,
-} = vi.hoisted(() => ({
+const { createServerSupabaseClientMock, signOutMock } = vi.hoisted(() => ({
   createServerSupabaseClientMock: vi.fn(),
-  logAuthEventMock: vi.fn(),
   signOutMock: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createServerSupabaseClient: createServerSupabaseClientMock,
 }));
-vi.mock("@/lib/auth/log", () => ({ logAuthEvent: logAuthEventMock }));
-
 import { GET } from "@/app/api/auth/session-expired/route";
 
 const request = (next: string) =>
@@ -42,6 +35,7 @@ describe("GET /api/auth/session-expired", () => {
   });
 
   it("redirects and logs safe provider details when cleanup returns an error", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     signOutMock.mockResolvedValue({
       error: { code: "provider_down", status: 503, message: "secret" },
     });
@@ -50,27 +44,28 @@ describe("GET /api/auth/session-expired", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
-    expect(logAuthEventMock).toHaveBeenCalledWith(
+    expect(error).toHaveBeenCalledWith(
       "auth.expired_session.provider_error",
       { code: "provider_down", status: 503 },
     );
-    expect(logAuthEventMock.mock.calls[0]?.[1]).not.toHaveProperty("message");
+    expect(error.mock.calls[0]?.[1]).not.toBeInstanceOf(Error);
+    error.mockRestore();
   });
 
   it("redirects and logs an unexpected failure when client creation throws", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     createServerSupabaseClientMock.mockRejectedValue(new Error("secret"));
 
     const response = await GET(request("%2Fdashboard"));
 
     expect(response.status).toBe(307);
     expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
-    expect(logAuthEventMock).toHaveBeenCalledWith(
+    expect(error).toHaveBeenCalledWith(
       "auth.expired_session.unexpected_error",
+      {},
     );
-    expect(logAuthEventMock).not.toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ message: expect.anything() }),
-    );
+    expect(error.mock.calls.flat()).not.toContainEqual(expect.any(Error));
+    error.mockRestore();
   });
 
   it("rejects an external next value", async () => {

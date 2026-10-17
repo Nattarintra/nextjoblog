@@ -66,4 +66,17 @@ describe("createExpiredSessionCleanup", () => {
     await expect(cleanup()).resolves.toBeUndefined();
     expect(log).toHaveBeenCalledWith(EXPIRED_SESSION_LOG_EVENT.unexpected);
   });
+
+  it("continues after cleanup times out", async () => {
+    vi.useFakeTimers();
+    const { cleanup, createClient, log } = setup();
+    createClient.mockReturnValue(new Promise(() => undefined));
+
+    const result = cleanup();
+    await vi.advanceTimersByTimeAsync(5_000);
+
+    await expect(result).resolves.toBeUndefined();
+    expect(log).toHaveBeenCalledWith(EXPIRED_SESSION_LOG_EVENT.unexpected);
+    vi.useRealTimers();
+  });
 });
