@@ -68,6 +68,28 @@ describe("GET /api/auth/session-expired", () => {
     error.mockRestore();
   });
 
+  it("redirects when cleanup times out", async () => {
+    vi.useFakeTimers();
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    createServerSupabaseClientMock.mockReturnValue(new Promise(() => undefined));
+
+    try {
+      const responsePromise = GET(request("%2Fdashboard"));
+      await vi.advanceTimersByTimeAsync(5_000);
+      const response = await responsePromise;
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
+      expect(error).toHaveBeenCalledWith(
+        "auth.expired_session.unexpected_error",
+        {},
+      );
+    } finally {
+      error.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
   it("rejects an external next value", async () => {
     const response = await GET(request("https%3A%2F%2Fevil.com"));
 
