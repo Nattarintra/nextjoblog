@@ -1,9 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { describeAuthError } from "@/lib/auth/error-details";
 import { classifyClaimsResult, classifyThrown } from "@/lib/auth/session-state";
 import type { ClaimsState } from "@/lib/auth/session-state";
 
-type ErrorMeta = { code?: string; status?: number };
+type ErrorMeta = ReturnType<typeof describeAuthError>;
 
 export type SignOutResult =
   | { kind: "signed_out" }
@@ -11,15 +12,6 @@ export type SignOutResult =
   | ({ kind: "unconfirmed" } & ErrorMeta);
 
 type SignOutAuth = Pick<SupabaseClient["auth"], "signOut" | "getClaims">;
-
-function extractMeta(error: unknown): ErrorMeta {
-  if (typeof error !== "object" || error === null) return {};
-  const { code, status } = error as { code?: unknown; status?: unknown };
-  return {
-    ...(typeof code === "string" ? { code } : {}),
-    ...(typeof status === "number" ? { status } : {}),
-  };
-}
 
 async function recheckSession(auth: SignOutAuth): Promise<ClaimsState> {
   try {
@@ -42,7 +34,7 @@ export async function signOutCurrentSession(auth: SignOutAuth): Promise<SignOutR
     failure = error;
   }
 
-  const meta = extractMeta(failure);
+  const meta = describeAuthError(failure);
   const state = await recheckSession(auth);
 
   if (state.kind === "unauthenticated") return { kind: "signed_out" };

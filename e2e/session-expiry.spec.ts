@@ -4,39 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
 import { authCookieStorageKey, isAuthSessionCookie } from "./helpers/auth-cookies";
-
-const password = "abcdef";
+import { BASE_URL, decodeAuthCookie, password } from "./helpers/auth-session";
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
-
-// @supabase/ssr writes the session as `base64-<base64url(JSON.stringify(session))>`,
-// optionally split across `<key>.0`, `<key>.1`, ... chunk cookies for large sessions
-// (see node_modules/@supabase/ssr/dist/main/cookies.js and utils/chunker.js). This
-// reverses that to get the real Session object (access_token, refresh_token, user)
-// out of a cookie jar restored via context.addCookies — used to prove RLS still
-// scopes queries to the right user after "reopening the browser" from a persisted
-// cookie, rather than a fresh signInWithPassword call.
-function decodeAuthCookie(
-  cookies: { name: string; value: string }[],
-  storageKey: string,
-): { access_token: string; user: { id: string } } {
-  const direct = cookies.find((cookie) => cookie.name === storageKey);
-  let raw: string;
-
-  if (direct) {
-    raw = direct.value;
-  } else {
-    const chunks = cookies
-      .filter((cookie) => cookie.name.startsWith(`${storageKey}.`))
-      .sort((a, b) => Number(a.name.split(".").pop()) - Number(b.name.split(".").pop()));
-    raw = chunks.map((chunk) => chunk.value).join("");
-  }
-
-  const withoutPrefix = raw.startsWith("base64-") ? raw.slice("base64-".length) : raw;
-  return JSON.parse(Buffer.from(withoutPrefix, "base64url").toString("utf-8"));
-}
 
 function accessTokenLifetimeSeconds(accessToken: string): number {
   const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8")) as {
@@ -76,7 +48,7 @@ test.describe("corrupted or missing session cookie", () => {
       {
         name: authCookieStorageKey(),
         value: "not-a-valid-session-cookie",
-        url: "http://localhost:3000",
+        url: BASE_URL,
       },
     ]);
 
@@ -107,7 +79,7 @@ test.describe("RLS after session restoration", () => {
   }) => {
     const email = `restore-rls+${Date.now()}@example.com`;
 
-    const seedPage = await browser.newPage({ baseURL: "http://localhost:3000" });
+    const seedPage = await browser.newPage({ baseURL: BASE_URL });
     await seedPage.goto("/signup");
     await seedPage.getByLabel("Email").fill(email);
     await seedPage.getByLabel("Password").fill(password);
@@ -119,7 +91,7 @@ test.describe("RLS after session restoration", () => {
 
     // Simulate reopening the browser: a fresh context restored purely from
     // the persisted cookies, not a new sign-in.
-    const restoredContext = await browser.newContext({ baseURL: "http://localhost:3000" });
+    const restoredContext = await browser.newContext({ baseURL: BASE_URL });
     await restoredContext.addCookies(persistedCookies);
     const session = decodeAuthCookie(await restoredContext.cookies(), authCookieStorageKey());
     await restoredContext.close();
@@ -169,7 +141,7 @@ test.describe("RLS after session restoration", () => {
   test("scopes session extension rows to the signed-in user", async ({ browser }) => {
     const email = `extension-rls+${Date.now()}@example.com`;
 
-    const seedPage = await browser.newPage({ baseURL: "http://localhost:3000" });
+    const seedPage = await browser.newPage({ baseURL: BASE_URL });
     await seedPage.goto("/signup");
     await seedPage.getByLabel("Email").fill(email);
     await seedPage.getByLabel("Password").fill(password);
