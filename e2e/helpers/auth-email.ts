@@ -56,9 +56,16 @@ function extractRecoveryUrl(message: MailMessage): string | undefined {
 }
 
 export async function clearMailbox(recipient: string): Promise<void> {
-  const response = await fetch(mailboxUrl(recipient), { method: "DELETE" });
-  if (response.status === 404) return;
-  expect(response.ok, `Mail API returned ${response.status}`).toBe(true);
+  const messages = await readMailbox(recipient);
+  await Promise.all(
+    messages.map(async ({ id }) => {
+      const response = await fetch(`${mailboxUrl(recipient)}/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (response.status === 404) return;
+      expect(response.ok, `Mail API returned ${response.status}`).toBe(true);
+    }),
+  );
 }
 
 export async function waitForRecoveryEmail(recipient: string): Promise<{ recoveryUrl: string }> {
