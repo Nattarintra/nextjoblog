@@ -2,6 +2,8 @@ import { expect } from "@playwright/test";
 
 const DEFAULT_MAIL_API_URL = "http://127.0.0.1:54324/api/v1";
 const MAIL_API_URL = process.env.E2E_MAIL_API_URL ?? DEFAULT_MAIL_API_URL;
+const DEFAULT_MAILBOX_NAMING = "local" as const;
+const MAILBOX_NAMING = process.env.E2E_MAILBOX_NAMING ?? DEFAULT_MAILBOX_NAMING;
 const MAIL_POLL_INTERVAL_MS = 250;
 const MAIL_DELIVERY_TIMEOUT_MS = 10_000;
 const RESET_PATH = "/reset-password";
@@ -16,12 +18,18 @@ type MailMessage = {
   text?: string;
 };
 
+function mailboxName(recipient: string): string {
+  if (MAILBOX_NAMING === "full") return recipient;
+  return recipient.split("@", 1)[0];
+}
+
 function mailboxUrl(recipient: string): string {
-  return `${MAIL_API_URL}/mailbox/${encodeURIComponent(recipient)}`;
+  return `${MAIL_API_URL}/mailbox/${encodeURIComponent(mailboxName(recipient))}`;
 }
 
 async function readMailbox(recipient: string): Promise<MailSummary[]> {
   const response = await fetch(mailboxUrl(recipient));
+  if (response.status === 404) return [];
   expect(response.ok, `Mail API returned ${response.status}`).toBe(true);
   return (await response.json()) as MailSummary[];
 }
@@ -48,15 +56,9 @@ function extractRecoveryUrl(message: MailMessage): string | undefined {
 }
 
 export async function clearMailbox(recipient: string): Promise<void> {
-  const messages = await readMailbox(recipient);
-  await Promise.all(
-    messages.map(async ({ id }) => {
-      const response = await fetch(`${mailboxUrl(recipient)}/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      expect(response.ok, `Mail API returned ${response.status}`).toBe(true);
-    }),
-  );
+  const response = await fetch(mailboxUrl(recipient), { method: "DELETE" });
+  if (response.status === 404) return;
+  expect(response.ok, `Mail API returned ${response.status}`).toBe(true);
 }
 
 export async function waitForRecoveryEmail(recipient: string): Promise<{ recoveryUrl: string }> {
