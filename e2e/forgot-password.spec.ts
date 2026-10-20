@@ -25,7 +25,10 @@ async function seedConfirmedUser(email: string): Promise<void> {
 }
 
 async function openForgotPassword(page: Page, ip: string): Promise<void> {
-  await page.setExtraHTTPHeaders({ "x-e2e-client-ip": ip });
+  await page.setExtraHTTPHeaders({
+    "x-e2e-client-ip": ip,
+    "x-vercel-forwarded-for": ip,
+  });
   await page.goto("/forgot-password");
 }
 
@@ -88,6 +91,10 @@ test("shows the server-authoritative IP limit countdown", async ({ page }) => {
     await openForgotPassword(page, ip);
     await page.getByLabel("Email").fill(email);
     await page.getByRole("button", { name: "Send Reset Link" }).click();
+
+    if (requestNumber < IP_LIMIT_REQUEST_COUNT - 1) {
+      await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
+    }
   }
 
   await expect(page.getByRole("heading", { name: "Too Many Reset Requests" })).toBeVisible();

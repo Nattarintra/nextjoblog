@@ -13,7 +13,10 @@ type MailSummary = {
 };
 
 type MailMessage = {
-  body?: string;
+  body?: {
+    html?: string;
+    text?: string;
+  };
   html?: string;
   text?: string;
 };
@@ -41,7 +44,14 @@ async function readMessage(recipient: string, messageId: string): Promise<MailMe
 }
 
 function extractRecoveryUrl(message: MailMessage): string | undefined {
-  const content = [message.html, message.body, message.text].filter(Boolean).join("\n");
+  const content = [
+    message.body?.html,
+    message.body?.text,
+    message.html,
+    message.text,
+  ]
+    .filter(Boolean)
+    .join("\n");
   const candidates = content.match(/https?:\/\/[^\s"'<>]+/g) ?? [];
 
   return candidates
