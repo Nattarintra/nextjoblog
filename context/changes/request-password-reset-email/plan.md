@@ -409,29 +409,29 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [x] 1.1 Login and Signup tests pass unchanged
-- [x] 1.2 Type checking passes
-- [x] 1.3 Linting passes
-- [x] 1.4 Full suite and coverage gates pass
-- [x] 1.6 Signup heading promoted to h1 as a separate step (e2e/unit locators checked first)
+- [x] 1.1 Login and Signup tests pass unchanged — 4f3bad0
+- [x] 1.2 Type checking passes — 4f3bad0
+- [x] 1.3 Linting passes — 4f3bad0
+- [x] 1.4 Full suite and coverage gates pass — 4f3bad0
+- [x] 1.6 Signup heading promoted to h1 as a separate step (e2e/unit locators checked first) — 4f3bad0
 
 #### Manual
 
-- [x] 1.5 /login and /signup look identical to before in the browser
+- [x] 1.5 /login and /signup look identical to before in the browser — 4f3bad0
 
 ### Phase 2: Rate-limit foundation
 
 #### Automated
 
-- [ ] 2.1 Unit tests for helpers, in-memory limiter and Supabase adapter pass
-- [ ] 2.2 Coverage gates pass (90% lib/auth)
-- [ ] 2.3 Type checking and lint pass
+- [x] 2.1 Unit tests for helpers, in-memory limiter and Supabase adapter pass
+- [x] 2.2 Coverage gates pass (90% lib/auth)
+- [x] 2.3 Type checking and lint pass
 - [ ] 2.4 Migration applies and pgTAP passes in CI
-- [ ] 2.5 Migration copies in supabase and supabase-test are identical
+- [x] 2.5 Migration copies in supabase and supabase-test are identical
 
 #### Manual
 
-- [ ] 2.6 RPC reviewed against the security checklist
+- [x] 2.6 RPC reviewed against the security checklist
 
 ### Phase 3: Reset-request use case, Server Action and Supabase config
 

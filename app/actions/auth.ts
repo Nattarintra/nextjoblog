@@ -4,11 +4,10 @@ import { isAuthApiError } from "@supabase/auth-js";
 import { redirect } from "next/navigation";
 
 import { SupabaseConfigError } from "@/lib/supabase/config";
+import { isValidEmail } from "@/lib/auth/email";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { logAuthEvent } from "@/lib/auth/log";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
-
-const emailShapePattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const AUTH_LOG_EVENT = {
   signupConfiguration: "auth.signup.configuration_error",
@@ -71,7 +70,7 @@ export async function signup(
     return { error: "weak_password" };
   }
 
-  if (!emailShapePattern.test(email)) {
+  if (!isValidEmail(email)) {
     return { error: "unknown", message: "Please enter a valid email address." };
   }
 
@@ -141,7 +140,7 @@ export async function login(
   const password = typeof passwordValue === "string" ? passwordValue : "";
   const redirectTarget = resolvePostLoginPath(formData.get("next"));
 
-  if (!emailShapePattern.test(email)) {
+  if (!isValidEmail(email)) {
     return { error: "unknown", message: "Please enter a valid email address." };
   }
 
