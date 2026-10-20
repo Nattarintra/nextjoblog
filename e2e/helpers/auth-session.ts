@@ -25,6 +25,7 @@ export async function logInInNewContext(browser: Browser, email: string) {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Log In" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
   return { context, page };
 }
 

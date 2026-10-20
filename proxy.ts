@@ -86,12 +86,15 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // cookies so the browser stops presenting it. A missing/corrupted session
   // (no error, or any other error shape) has nothing meaningful to clear and
   // must not surface as an error; it just falls through as logged-out.
-  if (authState.kind === "unauthenticated" && authState.reason === "expired") {
-    request.cookies
+  const expiredAuthCookieNames =
+    authState.kind === "unauthenticated" && authState.reason === "expired"
+      ? request.cookies
       .getAll()
       .filter(({ name }) => isChunkLike(name, authCookieStorageKey))
-      .forEach(({ name }) => response.cookies.delete(name));
-  }
+      .map(({ name }) => name)
+      : [];
+
+  expiredAuthCookieNames.forEach((name) => response.cookies.delete(name));
 
   const decision = decideRouteAccess({
     pathname,
@@ -99,9 +102,18 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     authState: authState.kind,
   });
 
-  return decision.action === "redirect"
-    ? createAuthRedirect(decision.location, request.url, response)
-    : applyProtectedCacheControl(response, pathname);
+  if (decision.action === "redirect") {
+    const redirect = createAuthRedirect(decision.location, request.url, response);
+
+    // The proxy may have accumulated refresh-cookie writes before it learned
+    // that the session was expired. Re-apply deletion to the final redirect
+    // response so those writes cannot turn an expired cookie into an empty,
+    // session-scoped cookie.
+    expiredAuthCookieNames.forEach((name) => redirect.cookies.delete(name));
+    return redirect;
+  }
+
+  return applyProtectedCacheControl(response, pathname);
 }
 
 export const config = {
