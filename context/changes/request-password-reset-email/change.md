@@ -44,3 +44,9 @@ First half of the two-step password reset flow. Deliberately separated from Stor
 ### Open Questions
 
 None blocking. Design decisions and Story 0.7 hand-offs (confirm handler, recovery-session handling, post-success behavior) are recorded in `research.md` and `plan.md`, which are the source of truth.
+
+### Phase 5 implementation notes
+
+- CI runs the unit suite, resets the local Supabase database, runs pgTAP, and then runs the Playwright suite on Ubuntu. The Playwright HTML report is uploaded on every run, including failures.
+- E2E reset-mail tests use the local Inbucket API at `E2E_MAIL_API_URL`, unique recipients, and test-only client IP headers. The helper clears each mailbox after use.
+- The recovery-navigation test is marked as a Story 0.7 hand-off because this change intentionally does not implement `/api/auth/confirm` or `/reset-password`; it becomes active when that story lands.

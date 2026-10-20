@@ -1,4 +1,4 @@
-# Production Signup/Login: Configuration, Diagnosis, and Rollback
+# Production Signup/Login and Password Reset: Configuration, Diagnosis, and Rollback
 
 This is the operator runbook for deploying and diagnosing signup/login on
 Vercel against a hosted Supabase project. See
@@ -170,7 +170,12 @@ E2E/local seed emails against production.
 7. **Production URL / Site URL alignment**: confirm the hosted project's
    Site URL and redirect URLs (section 2) match `NEXT_PUBLIC_SITE_URL` and
    the actual deployed origin.
-8. **No secret leakage**: inspect the responses and Vercel logs from the
+8. **Password reset** (after Story 0.7 is deployed): request a reset for a
+   confirmed account and an unknown address. Confirm both display the same
+   generic Check Your Email message, only the confirmed account receives a
+   message, and the recovery link reaches `/reset-password` in a fresh
+   browser context. Do not use a real user's address.
+9. **No secret leakage**: inspect the responses and Vercel logs from the
    above checks and confirm no password, access token, cookie value, or
    Supabase key appears anywhere.
 

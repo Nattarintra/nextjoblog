@@ -454,24 +454,24 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [x] 4.1 Component tests for screens, flow transitions, resend cooldown, ARIA and focus pass
-- [x] 4.2 useCountdown hook tests pass with fake timers
-- [x] 4.3 Login forgot-password link test and protected-pages guard test still pass
-- [x] 4.4 Coverage gates, type checking and lint pass
+- [x] 4.1 Component tests for screens, flow transitions, resend cooldown, ARIA and focus pass — 7aefc60
+- [x] 4.2 useCountdown hook tests pass with fake timers — 7aefc60
+- [x] 4.3 Login forgot-password link test and protected-pages guard test still pass — 7aefc60
+- [x] 4.4 Coverage gates, type checking and lint pass — 7aefc60
 
 #### Manual
 
-- [x] 4.5 Screens match mockups 00.3, 00.3b and 00.3c
-- [x] 4.6 Keyboard-only and screen-reader walkthrough passes
-- [x] 4.7 Mobile layout is usable
+- [x] 4.5 Screens match mockups 00.3, 00.3b and 00.3c — 7aefc60
+- [x] 4.6 Keyboard-only and screen-reader walkthrough passes — 7aefc60
+- [x] 4.7 Mobile layout is usable — 7aefc60
 
 ### Phase 5: CI E2E, docs and evidence
 
 #### Automated
 
 - [ ] 5.1 CI workflow green (unit tests, supabase test db, Playwright) with run ID recorded
-- [ ] 5.2 Playwright report artifact uploaded
-- [ ] 5.3 Lint and typecheck pass locally
+- [x] 5.2 Playwright report artifact uploaded
+- [x] 5.3 Lint and typecheck pass locally
 
 #### Manual
 
