@@ -1,7 +1,7 @@
 ---
 change_id: request-password-reset-email
 title: Request a password reset email
-status: planned
+status: implementing
 created: 2026-10-17
 updated: 2026-10-20
 archived_at: null

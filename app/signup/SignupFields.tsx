@@ -1,10 +1,7 @@
 import type { ComponentProps } from "react";
 
 import { PasswordField } from "./PasswordField";
-import { authFieldLabelClassName, authInputClassName } from "@/components/auth/styles";
-
-const submitButtonClassName =
-  "flex w-full cursor-pointer items-center justify-center rounded-xl bg-azure px-4.5 py-3.25 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70";
+import { authFieldLabelClassName, authInputClassName, submitButtonClassName } from "@/components/auth/styles";
 
 export function SignupFields({
   formAction,

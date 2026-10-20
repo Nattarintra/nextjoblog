@@ -409,15 +409,15 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [ ] 1.1 Login and Signup tests pass unchanged
-- [ ] 1.2 Type checking passes
-- [ ] 1.3 Linting passes
-- [ ] 1.4 Full suite and coverage gates pass
-- [ ] 1.6 Signup heading promoted to h1 as a separate step (e2e/unit locators checked first)
+- [x] 1.1 Login and Signup tests pass unchanged
+- [x] 1.2 Type checking passes
+- [x] 1.3 Linting passes
+- [x] 1.4 Full suite and coverage gates pass
+- [x] 1.6 Signup heading promoted to h1 as a separate step (e2e/unit locators checked first)
 
 #### Manual
 
-- [ ] 1.5 /login and /signup look identical to before in the browser
+- [x] 1.5 /login and /signup look identical to before in the browser
 
 ### Phase 2: Rate-limit foundation
 
