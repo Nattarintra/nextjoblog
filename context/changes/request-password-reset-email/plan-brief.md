@@ -5,7 +5,7 @@
 
 ## What & Why
 
-Let a Job Seeker request a password reset link from `/forgot-password` without the system revealing whether the email has an account. This is the first half of the reset flow; Story 0.7 consumes the link. It needs a layered rate limit and a `token_hash` recovery email, so the link works across devices.
+Let a Job Seeker request a password reset link from `/forgot-password` without the system revealing whether the email has an account. This is the first half of the reset flow; Story 0.7 consumes the link. It needs a layered rate limit and Supabase's default recovery email flow.
 
 ## Starting Point
 
@@ -13,7 +13,7 @@ The routes `/forgot-password` and `/reset-password` are already public and Login
 
 ## Desired End State
 
-Every valid request shows **Check Your Email** (registered, unknown, email-limited, provider-error look identical). More than 5 requests/hour from one IP shows **Too Many Reset Requests** with a countdown. Registered users get an email linking to `/api/auth/confirm?token_hash=…`. Auth pages share one shell. CI is green with the run ID recorded.
+Every valid request shows **Check Your Email** (registered, unknown, email-limited, provider-error look identical). More than 5 requests/hour from one IP shows **Too Many Reset Requests** with a countdown. Registered users receive Supabase's default recovery email and are redirected to `/reset-password`. Auth pages share one shell. CI is green with the run ID recorded.
 
 ## Key Decisions Made
 
@@ -26,16 +26,16 @@ Every valid request shows **Check Your Email** (registered, unknown, email-limit
 | Timing | Provider call deferred with `after()`; small `MIN_RESPONSE_MS` floor (injected clock) only levels limiter variance | Response time no longer depends on whether the account exists | Review F2 |
 | Release gate | `PASSWORD_RESET_ENABLED` flag hides the Login link and disables sending until Story 0.7 ships | `main` auto-deploys to Vercel; the link 404s without 0.7 | Review F1 |
 | Missing IP / tests | Test IP header only with `E2E_TEST_HOOKS=1`; production missing header uses a looser `unknown` bucket | E2E needs distinct IPs; no global lockout | Review F3 |
-| Provider client | Stateless `createClient`, no cookies | PKCE verifier unused with `token_hash` | Review F5 |
+| Provider client | Stateless `createClient`, no cookies | Keeps the request action free of auth cookies | Review F5 |
 | Keys | HMAC with server secret (validated, distinct log if missing); NFKC+lowercase email; `x-vercel-forwarded-for` IP | No raw PII stored; no spoofable header trust | Plan |
-| Link flow | `token_hash` template → `/api/auth/confirm`; handler in 0.7 | Cross-device; clean story boundary | Research / Plan |
+| Link flow | Supabase default `ConfirmationURL` → `/reset-password`; recovery handling in 0.7 | No hosted custom template required | User decision |
 | Limiter outage | Fail closed on sending, return neutral `sent` | Never exposes state | Research / Plan |
 | Refactor | Extract shared auth primitives first, own phase | DRY; existing tests as safety net | Research / Plan |
 | Verification | Unit locally; pgTAP + Playwright in CI only | Chromium unsupported on macOS 13 | Plan |
 
 ## Scope
 
-**In scope:** shared auth primitives; limiter port, adapters, migration and pgTAP; use case, action, Supabase config and recovery template; three accessible screens and countdown hook; CI E2E with mail capture; docs and `change.md` reconciliation.
+**In scope:** shared auth primitives; limiter port, adapters, migration and pgTAP; use case, action, Supabase config using the default recovery template; three accessible screens and countdown hook; CI E2E with mail capture; docs and `change.md` reconciliation.
 
 **Out of scope:** the confirm handler, reset-password page, `updateUser` and recovery-session handling (Story 0.7); SMS; CAPTCHA; Redis.
 
@@ -67,5 +67,5 @@ Pure, injected logic in `lib/auth/` (IP parser, key hasher, email normaliser, `R
 ## Success Criteria (Summary)
 
 - Users see the same Check Your Email result for any valid email; only an IP limit shows the countdown screen.
-- A registered address gets a captured recovery email with a `token_hash` link that opens in a fresh browser context.
+- A registered address gets a captured recovery email with Supabase's default recovery link and reaches the reset page.
 - Lint, typecheck, unit coverage gates and the CI workflow (including pgTAP and Playwright) pass, with the run ID recorded. `supabase test db` is added to CI in Phase 2.

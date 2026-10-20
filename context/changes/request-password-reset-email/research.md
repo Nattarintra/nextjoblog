@@ -13,6 +13,12 @@ last_updated_by: Natta
 
 # Research: Request a password reset email (Story 0.6)
 
+> Implementation update (2026-10-20): The planned custom `token_hash` recovery
+> template was superseded by the user's Free-plan decision to retain Supabase's
+> default `ConfirmationURL` template. The current implementation plan and
+> production runbook are authoritative for this flow; the original token-hash
+> analysis below remains historical research.
+
 **Date**: 2026-10-17
 **Researcher**: Natta
 **Git Commit**: d5fac67b3d4d6fa02b05d9f59946e342514a4159

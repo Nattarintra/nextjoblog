@@ -17,7 +17,7 @@ type RpcClient = {
       p_capacity: number;
       p_refill_interval_seconds: number;
     },
-  ): Promise<{ data: unknown; error: unknown }>;
+  ): PromiseLike<{ data: unknown; error: unknown }>;
 };
 
 type RateLimitRpcRow = {

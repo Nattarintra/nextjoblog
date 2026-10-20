@@ -2,7 +2,7 @@
 
 ## Overview
 
-Build the first half of the password-reset flow: a `/forgot-password` page where a Job Seeker enters their email and receives a reset link, without the system ever revealing whether an account exists. The flow has three screens (form, Check Your Email, Too Many Reset Requests), a layered rate limiter (visible per-IP limit, silent per-email limits) on a Postgres token-bucket store behind a `RateLimiter` port, and a Supabase `recovery` email template using the `token_hash` flow. Story 0.7 owns consuming the link.
+Build the first half of the password-reset flow: a `/forgot-password` page where a Job Seeker enters their email and receives a reset link, without the system ever revealing whether an account exists. The flow has three screens (form, Check Your Email, Too Many Reset Requests), a layered rate limiter (visible per-IP limit, silent per-email limits) on a Postgres token-bucket store behind a `RateLimiter` port, and Supabase's default recovery email using `ConfirmationURL`. Story 0.7 owns consuming the link.
 
 All new code follows SOLID, DRY and a11y rules from the invocation: pure functions in `lib/auth/`, injected dependencies (clock, sleep, limiter, Supabase client), named constants instead of magic numbers, small composable components, and no duplication of the auth shell.
 
@@ -20,7 +20,7 @@ All new code follows SOLID, DRY and a11y rules from the invocation: pure functio
 
 ## Desired End State
 
-- A user clicks "Forgot password?" on Login, submits a valid email and always lands on **Check Your Email** (registered, unknown, per-email-limited and provider-failure cases are indistinguishable in output). A registered address receives a recovery email whose link is `…/api/auth/confirm?token_hash=…&type=recovery&next=/reset-password`.
+- A user clicks "Forgot password?" on Login, submits a valid email and always lands on **Check Your Email** (registered, unknown, per-email-limited and provider-failure cases are indistinguishable in output). A registered address receives Supabase's default recovery email whose `ConfirmationURL` redirects to `/reset-password`.
 - More than 5 requests per hour from one IP shows **Too Many Reset Requests** with a server-authoritative countdown. This is the only distinguishable state.
 - Login, Signup and Forgot Password share one auth shell, fonts and button/status styles from `components/auth/`.
 - Verification: `npm run lint`, `npx tsc --noEmit` and `npm run test:run` (coverage gates) pass locally; the CI workflow passes (unit, `supabase test db`, Playwright) and its run ID is recorded in this plan's Progress notes.
@@ -29,7 +29,7 @@ All new code follows SOLID, DRY and a11y rules from the invocation: pure functio
 
 - Anti-enumeration is not automatic: provider 429s (`over_email_send_rate_limit`) may appear only for real accounts, so every provider outcome maps to `sent` (`research.md` §3).
 - Supabase limits are project-wide and expose no retry-after, so the countdown needs an app limiter (`research.md` §3, §5).
-- PKCE binds the link to the requesting browser; `token_hash` avoids that (`research.md` decision "reset-link flow").
+- The default Supabase recovery flow owns the confirmation link; Story 0.7 must implement the standard recovery redirect and session handling.
 - `"use server"` files can only export async functions, so shared constants/regex/types live in `lib/auth/`.
 - `/api/auth` is already a public prefix, so `/api/auth/confirm` needs no route-access change (`lib/auth/paths.ts:6-12`).
 - `supabase-test/supabase/migrations/` is a manual copy and drifts unless updated together (`supabase/migrations/README.md`).
@@ -62,7 +62,7 @@ Decisions taken during planning (beyond `research.md`):
 | Limiter store | One generic `rate_limit_buckets` table and atomic token-bucket RPC `consume_rate_limit`, with opportunistic expired-row cleanup in the RPC |
 | Keys | `HMAC-SHA256(RATE_LIMIT_HASH_SECRET, scope + ":" + value)`; email value is trimmed, NFKC-normalised, lowercased; IP from `x-vercel-forwarded-for` validated with `net.isIP`, otherwise a single shared `unknown` bucket |
 | Limiter failure | Fail closed on sending: log safely, skip the provider call, return `sent` |
-| Link contract | Template: `{{ .SiteURL }}/api/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`; `redirectTo` is the same-origin `/reset-password` URL built from `NEXT_PUBLIC_SITE_URL` |
+| Link contract | Keep Supabase's default `{{ .ConfirmationURL }}` template; `redirectTo` is the same-origin `/reset-password` URL built from `NEXT_PUBLIC_SITE_URL` |
 | Testing | Vitest 80/90 gates locally; pgTAP and Playwright in CI only |
 | Release gate (review F1) | `PASSWORD_RESET_ENABLED` env flag. When unset/false the Login "Forgot password?" link is hidden and the action returns the neutral `sent` without sending. Enabled in Production only when Story 0.7 ships |
 | Timing (review F2, replaces the floor-only approach) | The provider call runs in Next `after()` so response time is independent of account existence; a small `MIN_RESPONSE_MS` floor remains only to level limiter RPC-count variance. Verified in `node_modules/next/dist/docs/01-app/03-api-reference/04-functions/after.md`: `after` is supported in Server Functions, runs on Vercel via `waitUntil` for up to the route's max duration, and may call `cookies()`/`headers()` inside the callback there. Read `headers()` before scheduling anyway. Probed on `next dev` (2026-10-20): the action returned in ~0.05 s while the `after()` work ran 3 s later, a header read before scheduling reached the callback, and no `Set-Cookie` was written. Not yet proven on Vercel (`waitUntil`) or against real Supabase |
@@ -234,11 +234,11 @@ Exported action `requestPasswordResetAction(prev, formData)`; the state type liv
 
 #### 4. Supabase configuration and template
 
-**Files**: `supabase/config.toml`, `supabase-test/supabase/config.toml`, `supabase/templates/recovery.html`, `supabase-test/supabase/templates/recovery.html`, `.env.example`, `docs/production-auth.md`
+**Files**: `supabase/config.toml`, `supabase-test/supabase/config.toml`, `.env.example`, `docs/production-auth.md`
 
-**Intent**: Allow-list `http://127.0.0.1:3000/reset-password` and `…/api/auth/confirm`; raise `auth.rate_limit.email_sent` for the local/test stacks only; register the `recovery` template with the `token_hash` link contract; document `RATE_LIMIT_HASH_SECRET`, the hosted Dashboard template and redirect allow-list entries, and the Vercel Production variables.
+**Intent**: Allow-list `http://127.0.0.1:3000/reset-password` and `…/api/auth/confirm`; raise `auth.rate_limit.email_sent` for the local/test stacks only; retain Supabase's default recovery template; document `RATE_LIMIT_HASH_SECRET`, the hosted redirect allow-list entries, and the Vercel Production variables.
 
-**Contract**: Link format `{{ .SiteURL }}/api/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`. The hosted Dashboard must carry the same template; the doc lists the exact steps.
+**Contract**: The default Supabase recovery template uses `{{ .ConfirmationURL }}` and receives the `/reset-password` URL through `redirectTo`. The hosted Dashboard template is not changed; the doc lists the exact redirect allow-list entries.
 
 ### Success Criteria:
 
@@ -256,7 +256,7 @@ Exported action `requestPasswordResetAction(prev, formData)`; the state type liv
 
 #### Manual Verification:
 
-- Hosted Supabase Dashboard recovery template and redirect URLs updated to match the docs (human-only step)
+- Hosted Supabase Dashboard redirect URLs updated; the default recovery template remains unchanged (human-only step)
 - `RATE_LIMIT_HASH_SECRET` set in Vercel Production
 
 **Implementation Note**: Pause for manual confirmation before proceeding.
@@ -339,7 +339,7 @@ Prove provider behavior and the full flow in the authoritative environment.
 
 **File**: `e2e/forgot-password.spec.ts`
 
-**Intent**: Cover: registered email reaches Check Your Email and a recovery email is captured; unknown email shows the identical state with no email; repeated provider responses (separate from happy path) stay neutral for both categories; IP-limit exhaustion shows Too Many Reset Requests with a countdown; the captured `token_hash` link opens in a fresh browser context (no PKCE cookie); mailbox timeout/cleanup. Unique timestamped emails; service-role admin client for seeding. Each spec uses a unique IP via the test header (`E2E_TEST_HOOKS=1`); one reserved IP is used only for the exhaustion spec. The webServer env sets `PASSWORD_RESET_ENABLED=1`.
+**Intent**: Cover: registered email reaches Check Your Email and a recovery email is captured; unknown email shows the identical state with no email; repeated provider responses (separate from happy path) stay neutral for both categories; IP-limit exhaustion shows Too Many Reset Requests with a countdown; the captured default recovery link redirects to the reset page in a fresh browser context; mailbox timeout/cleanup. Unique timestamped emails; service-role admin client for seeding. Each spec uses a unique IP via the test header (`E2E_TEST_HOOKS=1`); one reserved IP is used only for the exhaustion spec. The webServer env sets `PASSWORD_RESET_ENABLED=1`.
 
 **Contract**: Reuse existing `e2e/helpers/*` conventions; set `RATE_LIMIT_HASH_SECRET` and (if needed) a test IP header in `playwright.config.ts` webServer env.
 
@@ -392,7 +392,7 @@ One RPC call per limiter rule (up to three per request) plus one provider call; 
 
 ## Migration Notes
 
-New migration must be copied to `supabase-test/` in the same change. Hosted Supabase needs the migration applied and the recovery template/redirect URLs set manually; Vercel needs `RATE_LIMIT_HASH_SECRET`. Rollback: drop the RPC and table; the app then fails closed (neutral `sent`, no emails) rather than erroring.
+New migration must be copied to `supabase-test/` in the same change. Hosted Supabase needs the migration applied and the redirect URLs set manually; keep the default recovery email template; Vercel needs `RATE_LIMIT_HASH_SECRET`. Rollback: drop the RPC and table; the app then fails closed (neutral `sent`, no emails) rather than erroring.
 
 ## References
 
@@ -423,32 +423,32 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [x] 2.1 Unit tests for helpers, in-memory limiter and Supabase adapter pass
-- [x] 2.2 Coverage gates pass (90% lib/auth)
-- [x] 2.3 Type checking and lint pass
-- [ ] 2.4 Migration applies and pgTAP passes in CI
-- [x] 2.5 Migration copies in supabase and supabase-test are identical
+- [x] 2.1 Unit tests for helpers, in-memory limiter and Supabase adapter pass — feb63e6
+- [x] 2.2 Coverage gates pass (90% lib/auth) — feb63e6
+- [x] 2.3 Type checking and lint pass — feb63e6
+- [x] 2.4 Migration applies and pgTAP passes in CI — feb63e6
+- [x] 2.5 Migration copies in supabase and supabase-test are identical — feb63e6
 
 #### Manual
 
-- [x] 2.6 RPC reviewed against the security checklist
+- [x] 2.6 RPC reviewed against the security checklist — feb63e6
 
 ### Phase 3: Reset-request use case, Server Action and Supabase config
 
 #### Automated
 
-- [ ] 3.1 Use-case and action tests pass, including neutral-output parity
-- [ ] 3.2 Validation tests assert provider and limiter are not called for invalid email
-- [ ] 3.3 Minimum-duration tests pass with a fake clock
-- [ ] 3.4 Coverage gates pass
-- [ ] 3.5 Type checking and lint pass
-- [ ] 3.6 Local Supabase starts with the new config in CI
+- [x] 3.1 Use-case and action tests pass, including neutral-output parity
+- [x] 3.2 Validation tests assert provider and limiter are not called for invalid email
+- [x] 3.3 Minimum-duration tests pass with a fake clock
+- [x] 3.4 Coverage gates pass
+- [x] 3.5 Type checking and lint pass
+- [x] 3.6 Local Supabase starts with the new config in CI
 
 #### Manual
 
-- [ ] 3.7 Hosted Supabase recovery template and redirect URLs updated
-- [ ] 3.8 RATE_LIMIT_HASH_SECRET set in Vercel Production
-- [ ] 3.9 PASSWORD_RESET_ENABLED left off in Production until Story 0.7 ships
+- [x] 3.7 Hosted Supabase recovery template and redirect URLs updated
+- [x] 3.8 RATE_LIMIT_HASH_SECRET set in Vercel Production
+- [x] 3.9 PASSWORD_RESET_ENABLED left off in Production until Story 0.7 ships
 
 ### Phase 4: Forgot Password UI
 
