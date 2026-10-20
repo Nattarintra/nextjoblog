@@ -16,6 +16,8 @@
   --paper: #fbfaf7;
   --auth-label: #cfe1f5;
   --auth-danger: #ffb4ab;
+  --auth-warning: #f3c47a;
+  --auth-warning-ring: rgb(184 113 11 / 22%);
 }
 
 @theme inline {
@@ -34,6 +36,8 @@
   --color-paper: var(--paper);
   --color-auth-label: var(--auth-label);
   --color-auth-danger: var(--auth-danger);
+  --color-auth-warning: var(--auth-warning);
+  --color-auth-warning-ring: var(--auth-warning-ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

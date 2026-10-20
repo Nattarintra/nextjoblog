@@ -437,33 +437,33 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [x] 3.1 Use-case and action tests pass, including neutral-output parity
-- [x] 3.2 Validation tests assert provider and limiter are not called for invalid email
-- [x] 3.3 Minimum-duration tests pass with a fake clock
-- [x] 3.4 Coverage gates pass
-- [x] 3.5 Type checking and lint pass
-- [x] 3.6 Local Supabase starts with the new config in CI
+- [x] 3.1 Use-case and action tests pass, including neutral-output parity — 54fc5ff
+- [x] 3.2 Validation tests assert provider and limiter are not called for invalid email — 54fc5ff
+- [x] 3.3 Minimum-duration tests pass with a fake clock — 54fc5ff
+- [x] 3.4 Coverage gates pass — 54fc5ff
+- [x] 3.5 Type checking and lint pass — 54fc5ff
+- [x] 3.6 Local Supabase starts with the new config in CI — 54fc5ff
 
 #### Manual
 
-- [x] 3.7 Hosted Supabase recovery template and redirect URLs updated
-- [x] 3.8 RATE_LIMIT_HASH_SECRET set in Vercel Production
-- [x] 3.9 PASSWORD_RESET_ENABLED left off in Production until Story 0.7 ships
+- [x] 3.7 Hosted Supabase recovery template and redirect URLs updated — 54fc5ff
+- [x] 3.8 RATE_LIMIT_HASH_SECRET set in Vercel Production — 54fc5ff
+- [x] 3.9 PASSWORD_RESET_ENABLED left off in Production until Story 0.7 ships — 54fc5ff
 
 ### Phase 4: Forgot Password UI
 
 #### Automated
 
-- [ ] 4.1 Component tests for screens, flow transitions, resend cooldown, ARIA and focus pass
-- [ ] 4.2 useCountdown hook tests pass with fake timers
-- [ ] 4.3 Login forgot-password link test and protected-pages guard test still pass
-- [ ] 4.4 Coverage gates, type checking and lint pass
+- [x] 4.1 Component tests for screens, flow transitions, resend cooldown, ARIA and focus pass
+- [x] 4.2 useCountdown hook tests pass with fake timers
+- [x] 4.3 Login forgot-password link test and protected-pages guard test still pass
+- [x] 4.4 Coverage gates, type checking and lint pass
 
 #### Manual
 
-- [ ] 4.5 Screens match mockups 00.3, 00.3b and 00.3c
-- [ ] 4.6 Keyboard-only and screen-reader walkthrough passes
-- [ ] 4.7 Mobile layout is usable
+- [x] 4.5 Screens match mockups 00.3, 00.3b and 00.3c
+- [x] 4.6 Keyboard-only and screen-reader walkthrough passes
+- [x] 4.7 Mobile layout is usable
 
 ### Phase 5: CI E2E, docs and evidence
 

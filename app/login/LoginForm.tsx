@@ -21,10 +21,12 @@ export default function LoginForm({
   nextPath = "/dashboard",
   destinationLabel,
   loggedOut = false,
+  forgotPasswordEnabled = true,
 }: {
   nextPath?: string;
   destinationLabel?: string;
   loggedOut?: boolean;
+  forgotPasswordEnabled?: boolean;
 }) {
   const returnLabel = loggedOut ? undefined : destinationLabel;
   const [state, formAction, isPending] = useActionState(login, undefined);
@@ -61,6 +63,7 @@ export default function LoginForm({
         hasError={hasError}
         isPending={isPending}
         nextPath={nextPath}
+        forgotPasswordEnabled={forgotPasswordEnabled}
       />
 
       <div className={authFooterClassName}>

@@ -13,11 +13,13 @@ export function LoginFields({
   hasError,
   isPending,
   nextPath,
+  forgotPasswordEnabled = true,
 }: {
   formAction: ComponentProps<"form">["action"];
   hasError: boolean;
   isPending: boolean;
   nextPath: string;
+  forgotPasswordEnabled?: boolean;
 }) {
   return (
     <form action={formAction}>
@@ -50,11 +52,13 @@ export function LoginFields({
           aria-invalid={hasError}
         />
       </div>
-      <div className="mb-5 text-right">
-        <Link className={authLinkClassName} href="/forgot-password">
-          Forgot password?
-        </Link>
-      </div>
+      {forgotPasswordEnabled && (
+        <div className="mb-5 text-right">
+          <Link className={authLinkClassName} href="/forgot-password">
+            Forgot password?
+          </Link>
+        </div>
+      )}
       <button className={submitButtonClassName} type="submit" disabled={isPending}>
         {isPending ? "Logging in…" : "Log In"}
       </button>

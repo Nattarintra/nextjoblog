@@ -20,3 +20,39 @@ export const authFooterClassName = "mt-auto pt-5.5 text-center text-[12.5px] tex
 
 export const submitButtonClassName =
   "flex w-full cursor-pointer items-center justify-center rounded-xl bg-azure px-4.5 py-3.25 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70";
+
+export const secondaryButtonClassName =
+  "flex w-full cursor-pointer items-center justify-center rounded-xl border border-white/25 bg-transparent px-4.5 py-3.25 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus:outline focus:outline-2 focus:outline-azure disabled:cursor-wait disabled:opacity-45";
+
+export const authHintClassName = "mt-4 text-[12px] leading-relaxed text-white/70";
+
+export const statusRingClassName =
+  "mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border";
+
+export const warningStatusRingClassName =
+  "border-transparent bg-auth-warning-ring text-auth-warning";
+
+export const infoStatusRingClassName =
+  "border-azure/50 bg-azure/30 text-sky";
+
+export const statusStepsClassName = "mt-6 grid gap-3 text-[12px] text-white/75";
+
+export const statusStepClassName = "flex items-start gap-2.5";
+
+export const statusStepNumberClassName =
+  "mt-px flex h-5 min-w-5 items-center justify-center rounded-md border border-sky/40 px-1 font-mono text-[10px] text-sky";
+
+export const emailChipClassName =
+  "mt-5 inline-block max-w-full break-all rounded-full border border-white/15 bg-white/8 px-3 py-1.5 font-mono text-[11px] text-sky";
+
+export const waitCardClassName =
+  "my-6 rounded-xl border border-auth-warning/35 bg-auth-warning/10 px-4 py-3.5 text-center";
+
+export const waitLabelClassName = "text-[11px] font-semibold uppercase tracking-[0.12em] text-auth-warning";
+
+export const waitTimeClassName = "mt-1 font-mono text-3xl tabular-nums text-white";
+
+export const waitNoteClassName = "mt-2 text-[11px] leading-relaxed text-white/75";
+
+export const visuallyHiddenClassName =
+  "absolute h-px w-px overflow-hidden whitespace-nowrap border-0 p-0 [clip:rect(0,0,0,0)]";
