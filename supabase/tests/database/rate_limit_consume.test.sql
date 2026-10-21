@@ -62,7 +62,7 @@ select is(
 
 insert into public.rate_limit_buckets(scope, key_hash, tokens, updated_at, last_allowed)
 values ('password_reset_ip', repeat('c', 64), 0, clock_timestamp() - interval '8 days', false);
-select public.consume_rate_limit('password_reset_ip', repeat('c', 64), 1, 60);
+select public.consume_rate_limit('password_reset_ip', repeat('d', 64), 1, 60);
 select is(
   (select count(*)::integer from public.rate_limit_buckets where key_hash = repeat('c', 64)),
   0,
