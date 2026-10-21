@@ -20,9 +20,9 @@ const playwright = spawnSync(process.platform === "win32" ? "npx.cmd" : "npx", [
     NEXT_PUBLIC_SUPABASE_ANON_KEY: readStatusValue("ANON_KEY"),
     SUPABASE_SERVICE_ROLE_KEY: readStatusValue("SERVICE_ROLE_KEY"),
     PASSWORD_RESET_ENABLED: "1",
+    E2E_TEST_HOOKS: "1",
     RATE_LIMIT_HASH_SECRET: process.env.RATE_LIMIT_HASH_SECRET ?? randomBytes(32).toString("hex"),
     E2E_MAIL_API_URL: process.env.E2E_MAIL_API_URL ?? "http://127.0.0.1:54324/api/v1",
-    E2E_MAILBOX_NAMING: process.env.E2E_MAILBOX_NAMING ?? "local",
   },
   stdio: "inherit",
 });

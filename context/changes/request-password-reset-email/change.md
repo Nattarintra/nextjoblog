@@ -48,5 +48,5 @@ None blocking. Design decisions and Story 0.7 hand-offs (confirm handler, recove
 ### Phase 5 implementation notes
 
 - CI runs the unit suite, resets the local Supabase database, runs pgTAP, and then runs the Playwright suite on Ubuntu. The Playwright HTML report is uploaded on every run, including failures.
-- E2E reset-mail tests use the local Inbucket API at `E2E_MAIL_API_URL`, unique recipients, and test-only client IP headers. The helper uses Inbucket's default local-part mailbox naming via `E2E_MAILBOX_NAMING` and clears each mailbox after use.
+- E2E reset-mail tests use the local Mailpit API at `E2E_MAIL_API_URL`, unique recipients, and test-only client IP headers. The helper filters messages by recipient and clears each matching message after use.
 - The recovery-navigation test is marked as a Story 0.7 hand-off because this change intentionally does not implement `/api/auth/confirm` or `/reset-password`; it becomes active when that story lands.
