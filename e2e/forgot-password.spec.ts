@@ -5,6 +5,7 @@ import { clearMailbox, waitForRecoveryEmail } from "./helpers/auth-email";
 
 const PASSWORD = "abcdef";
 const BASE_CLIENT_IP = "198.51.100.10";
+const IP_LIMIT_TEST_BASE_OCTET = 20;
 const IP_LIMIT_REQUEST_COUNT = 6;
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,8 +83,8 @@ test("repeated requests stay neutral for known and unknown addresses", async ({ 
   await clearMailbox(unknownEmail);
 });
 
-test("shows the server-authoritative IP limit countdown", async ({ page }) => {
-  const ip = "198.51.100.14";
+test("shows the server-authoritative IP limit countdown", async ({ page }, testInfo) => {
+  const ip = `198.51.100.${IP_LIMIT_TEST_BASE_OCTET + testInfo.retry}`;
 
   for (let requestNumber = 0; requestNumber < IP_LIMIT_REQUEST_COUNT; requestNumber += 1) {
     const email = uniqueEmail(`ip-limit-${requestNumber}`);
