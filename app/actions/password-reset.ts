@@ -9,6 +9,8 @@ import { isValidEmail, normalizeEmail } from "@/lib/auth/email";
 import type { ForgotPasswordFormState } from "@/lib/auth/password-reset-state";
 import { SupabaseRateLimiter } from "@/lib/auth/supabase-rate-limiter";
 import { requestPasswordReset } from "@/lib/auth/request-password-reset";
+import { isValidSiteUrl } from "@/lib/auth/site-url";
+import { isE2eHooksEnabled } from "@/lib/auth/test-hooks";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 
 export type { ForgotPasswordFormState } from "@/lib/auth/password-reset-state";
@@ -31,9 +33,17 @@ export async function requestPasswordResetAction(
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
     const hashSecret = process.env.RATE_LIMIT_HASH_SECRET ?? "";
     const enabled = true;
-    const e2eTestHooksEnabled = process.env.E2E_TEST_HOOKS === "1";
+    const e2eTestHooksEnabled = isE2eHooksEnabled({
+      NODE_ENV: process.env.NODE_ENV,
+      E2E_TEST_HOOKS: process.env.E2E_TEST_HOOKS,
+    });
 
-    if (!siteUrl) return { status: "sent", email };
+    if (!isValidSiteUrl(siteUrl)) {
+      console.error("auth.password_reset.configuration_error", {
+        code: siteUrl ? "invalid_site_url" : "missing_site_url",
+      });
+      return { status: "sent", email };
+    }
 
     const supabase = createClient(config.url, config.anonKey, {
       auth: {

@@ -50,4 +50,14 @@ describe("SupabaseRateLimiter", () => {
       RateLimiterUnavailableError,
     );
   });
+
+  it("converts a rejected RPC into a typed unavailable error", async () => {
+    const limiter = new SupabaseRateLimiter({
+      rpc: vi.fn().mockRejectedValue(new Error("network failure")),
+    });
+
+    await expect(limiter.consume("scope", "hash", policy)).rejects.toBeInstanceOf(
+      RateLimiterUnavailableError,
+    );
+  });
 });

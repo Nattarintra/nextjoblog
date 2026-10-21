@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   headers: vi.fn(),
@@ -34,6 +34,8 @@ describe("requestPasswordResetAction", () => {
     mocks.requestPasswordReset.mockResolvedValue({ status: "sent" });
     mocks.after.mockImplementation((callback: () => Promise<void>) => callback());
   });
+
+  afterEach(() => vi.restoreAllMocks());
 
   it("returns the only visible validation error without reading dependencies", async () => {
     await expect(requestPasswordResetAction(undefined, formData("not-an-email"))).resolves.toEqual({
@@ -76,5 +78,29 @@ describe("requestPasswordResetAction", () => {
       status: "sent",
       email: "user@example.com",
     });
+  });
+
+  it.each([
+    [undefined, "missing_site_url"],
+    ["ftp://example.com", "invalid_site_url"],
+  ])("returns neutral state without scheduling when site URL is %s", async (siteUrl, code) => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    if (siteUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_SITE_URL;
+    } else {
+      process.env.NEXT_PUBLIC_SITE_URL = siteUrl;
+    }
+
+    await expect(requestPasswordResetAction(undefined, formData("user@example.com"))).resolves.toEqual({
+      status: "sent",
+      email: "user@example.com",
+    });
+    expect(mocks.createClient).not.toHaveBeenCalled();
+    expect(mocks.requestPasswordReset).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(
+      "auth.password_reset.configuration_error",
+      { code },
+    );
   });
 });

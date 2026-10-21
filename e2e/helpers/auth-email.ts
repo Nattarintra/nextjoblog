@@ -81,6 +81,19 @@ export async function clearMailbox(recipient: string): Promise<void> {
   await Promise.all(messages.map(({ ID }) => deleteMessage(ID)));
 }
 
+export async function expectMailboxEmpty(recipient: string): Promise<void> {
+  await expect
+    .poll(
+      async () => (await readMessages(recipient)).length,
+      {
+        intervals: [MAIL_POLL_INTERVAL_MS],
+        timeout: MAIL_DELIVERY_TIMEOUT_MS,
+        message: `A message was delivered to ${recipient}`,
+      },
+    )
+    .toBe(0);
+}
+
 export async function waitForRecoveryEmail(recipient: string): Promise<{ recoveryUrl: string }> {
   let recoveryUrl: string | undefined;
 

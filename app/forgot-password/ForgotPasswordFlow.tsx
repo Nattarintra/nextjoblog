@@ -12,9 +12,15 @@ import TooManyRequestsScreen from "./TooManyRequestsScreen";
 export default function ForgotPasswordFlow() {
   const [showFormOverride, setShowFormOverride] = useState(false);
   const [email, setEmail] = useState("");
+  const [resendGeneration, setResendGeneration] = useState(0);
   const flowAction = async (previous: ForgotPasswordFormState, formData: FormData) => {
     const nextState = await requestPasswordResetAction(previous, formData);
-    if (nextState && "status" in nextState) setShowFormOverride(false);
+    if (nextState && "status" in nextState) {
+      setShowFormOverride(false);
+      if (nextState.status === "sent") {
+        setResendGeneration((generation) => generation + 1);
+      }
+    }
     return nextState;
   };
   const [state, formAction, isPending] = useActionState<ForgotPasswordFormState, FormData>(
@@ -61,7 +67,8 @@ export default function ForgotPasswordFlow() {
       email={state.email}
       action={formAction}
       isPending={isPending}
-        onUseDifferentEmail={() => setShowFormOverride(true)}
+      resendGeneration={resendGeneration}
+      onUseDifferentEmail={() => setShowFormOverride(true)}
     />
   );
 }

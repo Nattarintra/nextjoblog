@@ -3,7 +3,7 @@ import type { EffectiveSessionExpiry } from "@/lib/session";
 type HookEnv = { NODE_ENV?: string; E2E_TEST_HOOKS?: string };
 
 // Single gate for every E2E hook: inert in production and unless opted in.
-function isE2eHooksEnabled(env: HookEnv): boolean {
+export function isE2eHooksEnabled(env: HookEnv): boolean {
   return env.NODE_ENV !== "production" && env.E2E_TEST_HOOKS === "1";
 }
 

@@ -23,11 +23,13 @@ export default function CheckYourEmailScreen({
   email,
   action,
   isPending,
+  resendGeneration,
   onUseDifferentEmail,
 }: {
   email: string;
   action: ComponentProps<"form">["action"];
   isPending: boolean;
+  resendGeneration: number;
   onUseDifferentEmail: () => void;
 }) {
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -63,7 +65,12 @@ export default function CheckYourEmailScreen({
 
       <div className="mt-6 grid gap-2.5">
         <Link className={submitButtonClassName} href="/login">Back to Log In</Link>
-        <ResendLinkForm email={email} action={action} isPending={isPending} />
+        <ResendLinkForm
+          key={resendGeneration}
+          email={email}
+          action={action}
+          isPending={isPending}
+        />
       </div>
 
       <div className={authFooterClassName}>

@@ -1,12 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 
-import { clearMailbox, waitForRecoveryEmail } from "./helpers/auth-email";
+import { clearMailbox, expectMailboxEmpty, waitForRecoveryEmail } from "./helpers/auth-email";
 
 const PASSWORD = "abcdef";
 const BASE_CLIENT_IP = "198.51.100.10";
 const IP_LIMIT_TEST_BASE_OCTET = 20;
 const IP_LIMIT_REQUEST_COUNT = 6;
+const REPEATED_REQUEST_COUNT = 2;
+const REPEATED_REQUEST_IPS = ["198.51.100.12", "198.51.100.13"];
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -62,6 +64,7 @@ test("unknown email shows the same neutral screen without a message", async ({ p
 
   await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
   await expect(page.getByText("If this email exists in our system, we've sent a link.")).toBeVisible();
+  await expectMailboxEmpty(email);
   await clearMailbox(email);
 });
 
@@ -72,13 +75,19 @@ test("repeated requests stay neutral for known and unknown addresses", async ({ 
   await clearMailbox(registeredEmail);
   await clearMailbox(unknownEmail);
 
-  for (const [email, ip] of [[registeredEmail, "198.51.100.12"], [unknownEmail, "198.51.100.13"]]) {
-    await openForgotPassword(page, ip);
-    await page.getByLabel("Email").fill(email);
-    await page.getByRole("button", { name: "Send Reset Link" }).click();
-    await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
+  for (const [email, ip] of [
+    [registeredEmail, REPEATED_REQUEST_IPS[0]],
+    [unknownEmail, REPEATED_REQUEST_IPS[1]],
+  ] as const) {
+    for (let attempt = 0; attempt < REPEATED_REQUEST_COUNT; attempt += 1) {
+      await openForgotPassword(page, ip);
+      await page.getByLabel("Email").fill(email);
+      await page.getByRole("button", { name: "Send Reset Link" }).click();
+      await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
+    }
   }
 
+  await expectMailboxEmpty(unknownEmail);
   await clearMailbox(registeredEmail);
   await clearMailbox(unknownEmail);
 });

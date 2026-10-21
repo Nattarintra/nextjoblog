@@ -38,6 +38,11 @@ type ResetRequestResult =
   | { readonly status: "sent" }
   | { readonly status: "rate_limited"; readonly retryAfterSeconds: number };
 
+type ResetRequestDecision = {
+  readonly result: ResetRequestResult;
+  readonly shouldScheduleProvider: boolean;
+};
+
 type RequestPasswordResetDependencies = {
   limiter: RateLimiter;
   supabase: PasswordResetSupabaseClient;
@@ -128,7 +133,13 @@ export async function requestPasswordReset(
       );
 
       if (isDenied(ipDecision)) {
-        return { status: "rate_limited", retryAfterSeconds: ipDecision.retryAfterSeconds } as const;
+        return {
+          result: {
+            status: "rate_limited",
+            retryAfterSeconds: ipDecision.retryAfterSeconds,
+          },
+          shouldScheduleProvider: false,
+        } satisfies ResetRequestDecision;
       }
 
       const cooldownDecision = await dependencies.limiter.consume(
@@ -143,7 +154,10 @@ export async function requestPasswordReset(
 
       if (isDenied(cooldownDecision)) {
         dependencies.log(PASSWORD_RESET_EVENT.silentlyLimited);
-        return neutralResult();
+        return {
+          result: neutralResult(),
+          shouldScheduleProvider: false,
+        } satisfies ResetRequestDecision;
       }
 
       const hourlyDecision = await dependencies.limiter.consume(
@@ -158,22 +172,36 @@ export async function requestPasswordReset(
 
       if (isDenied(hourlyDecision)) {
         dependencies.log(PASSWORD_RESET_EVENT.silentlyLimited);
-        return neutralResult();
+        return {
+          result: neutralResult(),
+          shouldScheduleProvider: false,
+        } satisfies ResetRequestDecision;
       }
 
-      return neutralResult();
+      return {
+        result: neutralResult(),
+        shouldScheduleProvider: true,
+      } satisfies ResetRequestDecision;
     } catch (error) {
       if (error instanceof RateLimiterUnavailableError) {
         dependencies.log(PASSWORD_RESET_EVENT.limiterError);
-        return neutralResult();
+        return {
+          result: neutralResult(),
+          shouldScheduleProvider: false,
+        } satisfies ResetRequestDecision;
       }
       dependencies.log(PASSWORD_RESET_EVENT.limiterError, describeAuthError(error));
-      return neutralResult();
+      return {
+        result: neutralResult(),
+        shouldScheduleProvider: false,
+      } satisfies ResetRequestDecision;
     }
   }, MIN_RESPONSE_MS, dependencies.clock);
 
-  if (result.status === "rate_limited") return result;
+  if (result.result.status === "rate_limited" || !result.shouldScheduleProvider) {
+    return result.result;
+  }
 
   dependencies.schedule(() => runProviderCall(dependencies, email));
-  return result;
+  return result.result;
 }

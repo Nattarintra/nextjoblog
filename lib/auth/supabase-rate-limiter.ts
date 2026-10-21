@@ -43,15 +43,23 @@ export class SupabaseRateLimiter implements RateLimiter {
     keyHash: string,
     policy: RateLimitPolicy,
   ): Promise<RateLimitDecision> {
-    const { data, error } = await this.client.rpc("consume_rate_limit", {
-      p_scope: scope,
-      p_key_hash: keyHash,
-      p_capacity: policy.capacity,
-      p_refill_interval_seconds: Math.max(
-        1,
-        Math.ceil(policy.refillIntervalMs / MILLISECONDS_PER_SECOND),
-      ),
-    });
+    let response: { data: unknown; error: unknown };
+
+    try {
+      response = await this.client.rpc("consume_rate_limit", {
+        p_scope: scope,
+        p_key_hash: keyHash,
+        p_capacity: policy.capacity,
+        p_refill_interval_seconds: Math.max(
+          1,
+          Math.ceil(policy.refillIntervalMs / MILLISECONDS_PER_SECOND),
+        ),
+      });
+    } catch {
+      throw new RateLimiterUnavailableError();
+    }
+
+    const { data, error } = response;
 
     if (error || !Array.isArray(data) || data.length !== 1 || !isRpcRow(data[0])) {
       throw new RateLimiterUnavailableError();

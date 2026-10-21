@@ -1,7 +1,7 @@
 ---
 change_id: request-password-reset-email
 title: Request a password reset email
-status: implemented
+status: impl_reviewed
 created: 2026-10-17
 updated: 2026-10-21
 archived_at: null

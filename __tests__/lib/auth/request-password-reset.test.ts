@@ -111,7 +111,14 @@ describe("requestPasswordReset", () => {
 
     const result = await requestPasswordReset(setup.dependencies, { email: EMAIL, clientIp: IP });
     expect(result).toEqual({ status: "sent" });
-    if (setup.schedule.mock.calls[0]) await setup.schedule.mock.calls[0][0]();
+    const shouldScheduleProvider = [
+      "provider-success",
+      "provider-unknown-email",
+      "provider-429",
+      "provider-error",
+    ].includes(scenario);
+    expect(setup.schedule).toHaveBeenCalledTimes(shouldScheduleProvider ? 1 : 0);
+    if (shouldScheduleProvider) await setup.schedule.mock.calls[0][0]();
     expect(JSON.stringify(result)).toBe(JSON.stringify({ status: "sent" }));
   });
 

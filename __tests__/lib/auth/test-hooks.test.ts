@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { applyTestLogoutOverride, applyTestSessionOverride } from "@/lib/auth/test-hooks";
+import {
+  applyTestLogoutOverride,
+  applyTestSessionOverride,
+  isE2eHooksEnabled,
+} from "@/lib/auth/test-hooks";
 
 const state = {
   status: "authenticated" as const,
@@ -16,6 +20,16 @@ const state = {
   },
   effectiveExpiresAt: 1,
 };
+
+describe("isE2eHooksEnabled", () => {
+  it.each([
+    [{ NODE_ENV: "production", E2E_TEST_HOOKS: "1" }, false],
+    [{ NODE_ENV: "development", E2E_TEST_HOOKS: "0" }, false],
+    [{ NODE_ENV: "development", E2E_TEST_HOOKS: "1" }, true],
+  ])("applies the production and opt-in gate for %j", (env, expected) => {
+    expect(isE2eHooksEnabled(env)).toBe(expected);
+  });
+});
 
 describe("applyTestSessionOverride", () => {
   it("fails closed only when the test hook is explicitly enabled", () => {

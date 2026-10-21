@@ -53,6 +53,7 @@ describe("forgot-password screens", () => {
         email="user@example.com"
         action={noopAction}
         isPending={false}
+        resendGeneration={0}
         onUseDifferentEmail={noopAction}
       />,
     );
@@ -61,6 +62,23 @@ describe("forgot-password screens", () => {
     expect(screen.getByText("user@example.com")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Resend Link in 1:00" }) as HTMLButtonElement).disabled).toBe(true);
     expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Check Your Email" }));
+  });
+
+  it("restarts the resend cooldown when the generation changes", () => {
+    vi.useFakeTimers();
+    const props = {
+      email: "user@example.com",
+      action: noopAction,
+      isPending: false,
+      onUseDifferentEmail: noopAction,
+    };
+
+    const { rerender } = render(<CheckYourEmailScreen {...props} resendGeneration={0} />);
+    act(() => vi.advanceTimersByTime(1_000));
+    expect((screen.getByRole("button", { name: "Resend Link in 0:59" }) as HTMLButtonElement).disabled).toBe(true);
+
+    rerender(<CheckYourEmailScreen {...props} resendGeneration={1} />);
+    expect((screen.getByRole("button", { name: "Resend Link in 1:00" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("renders the rate-limit alert and disables retry until the countdown ends", () => {
