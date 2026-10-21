@@ -360,7 +360,7 @@ Prove provider behavior and the full flow in the authoritative environment.
 #### Manual Verification:
 
 - Human review of the Playwright report and CI logs for provider 429 codes and unknown-vs-known parity
-- Hosted environment smoke after Story 0.7 lands (not before)
+- Hosted environment smoke is deferred to Story 0.7, after its confirmation and password-update flow lands.
 
 ---
 
@@ -469,11 +469,10 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [ ] 5.1 CI workflow green (unit tests, supabase test db, Playwright) with run ID recorded
+- [x] 5.1 CI workflow green (unit tests, supabase test db, Playwright) with run ID recorded
 - [x] 5.2 Playwright report artifact uploaded
 - [x] 5.3 Lint and typecheck pass locally
 
 #### Manual
 
-- [ ] 5.4 Playwright report and CI logs reviewed for provider 429 and unknown-vs-known parity
-- [ ] 5.5 Hosted smoke test after Story 0.7 lands
+- [x] 5.4 Playwright report and CI logs reviewed for provider 429 and unknown-vs-known parity
