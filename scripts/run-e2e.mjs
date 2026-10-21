@@ -1,6 +1,8 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 
+const E2E_SITE_URL = "http://127.0.0.1:3000";
+
 const statusOutput = execFileSync("supabase", ["status", "-o", "env"], { encoding: "utf8" });
 
 function readStatusValue(name) {
@@ -19,6 +21,7 @@ const playwright = spawnSync(process.platform === "win32" ? "npx.cmd" : "npx", [
     NEXT_PUBLIC_SUPABASE_URL: readStatusValue("API_URL"),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: readStatusValue("ANON_KEY"),
     SUPABASE_SERVICE_ROLE_KEY: readStatusValue("SERVICE_ROLE_KEY"),
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ?? E2E_SITE_URL,
     PASSWORD_RESET_ENABLED: "1",
     E2E_TEST_HOOKS: "1",
     RATE_LIMIT_HASH_SECRET: process.env.RATE_LIMIT_HASH_SECRET ?? randomBytes(32).toString("hex"),
