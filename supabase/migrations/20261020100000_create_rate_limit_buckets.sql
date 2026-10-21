@@ -31,6 +31,8 @@ declare
     1,
     least(coalesce(p_refill_interval_seconds, 1), 86400)
   );
+  v_scope_capacity integer := 10000;
+  v_key_exists boolean;
   v_row record;
   v_retry_after integer;
 begin
@@ -43,12 +45,36 @@ begin
     raise exception 'invalid rate limit scope';
   end if;
 
-  if p_key_hash is null or length(p_key_hash) > 128 then
+  if p_key_hash is null or p_key_hash !~ '^[0-9a-f]{64}$' then
     raise exception 'invalid rate limit key';
   end if;
 
   delete from public.rate_limit_buckets
   where updated_at < clock_timestamp() - interval '7 days';
+
+  select exists(
+    select 1
+    from public.rate_limit_buckets
+    where scope = p_scope and key_hash = p_key_hash
+  ) into v_key_exists;
+
+  if not v_key_exists then
+    -- Serialize new-key admission per scope so the row cap remains effective
+    -- when multiple anonymous requests arrive concurrently.
+    perform pg_advisory_xact_lock(hashtext(p_scope));
+
+    select exists(
+      select 1
+      from public.rate_limit_buckets
+      where scope = p_scope and key_hash = p_key_hash
+    ) into v_key_exists;
+
+    if not v_key_exists and (
+      select count(*) from public.rate_limit_buckets where scope = p_scope
+    ) >= v_scope_capacity then
+      raise exception 'rate limit scope capacity reached';
+    end if;
+  end if;
 
   insert into public.rate_limit_buckets (
     scope,

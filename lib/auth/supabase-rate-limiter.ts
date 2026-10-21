@@ -1,6 +1,7 @@
 import type { RateLimitPolicy } from "@/lib/auth/password-reset-config";
 import {
   MILLISECONDS_PER_SECOND,
+  PASSWORD_RESET_LIMITER_TIMEOUT_MS,
 } from "@/lib/auth/password-reset-config";
 import {
   RateLimiterUnavailableError,
@@ -35,6 +36,22 @@ function isRpcRow(value: unknown): value is RateLimitRpcRow {
   );
 }
 
+async function withTimeout<T>(work: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  let timeout!: ReturnType<typeof setTimeout>;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeout = setTimeout(
+      () => reject(new RateLimiterUnavailableError()),
+      timeoutMs,
+    );
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(work), timeoutPromise]);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export class SupabaseRateLimiter implements RateLimiter {
   constructor(private readonly client: RpcClient) {}
 
@@ -46,15 +63,18 @@ export class SupabaseRateLimiter implements RateLimiter {
     let response: { data: unknown; error: unknown };
 
     try {
-      response = await this.client.rpc("consume_rate_limit", {
-        p_scope: scope,
-        p_key_hash: keyHash,
-        p_capacity: policy.capacity,
-        p_refill_interval_seconds: Math.max(
-          1,
-          Math.ceil(policy.refillIntervalMs / MILLISECONDS_PER_SECOND),
-        ),
-      });
+      response = await withTimeout(
+        this.client.rpc("consume_rate_limit", {
+          p_scope: scope,
+          p_key_hash: keyHash,
+          p_capacity: policy.capacity,
+          p_refill_interval_seconds: Math.max(
+            1,
+            Math.ceil(policy.refillIntervalMs / MILLISECONDS_PER_SECOND),
+          ),
+        }),
+        PASSWORD_RESET_LIMITER_TIMEOUT_MS,
+      );
     } catch {
       throw new RateLimiterUnavailableError();
     }

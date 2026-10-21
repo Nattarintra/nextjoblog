@@ -1,6 +1,6 @@
 begin;
 
-select plan(13);
+select plan(14);
 
 select ok(
   to_regclass('public.rate_limit_buckets') is not null,
@@ -62,7 +62,7 @@ select is(
 
 insert into public.rate_limit_buckets(scope, key_hash, tokens, updated_at, last_allowed)
 values ('password_reset_ip', repeat('c', 64), 0, clock_timestamp() - interval '8 days', false);
-select public.consume_rate_limit('password_reset_ip', repeat('cleanup', 10), 1, 60);
+select public.consume_rate_limit('password_reset_ip', repeat('c', 64), 1, 60);
 select is(
   (select count(*)::integer from public.rate_limit_buckets where key_hash = repeat('c', 64)),
   0,
@@ -75,9 +75,14 @@ select throws_ok(
   'unknown scopes are rejected'
 );
 select throws_ok(
-  $$select * from public.consume_rate_limit('password_reset_ip', repeat('e', 129), 1, 60)$$,
+  $$select * from public.consume_rate_limit('password_reset_ip', repeat('e', 65), 1, 60)$$,
   'invalid rate limit key',
   'oversized keys are rejected'
+);
+select throws_ok(
+  $$select * from public.consume_rate_limit('password_reset_ip', repeat('z', 64), 1, 60)$$,
+  'invalid rate limit key',
+  'non-hex keys are rejected'
 );
 
 set local role anon;

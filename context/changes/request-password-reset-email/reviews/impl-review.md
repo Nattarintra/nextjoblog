@@ -127,7 +127,7 @@
   - Tradeoff: Requires choosing timeout and cleanup/cardinality policy.
   - Confidence: MEDIUM — the plan documents residual flood risk but does not bound it fully.
   - Blind spot: Expected production request volume is unknown.
-- **Decision**: PENDING
+- **Decision**: FIXED — added a named 2-second limiter RPC deadline with typed failure mapping; restricted bucket keys to 64-character lowercase SHA-256 hex, added a concurrency-safe 10,000-row-per-scope cap with seven-day pruning, mirrored the migration into `supabase-test`, and documented capacity monitoring. Unit coverage passes; database verification remains pending because local Supabase/Postgres was unavailable.
 
 ### F8 — CI and manual evidence is claimed but not recorded
 

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { PASSWORD_RESET_LIMITER_TIMEOUT_MS } from "@/lib/auth/password-reset-config";
 import { SupabaseRateLimiter } from "@/lib/auth/supabase-rate-limiter";
 import { RateLimiterUnavailableError } from "@/lib/auth/rate-limiter";
 
@@ -37,9 +38,24 @@ describe("SupabaseRateLimiter", () => {
     });
   });
 
+  it("uses a safe retry delay when the denied row omits one", async () => {
+    const limiter = new SupabaseRateLimiter({
+      rpc: vi.fn().mockResolvedValue({
+        data: [{ allowed: false, retry_after_seconds: null }],
+        error: null,
+      }),
+    });
+
+    await expect(limiter.consume("scope", "hash", policy)).resolves.toEqual({
+      allowed: false,
+      retryAfterSeconds: 1,
+    });
+  });
+
   it.each([
     { data: null, error: new Error("rpc failed") },
     { data: [], error: null },
+    { data: [null], error: null },
     { data: [{ allowed: "yes" }], error: null },
   ])("throws a typed error for an unusable RPC response", async (response) => {
     const limiter = new SupabaseRateLimiter({
@@ -59,5 +75,25 @@ describe("SupabaseRateLimiter", () => {
     await expect(limiter.consume("scope", "hash", policy)).rejects.toBeInstanceOf(
       RateLimiterUnavailableError,
     );
+  });
+
+  it("converts a hanging RPC into a typed unavailable error at the deadline", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const limiter = new SupabaseRateLimiter({
+        rpc: vi.fn(() => new Promise<never>(() => {})),
+      });
+      const result = limiter.consume("scope", "hash", policy);
+      const rejection = expect(result).rejects.toBeInstanceOf(
+        RateLimiterUnavailableError,
+      );
+
+      await vi.advanceTimersByTimeAsync(PASSWORD_RESET_LIMITER_TIMEOUT_MS);
+
+      await rejection;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
