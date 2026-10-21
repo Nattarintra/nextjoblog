@@ -135,13 +135,13 @@
 - **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
 - **Dimension**: Success Criteria
 - **Location**: `context/changes/request-password-reset-email/plan.md:472-478`
-- **Detail**: Progress marks CI green, Playwright review, hosted redirect configuration, and Vercel secret setup complete, but contains no CI run ID, artifact reference, or observable evidence.
+- **Detail**: Progress marked CI green, Playwright review, hosted redirect configuration, and Vercel secret setup complete, but the repository review initially contained no CI run ID, artifact reference, or observable evidence.
 - **Fix**: Record the authoritative CI run ID, report artifact, and evidence for hosted configuration checks.
   - Strength: Makes the checked-off success criteria auditable.
   - Tradeoff: Documentation-only once the evidence exists.
   - Confidence: HIGH.
   - Blind spot: GitHub Actions state is not connected to the local repository evidence.
-- **Decision**: PENDING
+- **Decision**: ACCEPTED RISK — CI evidence is now recorded: GitHub Actions run `39592028769` for commit `717b2c3` and the uploaded Playwright report artifact. The report is green (31 expected, 1 skipped Story 0.7 test, 0 unexpected/flaky) and confirms unknown-vs-known parity; provider-429 behavior and hosted redirect/secret configuration still require separate provider/manual evidence.
 
 ### F9 — Story 0.7 hand-off and limiter telemetry are incomplete
 
@@ -151,7 +151,7 @@
 - **Location**: `docs/production-auth.md:57-61`, `context/changes/request-password-reset-email/change.md:48-52`, `lib/auth/request-password-reset.ts:130-132`
 - **Detail**: Production docs omit the confirm URL and several planned recovery-session/`next` hand-offs. The IP rate-limited branch also lacks the planned safe rate-limit telemetry.
 - **Fix**: Complete the Story 0.7 hand-off documentation and log a safe IP-limit event.
-- **Decision**: PENDING
+- **Decision**: FIXED — documented the final Story 0.7 hand-off (fixed confirm route, token verification, password validation/update, expired/used-link recovery, recovery-session boundary, and post-success session decision) in `docs/production-auth.md`; added the safe `auth.password_reset.rate_limited` event with no IP/email details and a regression assertion. The feature remains gated in Production until Story 0.7 ships.
 
 ### F10 — Unrelated session-expiry changes are included in the branch diff
 
@@ -161,4 +161,4 @@
 - **Location**: `proxy.ts`, `e2e/helpers/auth-session.ts`, related session-expiry files
 - **Detail**: These changes come from an unrelated commit in the review range and are outside the password-reset plan.
 - **Fix**: Separate the unrelated commit before merging, or document the intentional bundling.
-- **Decision**: PENDING
+- **Decision**: FIXED — documented the intentional bundling of `dd4d31a` in `plan.md`: it stabilizes shared auth/session behavior and the E2E session helper used by the branch, while remaining outside the password-reset acceptance criteria. Local unit, lint, and typecheck gates are used to verify the bundled changes; Supabase/Playwright remain CI-only.

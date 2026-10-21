@@ -76,6 +76,7 @@ describe("requestPasswordReset", () => {
       retryAfterSeconds: 42,
     });
     expect(setup.schedule).not.toHaveBeenCalled();
+    expect(setup.log).toHaveBeenCalledWith("auth.password_reset.rate_limited");
   });
 
   it.each([

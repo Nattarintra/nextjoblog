@@ -125,6 +125,10 @@ data, email addresses, passwords, tokens, cookies, or Supabase keys.
 | `auth.login.unexpected_error` | Unclassified exception during login | none |
 | `supabase_config_invalid` | `proxy.ts` could not validate configuration for an incoming request | `reason`: same three codes as above |
 
+A burst of `auth.password_reset.rate_limited` entries is the safe operational
+signal for IP-bucket pressure. It contains no IP address or email; use its
+count alongside the configured limiter policy when tuning abuse protection.
+
 A burst of `configuration_error` or `supabase_config_invalid` entries
 immediately after a deploy points at a missing/incorrect Vercel Production
 variable (section 1), not a hosted Supabase Auth setting.
@@ -134,6 +138,30 @@ with no corresponding pattern on login, points at the Custom SMTP mailer
 cap described in section 2 — check Supabase's Auth logs (Supabase
 dashboard → Logs → Auth) for an email-sending failure alongside the
 Vercel `auth.signup.provider_error` entry.
+
+## Story 0.7 hand-off: Set a New Password from a Reset Link
+
+Story 0.7 is the final story for Feature 0 and completes the reset flow
+started here. It owns the recovery link and password-update experience:
+
+- `/api/auth/confirm` verifies the Supabase `token_hash` with recovery type
+  and redirects only to the fixed `/reset-password` destination. It must not
+  trust a user-supplied `next` value.
+- `/reset-password` validates and confirms the new password, enforces the
+  project's minimum length, calls `updateUser({ password })`, and allows the
+  user to log in immediately with the new password.
+- Expired or already-used links show an expired/used message with a route
+  back to `/forgot-password`.
+- Recovery sessions are classified separately from normal sessions: they do
+  not enter session-extension logic or protected-app access before the
+  password update. Story 0.7 must define and test that classifier.
+- After a successful update, Story 0.7 must explicitly choose and test the
+  post-success session behavior; the recommended behavior is to clear the
+  recovery session and require a normal login.
+
+The story does not include MFA re-verification. Until Story 0.7 is deployed,
+keep `PASSWORD_RESET_ENABLED` off in Production because the reset link cannot
+complete the flow safely.
 
 ## 5. Production smoke-test checklist
 

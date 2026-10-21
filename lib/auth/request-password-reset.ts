@@ -19,6 +19,7 @@ const PASSWORD_RESET_EVENT = {
   configuration: "auth.password_reset.configuration_error",
   limiterError: "auth.password_reset.rate_limiter_error",
   providerError: "auth.password_reset.provider_error",
+  rateLimited: "auth.password_reset.rate_limited",
   silentlyLimited: "auth.password_reset.silently_rate_limited",
 } as const;
 
@@ -133,6 +134,7 @@ export async function requestPasswordReset(
       );
 
       if (isDenied(ipDecision)) {
+        dependencies.log(PASSWORD_RESET_EVENT.rateLimited);
         return {
           result: {
             status: "rate_limited",

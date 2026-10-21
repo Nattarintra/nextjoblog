@@ -403,6 +403,12 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 ## Progress
 
+**Scope note**: Commit `dd4d31a` also includes shared auth session-expiry
+stabilization in `proxy.ts` and `e2e/helpers/auth-session.ts`. It is retained
+intentionally because the changes affect shared auth request/session behavior
+and the E2E session helper used by the branch; it is not part of the password
+reset acceptance criteria.
+
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
 
 ### Phase 1: Shared auth primitives (no behavior change)
@@ -469,10 +475,10 @@ New migration must be copied to `supabase-test/` in the same change. Hosted Supa
 
 #### Automated
 
-- [x] 5.1 CI workflow green (unit tests, supabase test db, Playwright) with run ID recorded
-- [x] 5.2 Playwright report artifact uploaded
+- [x] 5.1 CI workflow green (unit tests, supabase test db, Playwright) — GitHub Actions run [39592028769](https://github.com/Nattarintra/nextjoblog/actions/runs/39592028769), commit `717b2c3cc8a136ad76f2bcf8eed17dcf4de7ca3f`
+- [x] 5.2 Playwright report artifact uploaded — `/Users/natta/Downloads/playwright-report.zip` (`index.html`, generated 2026-10-21 11:34)
 - [x] 5.3 Lint and typecheck pass locally
 
 #### Manual
 
-- [x] 5.4 Playwright report and CI logs reviewed for provider 429 and unknown-vs-known parity
+- [x] 5.4 Playwright report and CI logs reviewed for unknown-vs-known parity; provider-429 behavior remains a provider-specific verification gap
