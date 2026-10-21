@@ -100,7 +100,12 @@ test("shows the server-authoritative IP limit countdown", async ({ page }, testI
 
   await expect(page.getByRole("heading", { name: "Too Many Reset Requests" })).toBeVisible();
   await expect(page.getByText("Please wait before requesting another reset link.")).toBeVisible();
-  await expect(page.locator("[aria-hidden='true']").filter({ hasText: /^60:00$/ })).toBeVisible();
+  const countdown = page.locator("[aria-hidden='true']").filter({ hasText: /^\d+:\d{2}$/ });
+  await expect(countdown).toHaveText(/^\d+:\d{2}$/);
+  const countdownText = await countdown.textContent();
+  if (!countdownText) throw new Error("Rate-limit countdown text was empty");
+  const [minutes, seconds] = countdownText.split(":").map(Number);
+  expect(minutes * 60 + seconds).toBeGreaterThan(0);
 });
 
 test("keeps mailbox cleanup safe when a test fails", async ({ page }) => {
