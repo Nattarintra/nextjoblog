@@ -1,10 +1,10 @@
 ---
 change_id: request-password-reset-email
 title: Request a password reset email
-status: impl_reviewed
+status: archived
 created: 2026-10-17
-updated: 2026-10-21
-archived_at: null
+updated: 2026-10-22
+archived_at: 2026-10-22T08:29:48Z
 ---
 
 ## Notes
