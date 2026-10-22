@@ -3,31 +3,28 @@
 
 - **Plan**: context/changes/request-password-reset-email/plan.md
 - **Scope**: Phases 1–5 of 5
-- **Date**: 2026-10-21
-- **Verdict**: NEEDS ATTENTION
-- **Findings**: 0 critical, 8 warnings, 2 observations
+- **Date**: 2026-10-22
+- **Verdict**: APPROVED
+- **Findings**: 0 critical, 1 warning, 0 observations
 
 ## Verdicts
 
 | Dimension | Verdict |
 |---|---|
-| Plan Adherence | FAIL |
-| Scope Discipline | WARNING |
-| Safety & Quality | WARNING |
-| Architecture | WARNING |
+| Plan Adherence | PASS |
+| Scope Discipline | PASS |
+| Safety & Quality | PASS |
+| Architecture | PASS |
 | Pattern Consistency | PASS |
-| Success Criteria | FAIL |
+| Success Criteria | WARNING |
 
 ## Verification
 
-- Focused auth tests: 24 files, 158 passed.
-- Forgot-password tests: 6 passed.
-- Full suite: 50 files, 310 passed.
-- Coverage: 94.22% statements, 90.01% branches.
+- Full local unit suite after F9/F10: 50 files, 320 tests passed with coverage gates.
 - TypeScript and lint passed.
 - Migration copies are identical.
-- `supabase db reset && supabase test db` reached migration application but failed when the local storage container became unhealthy; `supabase test db` therefore did not run.
-- No CI run ID or Playwright artifact reference is recorded in the repository.
+- The database-test rerun is green after commit `f799bbb` changed the stale-row cleanup test to consume a different key.
+- The recorded Playwright run `39592028769` is green for commit `717b2c3`, but predates F9/F10 and the database-test fix.
 
 ## Findings
 
@@ -135,13 +132,13 @@
 - **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
 - **Dimension**: Success Criteria
 - **Location**: `context/changes/request-password-reset-email/plan.md:472-478`
-- **Detail**: Progress marked CI green, Playwright review, hosted redirect configuration, and Vercel secret setup complete, but the repository review initially contained no CI run ID, artifact reference, or observable evidence.
+- **Detail**: CI and Playwright evidence is now recorded, and the corrected database-test run is green. Provider-429 behavior and hosted redirect/secret configuration remain separate provider/manual evidence gaps.
 - **Fix**: Record the authoritative CI run ID, report artifact, and evidence for hosted configuration checks.
   - Strength: Makes the checked-off success criteria auditable.
   - Tradeoff: Documentation-only once the evidence exists.
   - Confidence: HIGH.
   - Blind spot: GitHub Actions state is not connected to the local repository evidence.
-- **Decision**: ACCEPTED RISK — CI evidence is now recorded: GitHub Actions run `39592028769` for commit `717b2c3` and the uploaded Playwright report artifact. The report is green (31 expected, 1 skipped Story 0.7 test, 0 unexpected/flaky) and confirms unknown-vs-known parity; provider-429 behavior and hosted redirect/secret configuration still require separate provider/manual evidence.
+- **Decision**: ACCEPTED RISK — the Playwright evidence is auditable and green, and the database-test fix in `f799bbb` has passed CI. Provider-429 behavior and hosted redirect/secret configuration remain separate provider/manual evidence gaps.
 
 ### F9 — Story 0.7 hand-off and limiter telemetry are incomplete
 
