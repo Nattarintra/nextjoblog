@@ -96,6 +96,12 @@ describe("LoginForm", () => {
     expect(button).toHaveProperty("disabled", true);
   });
 
+  it("hides the forgot-password link when the release flag is off", () => {
+    render(<LoginForm forgotPasswordEnabled={false} />);
+
+    expect(screen.queryByRole("link", { name: "Forgot password?" })).toBeNull();
+  });
+
   it("shows the confirmation-required alert without marking the fields invalid", () => {
     useActionStateMock.mockReturnValue([{ status: "confirmation_required" }, vi.fn(), false]);
     render(<LoginForm />);

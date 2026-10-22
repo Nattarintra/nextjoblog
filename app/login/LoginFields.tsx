@@ -1,21 +1,25 @@
 import Link from "next/link";
 import type { ComponentProps } from "react";
 
-import { authFieldLabelClassName, authInputClassName, authLinkClassName } from "@/components/auth/styles";
-
-const submitButtonClassName =
-  "flex w-full cursor-pointer items-center justify-center rounded-xl bg-azure px-4.5 py-3.25 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-70";
+import {
+  authFieldLabelClassName,
+  authInputClassName,
+  authLinkClassName,
+  submitButtonClassName,
+} from "@/components/auth/styles";
 
 export function LoginFields({
   formAction,
   hasError,
   isPending,
   nextPath,
+  forgotPasswordEnabled = true,
 }: {
   formAction: ComponentProps<"form">["action"];
   hasError: boolean;
   isPending: boolean;
   nextPath: string;
+  forgotPasswordEnabled?: boolean;
 }) {
   return (
     <form action={formAction}>
@@ -48,11 +52,13 @@ export function LoginFields({
           aria-invalid={hasError}
         />
       </div>
-      <div className="mb-5 text-right">
-        <Link className={authLinkClassName} href="/forgot-password">
-          Forgot password?
-        </Link>
-      </div>
+      {forgotPasswordEnabled && (
+        <div className="mb-5 text-right">
+          <Link className={authLinkClassName} href="/forgot-password">
+            Forgot password?
+          </Link>
+        </div>
+      )}
       <button className={submitButtonClassName} type="submit" disabled={isPending}>
         {isPending ? "Logging in…" : "Log In"}
       </button>

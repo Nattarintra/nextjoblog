@@ -14,15 +14,12 @@ import {
   UnknownErrorAlert,
 } from "./SignupAlerts";
 import { SignupFields } from "./SignupFields";
-import { authLinkClassName } from "@/components/auth/styles";
-
-const styles = {
-  wrap: "relative box-border flex min-h-[100svh] flex-col overflow-hidden px-6.5 pt-13 pb-7.5 text-white",
-  glow: "pointer-events-none absolute -top-22.5 -right-22.5 h-65 w-65 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_45%,transparent)_0%,transparent_70%)]",
-  heading: "mb-1.25 [font-family:var(--font-archivo)] text-[23px] font-bold text-white",
-  subheading: "mb-6.5 text-[13px] leading-normal text-sky",
-  footer: "mt-auto pt-5.5 text-center text-[12.5px] text-white/55",
-};
+import {
+  authFooterClassName,
+  authHeadingClassName,
+  authLinkClassName,
+  authSubtextClassName,
+} from "@/components/auth/styles";
 
 export default function SignupForm() {
   const [state, formAction, isPending] = useActionState(signup, undefined);
@@ -47,11 +44,10 @@ export default function SignupForm() {
   }
 
   return (
-    <div className={styles.wrap}>
-      <div className={styles.glow} aria-hidden="true" />
+    <>
       <AuthLogo />
-      <div className={styles.heading}>Create Your NextJobLog Account</div>
-      <div className={styles.subheading}>
+      <h1 className={authHeadingClassName}>Create Your NextJobLog Account</h1>
+      <div className={authSubtextClassName}>
         Your application data is encrypted and visible only to you.
       </div>
 
@@ -71,9 +67,9 @@ export default function SignupForm() {
         isPending={isPending}
       />
 
-      <div className={styles.footer}>
+      <div className={authFooterClassName}>
         Already have an account? <Link className={authLinkClassName} href="/login">Log In</Link>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,31 +1,7 @@
 import type { Metadata } from "next";
-import { Archivo, Work_Sans } from "next/font/google";
 
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import SignupForm from "./SignupForm";
-
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  weight: "700",
-});
-
-const workSans = Work_Sans({
-  variable: "--font-work-sans",
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
-
-const authPageClassName = [
-  archivo.variable,
-  workSans.variable,
-  "min-h-[100svh]",
-  "flex",
-  "items-center",
-  "justify-center",
-  "bg-navy",
-  "text-white",
-  "[font-family:var(--font-work-sans)]",
-].join(" ");
 
 export const metadata: Metadata = {
   title: "Create Account — NextJobLog",
@@ -33,10 +9,8 @@ export const metadata: Metadata = {
 
 export default function SignupPage() {
   return (
-    <div
-      className={authPageClassName}
-    >
+    <AuthPageShell>
       <SignupForm />
-    </div>
+    </AuthPageShell>
   );
 }
