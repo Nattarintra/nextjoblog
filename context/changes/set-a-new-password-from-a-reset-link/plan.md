@@ -414,27 +414,27 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 #### Automated
 
-- [x] 1.1 Existing Sign Up tests pass unmodified
-- [x] 1.2 Password policy boundary test passes
-- [x] 1.3 PasswordInput toggle test passes
-- [x] 1.4 Type checking passes
-- [x] 1.5 Linting passes
+- [x] 1.1 Existing Sign Up tests pass unmodified — b8d4c24
+- [x] 1.2 Password policy boundary test passes — b8d4c24
+- [x] 1.3 PasswordInput toggle test passes — b8d4c24
+- [x] 1.4 Type checking passes — b8d4c24
+- [x] 1.5 Linting passes — b8d4c24
 
 #### Manual
 
-- [x] 1.6 Sign Up page looks and behaves as before
+- [x] 1.6 Sign Up page looks and behaves as before — b8d4c24
 
 ### Phase 2: Recovery logic in lib/auth
 
 #### Automated
 
-- [ ] 2.1 Fragment parser table tests pass
-- [ ] 2.2 Email reader tests pass
-- [ ] 2.3 Validator and classifier tests pass
-- [ ] 2.4 Use-case order tests pass
-- [ ] 2.5 Focused lib/auth test run passes
-- [ ] 2.6 Full run with 90% lib/auth coverage gate passes
-- [ ] 2.7 Type checking and linting pass
+- [x] 2.1 Fragment parser table tests pass
+- [x] 2.2 Email reader tests pass
+- [x] 2.3 Validator and classifier tests pass
+- [x] 2.4 Use-case order tests pass
+- [x] 2.5 Focused lib/auth test run passes
+- [x] 2.6 Full run with 90% lib/auth coverage gate passes
+- [x] 2.7 Type checking and linting pass
 
 ### Phase 3: Server Action and cookie session
 
