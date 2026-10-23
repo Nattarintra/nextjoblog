@@ -428,21 +428,21 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 #### Automated
 
-- [x] 2.1 Fragment parser table tests pass
-- [x] 2.2 Email reader tests pass
-- [x] 2.3 Validator and classifier tests pass
-- [x] 2.4 Use-case order tests pass
-- [x] 2.5 Focused lib/auth test run passes
-- [x] 2.6 Full run with 90% lib/auth coverage gate passes
-- [x] 2.7 Type checking and linting pass
+- [x] 2.1 Fragment parser table tests pass — 9ebb7bc
+- [x] 2.2 Email reader tests pass — 9ebb7bc
+- [x] 2.3 Validator and classifier tests pass — 9ebb7bc
+- [x] 2.4 Use-case order tests pass — 9ebb7bc
+- [x] 2.5 Focused lib/auth test run passes — 9ebb7bc
+- [x] 2.6 Full run with 90% lib/auth coverage gate passes — 9ebb7bc
+- [x] 2.7 Type checking and linting pass — 9ebb7bc
 
 ### Phase 3: Server Action and cookie session
 
 #### Automated
 
-- [ ] 3.1 Reset action tests pass
-- [ ] 3.2 Story 0.6 action tests pass unmodified
-- [ ] 3.3 Type checking, linting and full test run pass
+- [x] 3.1 Reset action tests pass
+- [x] 3.2 Story 0.6 action tests pass unmodified
+- [x] 3.3 Type checking, linting and full test run pass
 
 ### Phase 4: UI
 
