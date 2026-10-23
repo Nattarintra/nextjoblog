@@ -414,15 +414,15 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 #### Automated
 
-- [ ] 1.1 Existing Sign Up tests pass unmodified
-- [ ] 1.2 Password policy boundary test passes
-- [ ] 1.3 PasswordInput toggle test passes
-- [ ] 1.4 Type checking passes
-- [ ] 1.5 Linting passes
+- [x] 1.1 Existing Sign Up tests pass unmodified
+- [x] 1.2 Password policy boundary test passes
+- [x] 1.3 PasswordInput toggle test passes
+- [x] 1.4 Type checking passes
+- [x] 1.5 Linting passes
 
 #### Manual
 
-- [ ] 1.6 Sign Up page looks and behaves as before
+- [x] 1.6 Sign Up page looks and behaves as before
 
 ### Phase 2: Recovery logic in lib/auth
 

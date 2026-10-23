@@ -1,8 +1,8 @@
-const MIN_PASSWORD_LENGTH = 6;
+import { isPasswordLongEnough, PASSWORD_HELPER_TEXT } from "@/lib/auth/password-policy";
 
-export const PASSWORD_HELPER_TEXT = `At least ${MIN_PASSWORD_LENGTH} characters`;
+export { PASSWORD_HELPER_TEXT } from "@/lib/auth/password-policy";
 
 /** Client-side mirror of the server's minimum-length rule, so the error shows before any request is sent. */
 export function getPasswordValidationError(password: string): string | null {
-  return password.length < MIN_PASSWORD_LENGTH ? PASSWORD_HELPER_TEXT : null;
+  return isPasswordLongEnough(password) ? null : PASSWORD_HELPER_TEXT;
 }
