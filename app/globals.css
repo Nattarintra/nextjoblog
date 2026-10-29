@@ -16,6 +16,7 @@
   --paper: #fbfaf7;
   --auth-label: #cfe1f5;
   --auth-danger: #ffb4ab;
+  --auth-danger-ring: rgb(192 54 44 / 24%);
   --auth-warning: #f3c47a;
   --auth-warning-ring: rgb(184 113 11 / 22%);
 }
@@ -36,6 +37,7 @@
   --color-paper: var(--paper);
   --color-auth-label: var(--auth-label);
   --color-auth-danger: var(--auth-danger);
+  --color-auth-danger-ring: var(--auth-danger-ring);
   --color-auth-warning: var(--auth-warning);
   --color-auth-warning-ring: var(--auth-warning-ring);
   --font-sans: var(--font-geist-sans);
@@ -53,6 +55,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.auth-page-content:has([data-reset-password-status="checking"]) > .auth-page-glow {
+  display: none;
 }
 
 .session-steps {

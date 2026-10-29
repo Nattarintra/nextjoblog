@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AppTopBar } from "./AppTopBar";
+import { PasswordUpdatedToast } from "./PasswordUpdatedToast";
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
 
 type ProtectedAppShellProps = {
@@ -19,6 +20,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs }: P
   return (
     <>
       <AppTopBar email={email} suspended={noticeOpen} />
+      <PasswordUpdatedToast />
       <SessionExpiryNotice
         sessionExpiresAt={sessionExpiresAt}
         noticeWindowMs={noticeWindowMs}

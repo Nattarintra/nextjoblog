@@ -7,6 +7,7 @@ export const OFFLINE_ERROR_MESSAGE =
   "You appear to be offline. Please reconnect and try again.";
 
 export const PASSWORD_RESET_MESSAGES = {
+  checking: "Checking your reset link…",
   formHeading: "Set a New Password",
   formSubtitle: (email: string) =>
     `Choose a new password for ${email}. You'll stay logged in once it's saved.`,

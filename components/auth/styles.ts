@@ -1,15 +1,22 @@
 export const authInputClassName =
   "w-full box-border rounded-[10px] border border-white/18 bg-white/6 px-3 py-2.75 text-[13.5px] text-white placeholder:text-white/35 focus:border-azure focus:outline focus:outline-2 focus:outline-azure [font-family:var(--font-work-sans)]";
 
+export const authInputWarningClassName =
+  "border-auth-danger focus:border-auth-danger focus:outline-auth-danger";
+
+export const authRequirementWarningClassName = "text-auth-danger";
+
 export const authFieldLabelClassName = "mb-1.25 block text-[11.5px] font-semibold text-auth-label";
 
 export const authLinkClassName = "text-[12.5px] font-semibold text-sky";
 
 export const authPageContentClassName =
-  "relative box-border flex min-h-[100svh] flex-col overflow-hidden px-6.5 pt-13 pb-7.5 text-white";
+  "auth-page-content relative box-border flex min-h-[100svh] flex-col overflow-hidden px-6.5 pt-13 pb-7.5 text-white";
+
+export const authPageFrameClassName = "relative mx-auto w-full max-w-[425px]";
 
 export const authGlowClassName =
-  "pointer-events-none absolute -top-22.5 -right-22.5 h-65 w-65 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_45%,transparent)_0%,transparent_70%)]";
+  "auth-page-glow pointer-events-none absolute -top-22.5 -right-22.5 h-65 w-65 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_45%,transparent)_0%,transparent_70%)]";
 
 export const authHeadingClassName =
   "mb-1.25 [font-family:var(--font-archivo)] text-[23px] font-bold text-white";
@@ -31,6 +38,9 @@ export const statusRingClassName =
 
 export const warningStatusRingClassName =
   "border-transparent bg-auth-warning-ring text-auth-warning";
+
+export const dangerStatusRingClassName =
+  "border-transparent bg-auth-danger-ring text-auth-danger";
 
 export const infoStatusRingClassName =
   "border-azure/50 bg-azure/30 text-sky";

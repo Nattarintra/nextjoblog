@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState } from "react";
+import { forwardRef, useId, useState } from "react";
 
 import {
   authFieldLabelClassName,
   authInputClassName,
+  authInputWarningClassName,
   visuallyHiddenClassName,
 } from "@/components/auth/styles";
 
@@ -15,24 +16,31 @@ type PasswordInputProps = {
   autoComplete: string;
   describedBy?: string;
   error?: string | null;
+  warning?: boolean;
   placeholder?: string;
+  autoFocus?: boolean;
   value?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
   showToggle?: boolean;
 };
 
-export function PasswordInput({
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(function PasswordInput({
   id,
   name,
   label,
   autoComplete,
   describedBy,
   error = null,
+  warning = false,
   placeholder,
+  autoFocus = false,
   value,
   onChange,
+  onBlur,
   showToggle = true,
-}: PasswordInputProps) {
+}, ref) {
+  const inputClassName = `${authInputClassName}${warning ? ` ${authInputWarningClassName}` : ""}${showToggle ? " pr-16" : ""}`;
   const [isVisible, setIsVisible] = useState(false);
   const generatedErrorId = useId();
   const errorId = `${id}-error-${generatedErrorId.replace(/:/g, "")}`;
@@ -45,17 +53,20 @@ export function PasswordInput({
       </label>
       <div className="relative">
         <input
-          className={`${authInputClassName}${showToggle ? " pr-16" : ""}`}
+          className={inputClassName}
           id={id}
           name={name}
           type={isVisible ? "text" : "password"}
           autoComplete={autoComplete}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           required
-          aria-invalid={Boolean(error)}
+          aria-invalid={Boolean(error || warning)}
           aria-describedby={describedByIds || undefined}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
+          ref={ref}
         />
         {showToggle && (
           <button
@@ -79,4 +90,4 @@ export function PasswordInput({
       </span>
     </div>
   );
-}
+});

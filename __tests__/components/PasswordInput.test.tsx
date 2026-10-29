@@ -1,10 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { PasswordInput } from "@/components/auth/PasswordInput";
 
 describe("PasswordInput", () => {
+  beforeEach(() => cleanup());
+
   it("toggles visibility with an accessible button", async () => {
     const user = userEvent.setup();
     render(
@@ -41,5 +43,22 @@ describe("PasswordInput", () => {
 
     expect(screen.getByLabelText("Password").getAttribute("aria-invalid")).toBe("true");
     expect(screen.getByRole("alert").textContent).toBe("Password is invalid");
+  });
+
+  it("shows the warning state without displaying an error message", () => {
+    render(
+      <PasswordInput
+        id="password"
+        name="password"
+        label="Password"
+        autoComplete="new-password"
+        warning
+      />,
+    );
+
+    const input = screen.getByLabelText("Password");
+    expect(input.className).toContain("border-auth-danger");
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

@@ -3,7 +3,7 @@ change_id: set-a-new-password-from-a-reset-link
 title: Set a new password from a reset link
 status: implementing
 created: 2026-10-22
-updated: 2026-10-23
+updated: 2026-10-29
 archived_at: null
 ---
 
