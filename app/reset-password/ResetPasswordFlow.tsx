@@ -6,7 +6,7 @@ import { resetPasswordAction } from "@/app/actions/reset-password"
 import { AuthLogo } from "@/components/auth/AuthLogo"
 import { authHeadingClassName, authSubtextClassName } from "@/components/auth/styles"
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages"
-import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths"
+import { DEFAULT_POST_LOGIN_PATH, RESET_PASSWORD_PATH } from "@/lib/auth/paths"
 import { parseRecoveryFragment, readRecoveryEmail, type RecoveryFragment } from "@/lib/auth/recovery-fragment"
 import { PASSWORD_UPDATED_TOAST_FLAG } from "@/lib/auth/password-reset-confirm-config"
 import type { RecoverySessionTokens } from "@/lib/auth/complete-password-reset"
@@ -41,7 +41,14 @@ export default function ResetPasswordFlow({
   const [flowStatus, setFlowStatus] = useState<FlowStatus>("checking")
   const [tokens, setTokens] = useState<RecoverySessionTokens | null>(null)
   const [email, setEmail] = useState<string>()
-  const [state, formAction, isPending] = useActionState(resetPasswordAction, undefined)
+  // Keep the progressive-enhancement action URL fragment-free. Recovery links
+  // arrive with credentials in the URL fragment, and React otherwise reuses
+  // that URL for the action navigation, creating an extra history entry.
+  const [state, formAction, isPending] = useActionState(
+    resetPasswordAction,
+    undefined,
+    RESET_PASSWORD_PATH,
+  )
 
   // React Strict Mode (dev) runs this effect twice. The first run strips the
   // fragment, so keep what it read; re-reading would find nothing and show the

@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
+import { createClient } from "@supabase/supabase-js";
 
 import { clearMailbox } from "./helpers/auth-email";
 import { authCookieStorageKey } from "./helpers/auth-cookies";
@@ -15,7 +16,6 @@ import {
   seedConfirmedUser,
   uniqueEmail,
 } from "./helpers/auth-users";
-import { supabaseAdmin } from "./helpers/supabase-admin";
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
 import {
   DEFAULT_POST_LOGIN_PATH,
@@ -84,7 +84,14 @@ async function expectExpiredScreen(page: Page) {
 }
 
 async function passwordWorks(email: string, password: string): Promise<boolean> {
-  const { error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
+  // Never authenticate the shared service-role client. Its in-memory session
+  // would be reused by later RLS fixture inserts in this worker.
+  const authClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
+  );
+  const { error } = await authClient.auth.signInWithPassword({ email, password });
   return error === null;
 }
 
@@ -113,8 +120,8 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
     await submitNewPassword(page, NEW_PASSWORD);
 
     await expect(page).toHaveURL(new RegExp(`${DEFAULT_POST_LOGIN_PATH}$`));
-    // router.replace swaps the reset entry for the dashboard, so Back can never
-    // return to the used link. A push would grow the history instead.
+    // The completed reset must replace the reset entry so Back can never return
+    // to the used link. A push would grow the history instead.
     // The entry URLs make a failure self-explanatory (which navigation was pushed).
     const historyAfter = await readHistoryEntries(page);
     expect(

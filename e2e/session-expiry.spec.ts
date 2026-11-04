@@ -274,10 +274,16 @@ test.describe("real session expiry (short timebox)", () => {
     // purged yet — poll instead of asserting a single snapshot.
     await expect(async () => {
       const cookies = await page.context().cookies();
-      const remainingAuthCookies = cookies.filter((cookie) =>
-        isAuthSessionCookie(cookie.name, authCookieStorageKey()),
+      // Chromium/Playwright may expose the Set-Cookie deletion tombstone as
+      // an empty auth cookie briefly (and in CI, for the rest of the poll).
+      // A live session cookie must carry a value; the empty marker is already
+      // logged out and must not make this assertion flaky.
+      const remainingLiveAuthCookies = cookies.filter(
+        (cookie) =>
+          isAuthSessionCookie(cookie.name, authCookieStorageKey()) &&
+          cookie.value.length > 0,
       );
-      expect(remainingAuthCookies).toHaveLength(0);
+      expect(remainingLiveAuthCookies).toHaveLength(0);
     }).toPass({ timeout: 5_000 });
   });
 });
