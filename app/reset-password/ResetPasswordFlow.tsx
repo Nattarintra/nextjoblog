@@ -1,7 +1,6 @@
 "use client"
 
 import { useActionState, useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 
 import { resetPasswordAction } from "@/app/actions/reset-password"
 import { AuthLogo } from "@/components/auth/AuthLogo"
@@ -18,6 +17,13 @@ import ResetLinkExpiredScreen from "./ResetLinkExpiredScreen"
 type FlowStatus = "checking" | "form" | "expired"
 type ResetPasswordFlowProps = {
   getHash?: () => string
+  navigate?: (path: string) => void
+}
+
+// A document-level replace, not router.replace: the client router left the
+// reset entry in history and pushed the dashboard on top, so Back returned to it.
+function defaultNavigate(path: string) {
+  window.location.replace(path)
 }
 
 function defaultHashGetter() {
@@ -28,8 +34,10 @@ function stripHash() {
   window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`)
 }
 
-export default function ResetPasswordFlow({ getHash = defaultHashGetter }: ResetPasswordFlowProps) {
-  const router = useRouter()
+export default function ResetPasswordFlow({
+  getHash = defaultHashGetter,
+  navigate = defaultNavigate,
+}: ResetPasswordFlowProps) {
   const [flowStatus, setFlowStatus] = useState<FlowStatus>("checking")
   const [tokens, setTokens] = useState<RecoverySessionTokens | null>(null)
   const [email, setEmail] = useState<string>()
@@ -82,9 +90,9 @@ export default function ResetPasswordFlow({ getHash = defaultHashGetter }: Reset
       } catch {
         // Storage is an enhancement; navigation still completes the reset.
       }
-      router.replace(DEFAULT_POST_LOGIN_PATH)
+      navigate(DEFAULT_POST_LOGIN_PATH)
     }
-  }, [router, state])
+  }, [navigate, state])
 
   if (flowStatus === "checking") {
     return (

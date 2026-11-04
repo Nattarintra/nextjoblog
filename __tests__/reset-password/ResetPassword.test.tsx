@@ -11,7 +11,6 @@ vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
   return { ...actual, useActionState: useActionStateMock };
 });
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: routerReplaceMock }) }));
 vi.mock("next/link", () => ({
   default: ({ children, ...props }: React.ComponentProps<"a">) => <a {...props}>{children}</a>,
 }));
@@ -144,10 +143,10 @@ describe("reset-password UI", () => {
     await waitFor(() => expect(screen.getByRole("heading", { name: "This Reset Link No Longer Works" })).toBeTruthy());
   });
 
-  it("stores the one-time toast flag and replaces the route after success", async () => {
+  it("stores the one-time toast flag and replaces the document entry after success", async () => {
     sessionStorage.clear();
     useActionStateMock.mockReturnValue([{ status: "updated" }, action, false]);
-    render(<ResetPasswordFlow getHash={() => tokensHash} />);
+    render(<ResetPasswordFlow getHash={() => tokensHash} navigate={routerReplaceMock} />);
 
     await waitFor(() => expect(routerReplaceMock).toHaveBeenCalledWith("/dashboard"));
     expect(sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG)).toBe("1");
