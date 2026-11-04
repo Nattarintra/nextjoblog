@@ -5,6 +5,8 @@ const mocks = vi.hoisted(() => ({
   createStatelessSupabaseClient: vi.fn(),
   createServerSupabaseClient: vi.fn(),
   logAuthEvent: vi.fn(),
+  cookies: vi.fn(),
+  redirect: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/stateless", () => ({
@@ -14,6 +16,8 @@ vi.mock("@/lib/supabase/server", () => ({
   createServerSupabaseClient: mocks.createServerSupabaseClient,
 }));
 vi.mock("@/lib/auth/log", () => ({ logAuthEvent: mocks.logAuthEvent }));
+vi.mock("next/headers", () => ({ cookies: mocks.cookies }));
+vi.mock("next/navigation", () => ({ redirect: mocks.redirect, RedirectType: { replace: "replace" } }));
 
 import { resetPasswordAction } from "@/app/actions/reset-password";
 
@@ -46,6 +50,7 @@ describe("resetPasswordAction", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.cookies.mockResolvedValue({ set: vi.fn() });
     mocks.createStatelessSupabaseClient.mockReturnValue({
       auth: { setSession, updateUser, getSession },
     });
@@ -81,6 +86,8 @@ describe("resetPasswordAction", () => {
       access_token: "latest-access-token",
       refresh_token: "latest-refresh-token",
     });
+    expect(mocks.redirect).toHaveBeenCalledWith("/dashboard", "replace");
+    expect(mocks.cookies).toHaveBeenCalledOnce();
   });
 
   it("does not call Supabase or create cookies for invalid password input", async () => {

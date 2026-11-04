@@ -1,106 +1,33 @@
 "use server";
 
-import { describeAuthError } from "@/lib/auth/error-details";
-import {
-  completePasswordReset,
-  type RecoverySessionTokens,
-} from "@/lib/auth/complete-password-reset";
-import { logAuthEvent } from "@/lib/auth/log";
-import { validateNewPassword } from "@/lib/auth/new-password";
+import { cookies } from "next/headers";
+import { redirect, RedirectType } from "next/navigation";
+
 import type { PasswordResetConfirmState } from "@/lib/auth/password-reset-confirm-state";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { createStatelessSupabaseClient } from "@/lib/supabase/stateless";
+import {
+  PASSWORD_UPDATED_TOAST_COOKIE_MAX_AGE_SECONDS,
+  PASSWORD_UPDATED_TOAST_FLAG,
+} from "@/lib/auth/password-reset-confirm-config";
+import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths";
+import { executePasswordReset } from "@/lib/auth/reset-password-service";
 
 export type { PasswordResetConfirmState } from "@/lib/auth/password-reset-confirm-state";
-
-const CONFIRM_LOG_EVENTS = {
-  providerError: "auth.password_reset_confirm.provider_error",
-  unexpectedError: "auth.password_reset_confirm.unexpected_error",
-} as const;
-
-function readFormValue(formData: FormData, name: string): string {
-  const value = formData.get(name);
-  return typeof value === "string" ? value : "";
-}
-
-function toSessionTokens(session: {
-  access_token: string;
-  refresh_token: string;
-}): RecoverySessionTokens {
-  return {
-    accessToken: session.access_token,
-    refreshToken: session.refresh_token,
-  };
-}
 
 export async function resetPasswordAction(
   _previousState: PasswordResetConfirmState,
   formData: FormData,
 ): Promise<PasswordResetConfirmState> {
-  const accessToken = readFormValue(formData, "access_token");
-  const refreshToken = readFormValue(formData, "refresh_token");
-  const password = readFormValue(formData, "password");
-  const confirmation = readFormValue(formData, "confirmation");
-
-  const validation = validateNewPassword({ password, confirmation });
-  if (validation !== "ok") return { status: validation };
-
-  try {
-    const statelessClient = createStatelessSupabaseClient();
-
-    const result = await completePasswordReset(
-      {
-        auth: {
-          async setSession(tokens) {
-            const { data, error } = await statelessClient.auth.setSession({
-              access_token: tokens.accessToken,
-              refresh_token: tokens.refreshToken,
-            });
-
-            if (error) {
-              logAuthEvent(CONFIRM_LOG_EVENTS.providerError, describeAuthError(error));
-            }
-
-            return {
-              error,
-              session: data.session ? toSessionTokens(data.session) : null,
-            };
-          },
-          async updateUser(input) {
-            const { error } = await statelessClient.auth.updateUser(input);
-
-            if (error) {
-              logAuthEvent(CONFIRM_LOG_EVENTS.providerError, describeAuthError(error));
-            }
-
-            if (error) return { error, session: null };
-
-            // updateUser's public response only contains the user in the
-            // current auth-js version. The client retains any rotated session
-            // internally, so read it back before starting the cookie session.
-            const session = await statelessClient.auth.getSession();
-            return {
-              error: null,
-              session: session.data.session ? toSessionTokens(session.data.session) : null,
-            };
-          },
-        },
-        session: {
-          async start(tokens) {
-            const serverClient = await createServerSupabaseClient();
-            await serverClient.auth.setSession({
-              access_token: tokens.accessToken,
-              refresh_token: tokens.refreshToken,
-            });
-          },
-        },
-      },
-      { accessToken, refreshToken, password, confirmation },
-    );
-
-    return result;
-  } catch (error) {
-    logAuthEvent(CONFIRM_LOG_EVENTS.unexpectedError, describeAuthError(error));
-    return { status: "unknown" };
+  const state = await executePasswordReset(formData);
+  if (state?.status === "updated") {
+    const cookieStore = await cookies();
+    cookieStore.set(PASSWORD_UPDATED_TOAST_FLAG, "1", {
+      httpOnly: false,
+      maxAge: PASSWORD_UPDATED_TOAST_COOKIE_MAX_AGE_SECONDS,
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+    redirect(DEFAULT_POST_LOGIN_PATH, RedirectType.replace);
   }
+  return state;
 }

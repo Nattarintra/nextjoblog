@@ -2,39 +2,36 @@ import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { useActionStateMock, routerReplaceMock } = vi.hoisted(() => ({
+const { useActionStateMock, action } = vi.hoisted(() => ({
   useActionStateMock: vi.fn(),
-  routerReplaceMock: vi.fn(),
+  action: vi.fn(),
 }));
 
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
   return { ...actual, useActionState: useActionStateMock };
 });
+
 vi.mock("next/link", () => ({
   default: ({ children, ...props }: React.ComponentProps<"a">) => <a {...props}>{children}</a>,
 }));
-vi.mock("@/app/actions/reset-password", () => ({ resetPasswordAction: vi.fn() }));
-
+vi.mock("@/app/actions/reset-password", () => ({ resetPasswordAction: action }));
 import NewPasswordForm from "@/app/reset-password/NewPasswordForm";
 import ResetLinkExpiredScreen from "@/app/reset-password/ResetLinkExpiredScreen";
 import ResetPasswordFlow from "@/app/reset-password/ResetPasswordFlow";
-import { PASSWORD_UPDATED_TOAST_FLAG } from "@/lib/auth/password-reset-confirm-config";
-
-const action = vi.fn();
 const tokensHash = "#access_token=access-token&refresh_token=refresh-token&type=recovery";
 
 describe("reset-password UI", () => {
   beforeEach(() => {
     cleanup();
     useActionStateMock.mockReturnValue([undefined, action, false]);
-    routerReplaceMock.mockReset();
     action.mockReset();
     Object.defineProperty(navigator, "onLine", { configurable: true, value: true });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it("shows the expired screen for a missing fragment and focuses its heading", async () => {
@@ -136,20 +133,11 @@ describe("reset-password UI", () => {
     expect(screen.getByLabelText("New Password")).toBeTruthy();
   });
 
-  it("moves expired action results to the expired screen", async () => {
+  it("moves an expired action result to the expired screen", async () => {
     useActionStateMock.mockReturnValue([{ status: "expired" }, action, false]);
     render(<ResetPasswordFlow getHash={() => tokensHash} />);
 
     await waitFor(() => expect(screen.getByRole("heading", { name: "This Reset Link No Longer Works" })).toBeTruthy());
-  });
-
-  it("stores the one-time toast flag and replaces the document entry after success", async () => {
-    sessionStorage.clear();
-    useActionStateMock.mockReturnValue([{ status: "updated" }, action, false]);
-    render(<ResetPasswordFlow getHash={() => tokensHash} navigate={routerReplaceMock} />);
-
-    await waitFor(() => expect(routerReplaceMock).toHaveBeenCalledWith("/dashboard"));
-    expect(sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG)).toBe("1");
   });
 
   it("renders a pending button with an accessible busy state", () => {

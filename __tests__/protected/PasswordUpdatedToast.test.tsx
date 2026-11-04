@@ -41,6 +41,15 @@ describe("PasswordUpdatedToast", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
+  it("promotes the one-time Server Action cookie into the client toast state", () => {
+    document.cookie = `${PASSWORD_UPDATED_TOAST_FLAG}=1; Path=/`;
+    render(<PasswordUpdatedToast />);
+    act(() => vi.advanceTimersByTime(0));
+
+    expect(screen.getByRole("status").textContent).toContain("Password updated");
+    expect(document.cookie).not.toContain(`${PASSWORD_UPDATED_TOAST_FLAG}=1`);
+  });
+
   it("does not fail when session storage is unavailable", () => {
     const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new Error("storage unavailable");

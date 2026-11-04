@@ -12,23 +12,33 @@ export function PasswordUpdatedToast() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let showToast: number | undefined;
+    let shouldShow = false;
+
     try {
-      if (window.sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG) !== "1") return;
-      showToast = window.setTimeout(() => {
-        try {
-          window.sessionStorage.removeItem(PASSWORD_UPDATED_TOAST_FLAG);
-        } catch {
-          // Storage cleanup is an enhancement; the toast can still be shown.
-        }
-        setVisible(true);
-      }, 0);
+      shouldShow = window.sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG) === "1";
     } catch {
-      return;
+      // Fall back to the short-lived cookie set by the reset Server Action.
     }
 
+    const toastCookie = `${PASSWORD_UPDATED_TOAST_FLAG}=1`;
+    if (document.cookie.split("; ").some((cookie) => cookie === toastCookie)) {
+      shouldShow = true;
+      document.cookie = `${PASSWORD_UPDATED_TOAST_FLAG}=; Max-Age=0; Path=/; SameSite=Lax`;
+    }
+
+    if (!shouldShow) return;
+
+    const showToast = window.setTimeout(() => {
+      try {
+        window.sessionStorage.removeItem(PASSWORD_UPDATED_TOAST_FLAG);
+      } catch {
+        // Storage cleanup is an enhancement; the toast can still be shown.
+      }
+      setVisible(true);
+    }, 0);
+
     return () => {
-      if (showToast !== undefined) window.clearTimeout(showToast);
+      window.clearTimeout(showToast);
     };
   }, []);
 

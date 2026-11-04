@@ -6,9 +6,8 @@ import { resetPasswordAction } from "@/app/actions/reset-password"
 import { AuthLogo } from "@/components/auth/AuthLogo"
 import { authHeadingClassName, authSubtextClassName } from "@/components/auth/styles"
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages"
-import { DEFAULT_POST_LOGIN_PATH, RESET_PASSWORD_PATH } from "@/lib/auth/paths"
+import { RESET_PASSWORD_PATH } from "@/lib/auth/paths"
 import { parseRecoveryFragment, readRecoveryEmail, type RecoveryFragment } from "@/lib/auth/recovery-fragment"
-import { PASSWORD_UPDATED_TOAST_FLAG } from "@/lib/auth/password-reset-confirm-config"
 import type { RecoverySessionTokens } from "@/lib/auth/complete-password-reset"
 
 import NewPasswordForm from "./NewPasswordForm"
@@ -17,13 +16,6 @@ import ResetLinkExpiredScreen from "./ResetLinkExpiredScreen"
 type FlowStatus = "checking" | "form" | "expired"
 type ResetPasswordFlowProps = {
   getHash?: () => string
-  navigate?: (path: string) => void
-}
-
-// A document-level replace, not router.replace: the client router left the
-// reset entry in history and pushed the dashboard on top, so Back returned to it.
-function defaultNavigate(path: string) {
-  window.location.replace(path)
 }
 
 function defaultHashGetter() {
@@ -36,14 +28,10 @@ function stripHash() {
 
 export default function ResetPasswordFlow({
   getHash = defaultHashGetter,
-  navigate = defaultNavigate,
 }: ResetPasswordFlowProps) {
   const [flowStatus, setFlowStatus] = useState<FlowStatus>("checking")
   const [tokens, setTokens] = useState<RecoverySessionTokens | null>(null)
   const [email, setEmail] = useState<string>()
-  // Keep the progressive-enhancement action URL fragment-free. Recovery links
-  // arrive with credentials in the URL fragment, and React otherwise reuses
-  // that URL for the action navigation, creating an extra history entry.
   const [state, formAction, isPending] = useActionState(
     resetPasswordAction,
     undefined,
@@ -87,19 +75,6 @@ export default function ResetPasswordFlow({
       if (updateFlow !== undefined) window.clearTimeout(updateFlow)
     }
   }, [getHash])
-
-  useEffect(() => {
-    if (!state) return
-    if (state.status === "expired") return
-    if (state.status === "updated") {
-      try {
-        window.sessionStorage.setItem(PASSWORD_UPDATED_TOAST_FLAG, "1")
-      } catch {
-        // Storage is an enhancement; navigation still completes the reset.
-      }
-      navigate(DEFAULT_POST_LOGIN_PATH)
-    }
-  }, [navigate, state])
 
   if (flowStatus === "checking") {
     return (
