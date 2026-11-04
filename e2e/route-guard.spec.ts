@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-const password = "abcdef";
+import { TEST_PASSWORD as password } from "./helpers/auth-users";
+
 const email = `route-guard+${Date.now()}@example.com`;
 
 test.describe.configure({ mode: "default" });

@@ -1,44 +1,28 @@
-import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 
+import { seedConfirmedUser, setClientIp, uniqueEmail } from "./helpers/auth-users";
 import { clearMailbox, expectMailboxEmpty, waitForRecoveryEmail } from "./helpers/auth-email";
 
-const PASSWORD = "abcdef";
 const BASE_CLIENT_IP = "198.51.100.10";
 const IP_LIMIT_TEST_BASE_OCTET = 20;
 const IP_LIMIT_REQUEST_COUNT = 6;
 const REPEATED_REQUEST_COUNT = 2;
 const REPEATED_REQUEST_IPS = ["198.51.100.12", "198.51.100.13"];
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+const EMAIL_PREFIX = "password-reset";
 
-function uniqueEmail(label: string): string {
-  return `password-reset-${label}-${Date.now()}@example.com`;
-}
-
-async function seedConfirmedUser(email: string): Promise<void> {
-  const { error } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password: PASSWORD,
-    email_confirm: true,
-  });
-  expect(error).toBeNull();
+function resetEmail(label: string): string {
+  return uniqueEmail(`${EMAIL_PREFIX}-${label}`);
 }
 
 async function openForgotPassword(page: Page, ip: string): Promise<void> {
-  await page.setExtraHTTPHeaders({
-    "x-e2e-client-ip": ip,
-    "x-vercel-forwarded-for": ip,
-  });
+  await setClientIp(page, ip);
   await page.goto("/forgot-password");
 }
 
 test.describe.configure({ mode: "default" });
 
 test("registered email shows the neutral screen and receives a recovery URL", async ({ page }) => {
-  const email = uniqueEmail("registered");
+  const email = resetEmail("registered");
   await seedConfirmedUser(email);
   await clearMailbox(email);
   await openForgotPassword(page, BASE_CLIENT_IP);
@@ -55,7 +39,7 @@ test("registered email shows the neutral screen and receives a recovery URL", as
 });
 
 test("unknown email shows the same neutral screen without a message", async ({ page }) => {
-  const email = uniqueEmail("unknown");
+  const email = resetEmail("unknown");
   await clearMailbox(email);
   await openForgotPassword(page, "198.51.100.11");
 
@@ -69,8 +53,8 @@ test("unknown email shows the same neutral screen without a message", async ({ p
 });
 
 test("repeated requests stay neutral for known and unknown addresses", async ({ page }) => {
-  const registeredEmail = uniqueEmail("repeat-known");
-  const unknownEmail = uniqueEmail("repeat-unknown");
+  const registeredEmail = resetEmail("repeat-known");
+  const unknownEmail = resetEmail("repeat-unknown");
   await seedConfirmedUser(registeredEmail);
   await clearMailbox(registeredEmail);
   await clearMailbox(unknownEmail);
@@ -96,7 +80,7 @@ test("shows the server-authoritative IP limit countdown", async ({ page }, testI
   const ip = `198.51.100.${IP_LIMIT_TEST_BASE_OCTET + testInfo.retry}`;
 
   for (let requestNumber = 0; requestNumber < IP_LIMIT_REQUEST_COUNT; requestNumber += 1) {
-    const email = uniqueEmail(`ip-limit-${requestNumber}`);
+    const email = resetEmail(`ip-limit-${requestNumber}`);
     await clearMailbox(email);
     await openForgotPassword(page, ip);
     await page.getByLabel("Email").fill(email);
@@ -118,7 +102,7 @@ test("shows the server-authoritative IP limit countdown", async ({ page }, testI
 });
 
 test("keeps mailbox cleanup safe when a test fails", async ({ page }) => {
-  const email = uniqueEmail("cleanup");
+  const email = resetEmail("cleanup");
   await clearMailbox(email);
   try {
     await openForgotPassword(page, "198.51.100.15");
@@ -135,7 +119,7 @@ test.fixme("recovery URL reaches the reset page after Story 0.7 ships", async ({
     type: "handoff",
     description: "Story 0.7 owns /api/auth/confirm and /reset-password.",
   });
-  const email = uniqueEmail("recovery-navigation");
+  const email = resetEmail("recovery-navigation");
   await seedConfirmedUser(email);
   await clearMailbox(email);
   const context = await browser.newContext({

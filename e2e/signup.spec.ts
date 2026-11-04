@@ -1,12 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
-const password = "abcdef";
+import { TEST_PASSWORD as password } from "./helpers/auth-users";
+import { supabaseAdmin } from "./helpers/supabase-admin";
+
 const seedEmail = "duplicate@example.com";
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 async function expectProfileForEmail(email: string) {
   const { data, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });

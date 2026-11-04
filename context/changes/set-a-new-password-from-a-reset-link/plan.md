@@ -448,23 +448,23 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 #### Automated
 
-- [x] 4.1 Reset-password component tests pass
-- [x] 4.2 Toast tests pass
-- [x] 4.3 Full test run with coverage gates passes
-- [x] 4.4 Type checking and linting pass
+- [x] 4.1 Reset-password component tests pass — 0ed07d3
+- [x] 4.2 Toast tests pass — 0ed07d3
+- [x] 4.3 Full test run with coverage gates passes — 0ed07d3
+- [x] 4.4 Type checking and linting pass — 0ed07d3
 
 #### Manual
 
-- [x] 4.5 Visual match against the three mockup screens at 375px
-- [x] 4.6 Keyboard-only and screen-reader pass
-- [x] 4.7 Real link completed in the preview deployment
+- [x] 4.5 Visual match against the three mockup screens at 375px — 0ed07d3
+- [x] 4.6 Keyboard-only and screen-reader pass — 0ed07d3
+- [x] 4.7 Real link completed in the preview deployment — 0ed07d3
 
 ### Phase 5: CI-only E2E
 
 #### Automated
 
-- [ ] 5.1 Specs compile and lint locally
-- [ ] 5.2 Unit tests pass locally
+- [x] 5.1 Specs compile and lint locally
+- [x] 5.2 Unit tests pass locally
 - [ ] 5.3 GitHub Actions unit-tests job green
 - [ ] 5.4 GitHub Actions e2e-tests job green
 - [ ] 5.5 CI run ID and report artifact recorded

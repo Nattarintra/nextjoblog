@@ -1,8 +1,10 @@
 import { expect, type Browser, type Page } from "@playwright/test";
 
 import { authCookieStorageKey, isAuthSessionCookie } from "./auth-cookies";
+import { TEST_PASSWORD } from "./auth-users";
 
-export const password = "abcdef";
+// Compatibility alias for specs that still import `password`.
+export const password = TEST_PASSWORD;
 export const BASE_URL = "http://localhost:3000";
 export const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
@@ -55,4 +57,29 @@ export function decodeAuthCookie(
 
   const withoutPrefix = raw.startsWith("base64-") ? raw.slice("base64-".length) : raw;
   return JSON.parse(Buffer.from(withoutPrefix, "base64url").toString("utf-8"));
+}
+
+type AccessTokenPayload = {
+  exp: number;
+  iat: number;
+  amr?: { timestamp?: number }[];
+};
+
+function decodeAccessToken(accessToken: string): AccessTokenPayload {
+  return JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8"));
+}
+
+export function accessTokenLifetimeSeconds(accessToken: string): number {
+  const payload = decodeAccessToken(accessToken);
+  return payload.exp - payload.iat;
+}
+
+export function sessionStartedAtMs(accessToken: string): number {
+  const timestamp = decodeAccessToken(accessToken).amr?.[0]?.timestamp;
+
+  if (typeof timestamp !== "number") {
+    throw new Error("Session access token did not include an AMR timestamp");
+  }
+
+  return timestamp * 1000;
 }

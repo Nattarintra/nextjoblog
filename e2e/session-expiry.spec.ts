@@ -1,36 +1,16 @@
 import { execSync } from "node:child_process";
 
-import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
 import { authCookieStorageKey, isAuthSessionCookie } from "./helpers/auth-cookies";
-import { BASE_URL, decodeAuthCookie, password } from "./helpers/auth-session";
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
-function accessTokenLifetimeSeconds(accessToken: string): number {
-  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8")) as {
-    exp: number;
-    iat: number;
-  };
-
-  return payload.exp - payload.iat;
-}
-
-function sessionStartedAtMs(accessToken: string): number {
-  const payload = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf-8")) as {
-    amr?: { timestamp?: number }[];
-  };
-  const timestamp = payload.amr?.[0]?.timestamp;
-
-  if (typeof timestamp !== "number") {
-    throw new Error("Session access token did not include an AMR timestamp");
-  }
-
-  return timestamp * 1000;
-}
+import {
+  BASE_URL,
+  accessTokenLifetimeSeconds,
+  decodeAuthCookie,
+  password,
+  sessionStartedAtMs,
+} from "./helpers/auth-session";
+import { supabaseAdmin } from "./helpers/supabase-admin";
 
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
