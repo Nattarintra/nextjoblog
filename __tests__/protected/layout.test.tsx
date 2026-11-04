@@ -1,12 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { effectiveMock } = vi.hoisted(() => ({ effectiveMock: vi.fn() }));
+const { effectiveMock, cookiesMock } = vi.hoisted(() => ({
+  effectiveMock: vi.fn(),
+  cookiesMock: vi.fn(),
+}));
 
 vi.mock("@/lib/session", () => ({
   getEffectiveSessionExpiry: effectiveMock,
   getSessionNoticeWindowMs: () => 1000,
 }));
+vi.mock("next/headers", () => ({ cookies: cookiesMock }));
 vi.mock("@/app/(protected)/_components/ProtectedAppShell", () => ({
   ProtectedAppShell: ({ email }: { email?: string }) => <div data-testid="chrome">{email ?? "no-email"}</div>,
 }));
@@ -22,6 +26,7 @@ describe("ProtectedLayout", () => {
   beforeEach(() => {
     cleanup();
     effectiveMock.mockReset();
+    cookiesMock.mockResolvedValue({ get: () => undefined });
   });
 
   it("passes the claims email to the chrome when authenticated", async () => {

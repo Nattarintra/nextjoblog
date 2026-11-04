@@ -50,6 +50,13 @@ describe("PasswordUpdatedToast", () => {
     expect(document.cookie).not.toContain(`${PASSWORD_UPDATED_TOAST_FLAG}=1`);
   });
 
+  it("shows when the protected server shell observes the action cookie", () => {
+    render(<PasswordUpdatedToast serverFlag />);
+    act(() => vi.advanceTimersByTime(0));
+
+    expect(screen.getByRole("status").textContent).toContain("Password updated");
+  });
+
   it("does not fail when session storage is unavailable", () => {
     const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new Error("storage unavailable");

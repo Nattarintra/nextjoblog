@@ -8,14 +8,18 @@ import {
   PASSWORD_UPDATED_TOAST_FLAG,
 } from "@/lib/auth/password-reset-confirm-config";
 
-export function PasswordUpdatedToast() {
+type PasswordUpdatedToastProps = {
+  serverFlag?: boolean;
+};
+
+export function PasswordUpdatedToast({ serverFlag = false }: PasswordUpdatedToastProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let shouldShow = false;
+    let shouldShow = serverFlag;
 
     try {
-      shouldShow = window.sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG) === "1";
+      shouldShow ||= window.sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG) === "1";
     } catch {
       // Fall back to the short-lived cookie set by the reset Server Action.
     }
@@ -40,7 +44,7 @@ export function PasswordUpdatedToast() {
     return () => {
       window.clearTimeout(showToast);
     };
-  }, []);
+  }, [serverFlag]);
 
   useEffect(() => {
     if (!visible) return;
