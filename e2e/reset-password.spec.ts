@@ -97,6 +97,17 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
   const flow = await openRecoveryFlow(browser, "happy");
   const { page } = flow;
   try {
+    const navigations: string[] = [];
+    await page.exposeFunction("__recordNavigation", (entry: string) => navigations.push(entry));
+    await page.addInitScript(() => {
+      const nav = (window as unknown as { navigation?: EventTarget }).navigation;
+      nav?.addEventListener("navigate", (event) => {
+        const e = event as Event & { navigationType: string; destination: { url: string } };
+        void (window as unknown as { __recordNavigation(s: string): void }).__recordNavigation(
+          `${e.navigationType} ${e.destination.url}`,
+        );
+      });
+    });
     await openResetForm(page, flow.recoveryUrl);
     const historyBefore = await readHistoryEntries(page);
     await submitNewPassword(page, NEW_PASSWORD);
@@ -108,7 +119,7 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
     const historyAfter = await readHistoryEntries(page);
     expect(
       historyAfter.length,
-      `history before: ${JSON.stringify(historyBefore)}; after: ${JSON.stringify(historyAfter)}`,
+      `history before: ${JSON.stringify(historyBefore)}; after: ${JSON.stringify(historyAfter)}; navigations: ${JSON.stringify(navigations)}`,
     ).toBe(historyBefore.length);
     await expect(page.getByRole("status").filter({ hasText: MESSAGES.toast.title })).toBeVisible();
 
