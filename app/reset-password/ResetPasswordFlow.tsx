@@ -1,6 +1,6 @@
 "use client"
 
-import { useActionState, useEffect, useState } from "react"
+import { useActionState, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { resetPasswordAction } from "@/app/actions/reset-password"
@@ -8,7 +8,7 @@ import { AuthLogo } from "@/components/auth/AuthLogo"
 import { authHeadingClassName, authSubtextClassName } from "@/components/auth/styles"
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages"
 import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths"
-import { parseRecoveryFragment, readRecoveryEmail } from "@/lib/auth/recovery-fragment"
+import { parseRecoveryFragment, readRecoveryEmail, type RecoveryFragment } from "@/lib/auth/recovery-fragment"
 import { PASSWORD_UPDATED_TOAST_FLAG } from "@/lib/auth/password-reset-confirm-config"
 import type { RecoverySessionTokens } from "@/lib/auth/complete-password-reset"
 
@@ -35,12 +35,20 @@ export default function ResetPasswordFlow({ getHash = defaultHashGetter }: Reset
   const [email, setEmail] = useState<string>()
   const [state, formAction, isPending] = useActionState(resetPasswordAction, undefined)
 
+  // React Strict Mode (dev) runs this effect twice. The first run strips the
+  // fragment, so keep what it read; re-reading would find nothing and show the
+  // expired screen.
+  const parsedFragment = useRef<RecoveryFragment>(undefined)
+
   useEffect(() => {
     let updateFlow: number | undefined
 
-    const readHash = () => {
-      const parsed = parseRecoveryFragment(getHash())
-      stripHash()
+    const readHash = (event?: Event) => {
+      if (event || parsedFragment.current === undefined) {
+        parsedFragment.current = parseRecoveryFragment(getHash())
+        stripHash()
+      }
+      const parsed = parsedFragment.current
       if (updateFlow !== undefined) window.clearTimeout(updateFlow)
 
       updateFlow = window.setTimeout(() => {

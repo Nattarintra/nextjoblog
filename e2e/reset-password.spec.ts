@@ -10,6 +10,7 @@ import {
 import {
   NEW_PASSWORD,
   TEST_PASSWORD,
+  clearEmailCooldown,
   requestResetAndGetLink,
   seedConfirmedUser,
   uniqueEmail,
@@ -205,8 +206,10 @@ test("a used link shows the expired screen and routes back to forgot-password", 
 test("an older link stops working after a newer one is requested", async ({ browser }) => {
   const flow = await openRecoveryFlow(browser, "older");
   try {
-    // A different client IP avoids the per-address cooldown on the second request.
+    // A different client IP avoids the per-IP limit; the per-email cooldown is
+    // cleared directly because it would silently drop the second request.
     await clearMailbox(flow.email);
+    await clearEmailCooldown();
     const newerUrl = await requestResetAndGetLink(flow.page, flow.email, freshIp());
     expect(newerUrl).not.toBe(flow.recoveryUrl);
 
