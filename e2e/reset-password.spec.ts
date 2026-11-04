@@ -64,6 +64,15 @@ async function openResetForm(page: Page, recoveryUrl: string): Promise<void> {
   await expect(page.getByLabel(MESSAGES.newPasswordLabel, { exact: true })).toBeVisible();
 }
 
+// Chromium's Navigation API lists every same-origin entry with its URL.
+async function readHistoryEntries(page: Page): Promise<string[]> {
+  return page.evaluate(() =>
+    (window as unknown as { navigation: { entries(): { url: string }[] } }).navigation
+      .entries()
+      .map((entry) => entry.url),
+  );
+}
+
 async function submitNewPassword(page: Page, password: string, confirmation = password) {
   await page.getByLabel(MESSAGES.newPasswordLabel, { exact: true }).fill(password);
   await page.getByLabel(MESSAGES.confirmPasswordLabel, { exact: true }).fill(confirmation);
@@ -89,13 +98,18 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
   const { page } = flow;
   try {
     await openResetForm(page, flow.recoveryUrl);
-    const historyLengthBefore = await page.evaluate(() => window.history.length);
+    const historyBefore = await readHistoryEntries(page);
     await submitNewPassword(page, NEW_PASSWORD);
 
     await expect(page).toHaveURL(new RegExp(`${DEFAULT_POST_LOGIN_PATH}$`));
     // router.replace swaps the reset entry for the dashboard, so Back can never
     // return to the used link. A push would grow the history instead.
-    expect(await page.evaluate(() => window.history.length)).toBe(historyLengthBefore);
+    // The entry URLs make a failure self-explanatory (which navigation was pushed).
+    const historyAfter = await readHistoryEntries(page);
+    expect(
+      historyAfter.length,
+      `history before: ${JSON.stringify(historyBefore)}; after: ${JSON.stringify(historyAfter)}`,
+    ).toBe(historyBefore.length);
     await expect(page.getByRole("status").filter({ hasText: MESSAGES.toast.title })).toBeVisible();
 
     await page.reload();
