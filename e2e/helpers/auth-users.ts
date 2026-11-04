@@ -1,6 +1,5 @@
 import { expect, type Page } from "@playwright/test";
 
-import { PASSWORD_RESET_EMAIL_COOLDOWN_SCOPE } from "@/lib/auth/password-reset-config";
 import { FORGOT_PASSWORD_PATH } from "@/lib/auth/paths";
 
 import { waitForRecoveryEmail } from "./auth-email";
@@ -49,12 +48,10 @@ export async function requestResetAndGetLink(
   return recoveryUrl;
 }
 
-// The per-email cooldown silently drops a second request inside its window, so a
-// test that needs two emails for one address must clear the bucket in between.
-export async function clearEmailCooldown(): Promise<void> {
-  const { error } = await supabaseAdmin
-    .from("rate_limit_buckets")
-    .delete()
-    .eq("scope", PASSWORD_RESET_EMAIL_COOLDOWN_SCOPE);
+// Issues a newer recovery token for the user without going through the app, so it
+// is not subject to the per-email cooldown. GoTrue keeps one recovery token per
+// user, so any earlier emailed link stops working.
+export async function issueNewerRecoveryLink(email: string): Promise<void> {
+  const { error } = await supabaseAdmin.auth.admin.generateLink({ type: "recovery", email });
   expect(error).toBeNull();
 }

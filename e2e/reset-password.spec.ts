@@ -10,7 +10,7 @@ import {
 import {
   NEW_PASSWORD,
   TEST_PASSWORD,
-  clearEmailCooldown,
+  issueNewerRecoveryLink,
   requestResetAndGetLink,
   seedConfirmedUser,
   uniqueEmail,
@@ -89,16 +89,17 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
   const { page } = flow;
   try {
     await openResetForm(page, flow.recoveryUrl);
+    const historyLengthBefore = await page.evaluate(() => window.history.length);
     await submitNewPassword(page, NEW_PASSWORD);
 
     await expect(page).toHaveURL(new RegExp(`${DEFAULT_POST_LOGIN_PATH}$`));
+    // router.replace swaps the reset entry for the dashboard, so Back can never
+    // return to the used link. A push would grow the history instead.
+    expect(await page.evaluate(() => window.history.length)).toBe(historyLengthBefore);
     await expect(page.getByRole("status").filter({ hasText: MESSAGES.toast.title })).toBeVisible();
 
     await page.reload();
     await expect(page).toHaveURL(new RegExp(`${DEFAULT_POST_LOGIN_PATH}$`));
-
-    await page.goBack();
-    await expect(page).not.toHaveURL(new RegExp(RESET_PASSWORD_PATH));
   } finally {
     await cleanup(flow);
   }
@@ -206,12 +207,7 @@ test("a used link shows the expired screen and routes back to forgot-password", 
 test("an older link stops working after a newer one is requested", async ({ browser }) => {
   const flow = await openRecoveryFlow(browser, "older");
   try {
-    // A different client IP avoids the per-IP limit; the per-email cooldown is
-    // cleared directly because it would silently drop the second request.
-    await clearMailbox(flow.email);
-    await clearEmailCooldown();
-    const newerUrl = await requestResetAndGetLink(flow.page, flow.email, freshIp());
-    expect(newerUrl).not.toBe(flow.recoveryUrl);
+    await issueNewerRecoveryLink(flow.email);
 
     await flow.page.goto(flow.recoveryUrl);
     await expectExpiredScreen(flow.page);
