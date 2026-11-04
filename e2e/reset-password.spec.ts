@@ -25,9 +25,12 @@ import {
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-policy";
 
 const EMAIL_PREFIX = "reset-password";
-const CLIENT_IP_PREFIX = "198.51.100.";
-// Distinct from the octets used by forgot-password.spec.ts (10-16, 20-26).
-const FIRST_CLIENT_IP_OCTET = 100;
+// Benchmarking range (198.18.0.0/15), disjoint from the 198.51.100.x octets used by
+// forgot-password.spec.ts. The second octet is the worker index: a failed test
+// restarts its worker, and a per-process counter alone would reuse IPs that the
+// per-IP rate limit has already counted.
+const CLIENT_IP_PREFIX = "198.18";
+const WORKER_INDEX = Number(process.env.TEST_WORKER_INDEX ?? 0);
 const SESSION_CLOCK_TOLERANCE_MS = 60_000;
 const SHORT_PASSWORD = "a".repeat(MIN_PASSWORD_LENGTH - 1);
 const MISMATCHED_PASSWORD = `${NEW_PASSWORD}-different`;
@@ -35,10 +38,10 @@ const MESSAGES = PASSWORD_RESET_MESSAGES;
 
 test.describe.configure({ mode: "default" });
 
-let nextOctet = FIRST_CLIENT_IP_OCTET;
+let nextOctet = 0;
 function freshIp(): string {
   nextOctet += 1;
-  return `${CLIENT_IP_PREFIX}${nextOctet}`;
+  return `${CLIENT_IP_PREFIX}.${WORKER_INDEX}.${nextOctet}`;
 }
 
 type Setup = { email: string; recoveryUrl: string; context: BrowserContext; page: Page };
