@@ -400,11 +400,11 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 ## Verification Notes
 
-- Unit-tests CI run: pending
-- E2E CI run: pending
-- Playwright report artifact: pending
-- Session-clock / `amr[0]` assertion: pending
-- Local, CI, and hosted differences: pending
+- Unit-tests CI run: https://github.com/Nattarintra/nextjoblog/actions/runs/41841575910 (run 169, commit 2915121) — `unit-tests` success
+- E2E CI run: same run 41841575910 — `e2e-tests` success; 41 passed, 0 flaky, 1 skipped (the pre-existing `test.fixme` in `forgot-password.spec.ts`)
+- Playwright report artifact: `playwright-report` on run 41841575910 (14-day retention)
+- Session-clock / `amr[0]` assertion: `session after reset carries a valid base time in amr[0]` ran and passed (not skipped, no retries). The recovery access token in the report carries `amr:[{method:"otp",timestamp:…}]`, so `amr[0]` is present on a recovery session and no shared session code change is needed.
+- Local, CI, and hosted differences: the recovery link redirects to `NEXT_PUBLIC_SITE_URL` (`127.0.0.1:3000` in CI), a different origin from Playwright's `localhost`, which needed `allowedDevOrigins: ["127.0.0.1"]`; React Strict Mode (dev) double-ran the fragment-reading effect, so the parsed fragment is kept in a ref; `router.replace` left the reset entry in history, so the save redirect uses `window.location.replace`. Hosted behaviour: pending (Phase 6 smoke test).
 
 ## Progress
 
@@ -465,13 +465,13 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 - [x] 5.1 Specs compile and lint locally
 - [x] 5.2 Unit tests pass locally
-- [ ] 5.3 GitHub Actions unit-tests job green
-- [ ] 5.4 GitHub Actions e2e-tests job green
-- [ ] 5.5 CI run ID and report artifact recorded
+- [x] 5.3 GitHub Actions unit-tests job green
+- [x] 5.4 GitHub Actions e2e-tests job green
+- [x] 5.5 CI run ID and report artifact recorded
 
 #### Manual
 
-- [ ] 5.6 CI report confirms the session-clock test ran and asserted amr
+- [x] 5.6 CI report confirms the session-clock test ran and asserted amr
 
 ### Phase 6: Docs and release gate
 
