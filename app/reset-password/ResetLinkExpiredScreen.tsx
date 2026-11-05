@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useEffect, useRef } from "react"
 
+import { LinkBrokenStatusIcon } from "@/components/auth/AuthStatusIcons"
 import { authFooterClassName, authHeadingClassName, authSubtextClassName, dangerStatusRingClassName, secondaryButtonClassName, statusRingClassName, statusStepClassName, statusStepNumberClassName, statusStepsClassName, submitButtonClassName } from "@/components/auth/styles"
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages"
 import { FORGOT_PASSWORD_PATH, LOGIN_PATH } from "@/lib/auth/paths"
@@ -17,11 +18,7 @@ export default function ResetLinkExpiredScreen() {
   return (
     <>
       <div className={`${statusRingClassName} ${dangerStatusRingClassName}`} aria-hidden="true">
-        <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1" strokeLinecap="round" />
-          <path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" strokeLinecap="round" />
-          <path d="m4 4 16 16" strokeLinecap="round" />
-        </svg>
+        <LinkBrokenStatusIcon className="h-7 w-7" />
       </div>
       <h1 ref={headingRef} tabIndex={-1} className={authHeadingClassName}>
         {expired.heading}

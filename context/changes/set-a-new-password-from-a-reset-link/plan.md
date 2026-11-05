@@ -404,7 +404,21 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 - E2E CI run: same run 41841575910 — `e2e-tests` success; 41 passed, 0 flaky, 1 skipped (the pre-existing `test.fixme` in `forgot-password.spec.ts`)
 - Playwright report artifact: `playwright-report` on run 41841575910 (14-day retention)
 - Session-clock / `amr[0]` assertion: `session after reset carries a valid base time in amr[0]` ran and passed (not skipped, no retries). The recovery access token in the report carries `amr:[{method:"otp",timestamp:…}]`, so `amr[0]` is present on a recovery session and no shared session code change is needed.
-- Local, CI, and hosted differences: the recovery link redirects to `NEXT_PUBLIC_SITE_URL` (`127.0.0.1:3000` in CI), a different origin from Playwright's `localhost`, which needed `allowedDevOrigins: ["127.0.0.1"]`; React Strict Mode (dev) double-ran the fragment-reading effect, so the parsed fragment is kept in a ref; `router.replace` left the reset entry in history, so the save redirect uses `window.location.replace`. Hosted behaviour: pending (Phase 6 smoke test).
+- Local, CI, and hosted differences: the recovery link redirects to `NEXT_PUBLIC_SITE_URL` (`127.0.0.1:3000` in CI), a different origin from Playwright's `localhost`, which needed `allowedDevOrigins: ["127.0.0.1"]`; React Strict Mode (dev) double-ran the fragment-reading effect, so the parsed fragment is kept in a ref. Hosted behaviour: pending (Phase 6 smoke test).
+
+## Implementation Addenda (2026-11-05, from impl review)
+
+Deviations from the text above that shipped and are now the source of truth:
+
+- **Success hand-off**: the Server Action sets a short-lived `password_updated` cookie and calls a server `redirect(DEFAULT_POST_LOGIN_PATH, RedirectType.replace)`, instead of a client `sessionStorage` flag plus `router.replace`. `app/(protected)/layout.tsx` reads the cookie and passes it to the shell; `PasswordUpdatedToast` also reads and clears the cookie client-side (cleared inside the show timer so Strict Mode's double effect still shows it). No `sessionStorage` is used.
+- **Action split**: the testable logic lives in `lib/auth/reset-password-service.ts` (`"use server"` files may only export async functions); the action only sets the cookie and redirects.
+- **New state `login_required`**: if the cookie session cannot start after a successful update, the user sees "password updated, log in with your new password" instead of a success toast. It is logged as `auth.password_reset_confirm.session_start_error`.
+- **Input cap**: every action field is capped at `PASSWORD_RESET_MAX_FIELD_LENGTH`; oversized input returns `unknown` before any provider call.
+- **Headers**: `next.config.ts` sets `Referrer-Policy: no-referrer` and `Cache-Control: no-store` on `/reset-password`.
+- **Shared auth layout**: `AuthPageShell` now wraps every auth page in `authPageFrameClassName` (max width 425px), and `globals.css` hides the page glow while `[data-reset-password-status="checking"]` is present. This affects Login, Sign Up and Forgot Password layout and needs a visual check in Phase 6.
+- **Forgot-password screens**: reformatted and `AuthLogo` removed from the two result screens (commit 994b73f); they now use `AUTH_ACTION_LABELS` and `LOGIN_PATH`.
+- **New single sources**: `PASSWORD_RESET_FORM_FIELDS`, toast flag value/cookie constants and `PASSWORD_RESET_MAX_FIELD_LENGTH` (`password-reset-confirm-config.ts`); `PASSWORD_INPUT_MESSAGES`, `AUTH_ACTION_LABELS`, `PASSWORD_RESET_CONFIRM_LOG_EVENT` (`messages.ts`); `supabaseAnon` (`e2e/helpers/supabase-admin.ts`); `authErrorClassName`, `authBlockErrorClassName` and `LinkBrokenStatusIcon` (`components/auth`).
+- **E2E**: `e2e/logout.spec.ts` and `e2e/session-expired-route.spec.ts` already used the shared helpers, so they needed no migration. The stale `test.fixme` in `forgot-password.spec.ts` was removed (covered by `reset-password.spec.ts`). The planned mailbox-cleanup fixture was not built; specs call `clearMailbox` directly.
 
 ## Progress
 

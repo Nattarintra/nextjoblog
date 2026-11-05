@@ -20,6 +20,7 @@ vi.mock("next/headers", () => ({ cookies: mocks.cookies }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect, RedirectType: { replace: "replace" } }));
 
 import { resetPasswordAction } from "@/app/actions/reset-password";
+import { PASSWORD_RESET_MAX_FIELD_LENGTH } from "@/lib/auth/password-reset-confirm-config";
 
 const tokens = {
   access_token: "access-token",
@@ -148,5 +149,33 @@ describe("resetPasswordAction", () => {
       "auth.password_reset_confirm.unexpected_error",
       {},
     );
+  });
+
+  it("reports login_required, logs it and shows no success when the cookie session fails to start", async () => {
+    cookieSetSession.mockResolvedValue({
+      error: new AuthApiError("bad session", 400, "bad_jwt"),
+    });
+
+    await expect(resetPasswordAction(undefined, validForm())).resolves.toEqual({
+      status: "login_required",
+    });
+
+    expect(mocks.redirect).not.toHaveBeenCalled();
+    expect(mocks.cookies).not.toHaveBeenCalled();
+    expect(mocks.logAuthEvent).toHaveBeenCalledWith(
+      "auth.password_reset_confirm.session_start_error",
+      { code: "bad_jwt", status: 400 },
+    );
+  });
+
+  it("rejects oversized fields before calling Supabase", async () => {
+    const oversized = "x".repeat(PASSWORD_RESET_MAX_FIELD_LENGTH + 1);
+
+    await expect(
+      resetPasswordAction(undefined, validForm({ access_token: oversized })),
+    ).resolves.toEqual({ status: "unknown" });
+
+    expect(mocks.createStatelessSupabaseClient).not.toHaveBeenCalled();
+    expect(mocks.createServerSupabaseClient).not.toHaveBeenCalled();
   });
 });

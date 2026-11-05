@@ -5,12 +5,14 @@ import { useEffect, useRef, useState } from "react";
 
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import {
+  authBlockErrorClassName,
   authHintClassName,
   submitButtonClassName,
 } from "@/components/auth/styles";
 import { OFFLINE_ERROR_MESSAGE, PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
 import { validateNewPassword } from "@/lib/auth/new-password";
 import type { PasswordResetConfirmState } from "@/lib/auth/password-reset-confirm-state";
+import { PASSWORD_RESET_FORM_FIELDS } from "@/lib/auth/password-reset-confirm-config";
 import { isPasswordLongEnough } from "@/lib/auth/password-policy";
 
 import { PasswordRequirements } from "./PasswordRequirements";
@@ -45,6 +47,8 @@ function getStateError(state: PasswordResetConfirmState): string | null {
       return messages.samePassword;
     case "network":
       return messages.network;
+    case "login_required":
+      return messages.loginRequired;
     case "unknown":
       return messages.unknown;
   }
@@ -95,12 +99,12 @@ export default function NewPasswordForm({
 
   return (
     <form action={action} noValidate onSubmit={handleSubmit}>
-      <input type="hidden" name="access_token" value={accessToken} readOnly />
-      <input type="hidden" name="refresh_token" value={refreshToken} readOnly />
+      <input type="hidden" name={PASSWORD_RESET_FORM_FIELDS.accessToken} value={accessToken} readOnly />
+      <input type="hidden" name={PASSWORD_RESET_FORM_FIELDS.refreshToken} value={refreshToken} readOnly />
       <div className="mb-3.5">
         <PasswordInput
           id={PASSWORD_FIELD_IDS.password}
-          name="password"
+          name={PASSWORD_RESET_FORM_FIELDS.password}
           label={PASSWORD_RESET_MESSAGES.newPasswordLabel}
           autoComplete="new-password"
           autoFocus
@@ -114,7 +118,7 @@ export default function NewPasswordForm({
       <div className="mb-3.5">
         <PasswordInput
           id={PASSWORD_FIELD_IDS.confirmation}
-          name="confirmation"
+          name={PASSWORD_RESET_FORM_FIELDS.confirmation}
           label={PASSWORD_RESET_MESSAGES.confirmPasswordLabel}
           autoComplete="new-password"
           describedBy={REQUIREMENTS_ID}
@@ -127,9 +131,9 @@ export default function NewPasswordForm({
         />
       </div>
       <PasswordRequirements password={password} confirmation={confirmation} id={REQUIREMENTS_ID} />
-      {email && <p className={authHintClassName}>Resetting the password for {email}.</p>}
+      {email && <p className={authHintClassName}>{PASSWORD_RESET_MESSAGES.resettingFor(email)}</p>}
       {error && (
-        <div ref={errorRef} className="mt-4 text-[12px] leading-relaxed text-auth-danger" role="alert" tabIndex={-1}>
+        <div ref={errorRef} className={authBlockErrorClassName} role="alert" tabIndex={-1}>
           {error}
         </div>
       )}

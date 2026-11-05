@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react"
 
 import { MailStatusIcon } from "@/components/auth/AuthStatusIcons"
 import { authFooterClassName, authHeadingClassName, authSubtextClassName, emailChipClassName, infoStatusRingClassName, statusRingClassName, statusStepClassName, statusStepNumberClassName, statusStepsClassName, submitButtonClassName } from "@/components/auth/styles"
+import { AUTH_ACTION_LABELS } from "@/lib/auth/messages"
+import { LOGIN_PATH } from "@/lib/auth/paths"
 
 import ResendLinkForm from "./ResendLinkForm"
 
@@ -39,8 +41,8 @@ export default function CheckYourEmailScreen({ email, action, isPending, resendG
       </ol>
 
       <div className="mt-6 grid gap-2.5">
-        <Link className={submitButtonClassName} href="/login">
-          Back to Log In
+        <Link className={submitButtonClassName} href={LOGIN_PATH}>
+          {AUTH_ACTION_LABELS.backToLogin}
         </Link>
         <ResendLinkForm key={resendGeneration} email={email} action={action} isPending={isPending} />
       </div>

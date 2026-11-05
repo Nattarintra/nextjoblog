@@ -1,11 +1,12 @@
 import { expect } from "@playwright/test";
 
+import { RESET_PASSWORD_PATH } from "@/lib/auth/paths";
+
 const DEFAULT_MAIL_API_URL = "http://127.0.0.1:54324/api/v1";
 const MAIL_API_URL = process.env.E2E_MAIL_API_URL ?? DEFAULT_MAIL_API_URL;
 const MAIL_POLL_INTERVAL_MS = 250;
 const MAIL_DELIVERY_TIMEOUT_MS = 10_000;
 const MAIL_MESSAGE_LIMIT = 100;
-const RESET_PATH = "/reset-password";
 
 type MailRecipient = {
   Address?: string;
@@ -60,7 +61,7 @@ function extractRecoveryUrl(message: MailMessage): string | undefined {
     .map((candidate) => candidate.replaceAll("&amp;", "&"))
     .find((candidate) => {
       try {
-        return new URL(candidate).searchParams.get("redirect_to")?.includes(RESET_PATH) ?? false;
+        return new URL(candidate).searchParams.get("redirect_to")?.includes(RESET_PASSWORD_PATH) ?? false;
       } catch {
         return false;
       }

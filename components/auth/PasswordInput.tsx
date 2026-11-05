@@ -3,11 +3,13 @@
 import { forwardRef, useId, useState } from "react";
 
 import {
+  authErrorClassName,
   authFieldLabelClassName,
   authInputClassName,
   authInputWarningClassName,
   visuallyHiddenClassName,
 } from "@/components/auth/styles";
+import { PASSWORD_INPUT_MESSAGES } from "@/lib/auth/messages";
 
 type PasswordInputProps = {
   id: string;
@@ -73,20 +75,20 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
             className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1 text-[11px] font-semibold text-sky focus:outline focus:outline-2 focus:outline-azure"
             type="button"
             aria-pressed={isVisible}
-            aria-label={`${isVisible ? "Hide" : "Show"} ${label.toLowerCase()}`}
+            aria-label={PASSWORD_INPUT_MESSAGES.toggleLabel(isVisible, label)}
             onClick={() => setIsVisible((visible) => !visible)}
           >
-            {isVisible ? "Hide" : "Show"}
+            {PASSWORD_INPUT_MESSAGES.toggleText(isVisible)}
           </button>
         )}
       </div>
       {error && (
-        <div id={errorId} className="mt-1.25 text-[11px] text-auth-danger" role="alert">
+        <div id={errorId} className={authErrorClassName} role="alert">
           {error}
         </div>
       )}
       <span className={visuallyHiddenClassName} aria-live="polite">
-        {isVisible ? `Password is visible for ${label.toLowerCase()}.` : ""}
+        {isVisible ? PASSWORD_INPUT_MESSAGES.visibleAnnouncement(label) : ""}
       </span>
     </div>
   );

@@ -1,7 +1,4 @@
-import {
-  getPasswordRequirementState,
-  NEW_PASSWORD_RULES,
-} from "@/lib/auth/new-password";
+import { getPasswordRequirementState } from "@/lib/auth/new-password";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password-policy";
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
 import {
@@ -25,15 +22,14 @@ export function PasswordRequirements({
 
   return (
     <ul id={id} className="mt-3 grid gap-1.5 text-[11px] text-white/75">
-      {NEW_PASSWORD_RULES.map((rule, index) => {
-        const met = states[index]?.met ?? false;
-        const label = PASSWORD_RESET_MESSAGES.passwordRequirements[rule.messageKey];
-        const count = rule.id === "length" ? `${Math.min(password.length, MIN_PASSWORD_LENGTH)} / ${MIN_PASSWORD_LENGTH}` : null;
+      {states.map(({ id: ruleId, messageKey, met }) => {
+        const label = PASSWORD_RESET_MESSAGES.passwordRequirements[messageKey];
+        const count = ruleId === "length" ? `${Math.min(password.length, MIN_PASSWORD_LENGTH)} / ${MIN_PASSWORD_LENGTH}` : null;
 
         return (
           <li
             className={`flex items-center gap-2${met ? "" : ` ${authRequirementWarningClassName}`}`}
-            key={rule.id}
+            key={ruleId}
           >
             <span className="flex h-4 w-4 items-center justify-center" aria-hidden="true">
               {met ? "✓" : "×"}

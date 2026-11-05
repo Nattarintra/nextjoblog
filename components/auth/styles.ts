@@ -5,6 +5,9 @@ export const authInputWarningClassName =
   "border-auth-danger focus:border-auth-danger focus:outline-auth-danger";
 
 export const authRequirementWarningClassName = "text-auth-danger";
+export const authErrorClassName = "mt-1.25 text-[11px] text-auth-danger";
+export const authBlockErrorClassName =
+  "mt-4 text-[12px] leading-relaxed text-auth-danger";
 
 export const authFieldLabelClassName = "mb-1.25 block text-[11.5px] font-semibold text-auth-label";
 

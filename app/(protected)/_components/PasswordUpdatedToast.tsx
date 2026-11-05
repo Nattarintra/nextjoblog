@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
 import {
+  PASSWORD_UPDATED_TOAST_COOKIE_PATH,
+  PASSWORD_UPDATED_TOAST_COOKIE_SAME_SITE,
   PASSWORD_UPDATED_TOAST_DISMISS_MS,
   PASSWORD_UPDATED_TOAST_FLAG,
+  PASSWORD_UPDATED_TOAST_FLAG_VALUE,
 } from "@/lib/auth/password-reset-confirm-config";
 
 type PasswordUpdatedToastProps = {
@@ -16,28 +19,14 @@ export function PasswordUpdatedToast({ serverFlag = false }: PasswordUpdatedToas
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    let shouldShow = serverFlag;
+    const toastCookie = `${PASSWORD_UPDATED_TOAST_FLAG}=${PASSWORD_UPDATED_TOAST_FLAG_VALUE}`;
+    const hasCookie = document.cookie.split("; ").some((cookie) => cookie === toastCookie);
+    if (!serverFlag && !hasCookie) return;
 
-    try {
-      shouldShow ||= window.sessionStorage.getItem(PASSWORD_UPDATED_TOAST_FLAG) === "1";
-    } catch {
-      // Fall back to the short-lived cookie set by the reset Server Action.
-    }
-
-    const toastCookie = `${PASSWORD_UPDATED_TOAST_FLAG}=1`;
-    if (document.cookie.split("; ").some((cookie) => cookie === toastCookie)) {
-      shouldShow = true;
-      document.cookie = `${PASSWORD_UPDATED_TOAST_FLAG}=; Max-Age=0; Path=/; SameSite=Lax`;
-    }
-
-    if (!shouldShow) return;
-
+    // Clear the one-time cookie only when the toast is actually shown, so React
+    // Strict Mode's double effect run (which cancels the first timer) still sees it.
     const showToast = window.setTimeout(() => {
-      try {
-        window.sessionStorage.removeItem(PASSWORD_UPDATED_TOAST_FLAG);
-      } catch {
-        // Storage cleanup is an enhancement; the toast can still be shown.
-      }
+      document.cookie = `${PASSWORD_UPDATED_TOAST_FLAG}=; Max-Age=0; Path=${PASSWORD_UPDATED_TOAST_COOKIE_PATH}; SameSite=${PASSWORD_UPDATED_TOAST_COOKIE_SAME_SITE}`;
       setVisible(true);
     }, 0);
 

@@ -103,4 +103,16 @@ describe("completePasswordReset", () => {
     expect(auth.updateUser).not.toHaveBeenCalled();
     expect(session.start).not.toHaveBeenCalled();
   });
+
+  it("returns login_required when the cookie session cannot be started after the update", async () => {
+    const auth = {
+      setSession: vi.fn().mockResolvedValue({ session: { ...input }, error: null }),
+      updateUser: vi.fn().mockResolvedValue({ session: { ...input }, error: null }),
+    };
+    const session = { start: vi.fn().mockRejectedValue(new Error("cookie write failed")) };
+
+    await expect(completePasswordReset({ auth, session }, input)).resolves.toEqual({
+      status: "login_required",
+    });
+  });
 });

@@ -133,6 +133,20 @@ describe("reset-password UI", () => {
     expect(screen.getByLabelText("New Password")).toBeTruthy();
   });
 
+  it("tells the user to log in when the password was saved but the session could not start", () => {
+    render(
+      <NewPasswordForm
+        action={action}
+        accessToken="access-token"
+        refreshToken="refresh-token"
+        state={{ status: "login_required" }}
+        isPending={false}
+      />,
+    );
+
+    expect(screen.getByRole("alert").textContent).toContain("Log in with your new password");
+  });
+
   it("moves an expired action result to the expired screen", async () => {
     useActionStateMock.mockReturnValue([{ status: "expired" }, action, false]);
     render(<ResetPasswordFlow getHash={() => tokensHash} />);

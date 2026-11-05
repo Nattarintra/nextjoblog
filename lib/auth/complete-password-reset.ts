@@ -1,12 +1,14 @@
 import {
-  AuthError,
   AuthRetryableFetchError,
-  isAuthApiError,
   isAuthSessionMissingError,
 } from "@supabase/auth-js";
 
+import { describeAuthError } from "@/lib/auth/error-details";
 import { validateNewPassword } from "@/lib/auth/new-password";
-import type { PasswordResetConfirmState } from "@/lib/auth/password-reset-confirm-state";
+import type {
+  PasswordResetConfirmState,
+  PasswordResetErrorStatus,
+} from "@/lib/auth/password-reset-confirm-state";
 
 const PASSWORD_TOO_WEAK_CODE = "weak_password";
 const SAME_PASSWORD_CODE = "same_password";
@@ -48,20 +50,8 @@ export type CompletePasswordResetDependencies = {
   session: SessionStarter;
 };
 
-function readErrorDetails(error: unknown): {
-  code?: string;
-  status?: number;
-} {
-  if (typeof error !== "object" || error === null) return {};
-  const details = error as { code?: unknown; status?: unknown };
-  return {
-    ...(typeof details.code === "string" ? { code: details.code } : {}),
-    ...(typeof details.status === "number" ? { status: details.status } : {}),
-  };
-}
-
 function isNetworkError(error: unknown): boolean {
-  const { status } = readErrorDetails(error);
+  const { status } = describeAuthError(error);
   return (
     error instanceof AuthRetryableFetchError ||
     error instanceof TypeError ||
@@ -70,17 +60,15 @@ function isNetworkError(error: unknown): boolean {
   );
 }
 
-export function classifyRecoveryError(error: unknown): Exclude<
-  PasswordResetConfirmState,
-  undefined | { status: "updated" }
-> extends infer State
-  ? State extends { status: infer Status }
-    ? Status
-    : never
-  : never {
+export type RecoveryErrorStatus = Extract<
+  PasswordResetErrorStatus,
+  "too_short" | "same_password" | "expired" | "network" | "unknown"
+>;
+
+export function classifyRecoveryError(error: unknown): RecoveryErrorStatus {
   if (isAuthSessionMissingError(error)) return "expired";
 
-  const { code } = readErrorDetails(error);
+  const { code } = describeAuthError(error);
   if (code === PASSWORD_TOO_WEAK_CODE) return "too_short";
   if (code === SAME_PASSWORD_CODE) return "same_password";
   if (code && EXPIRED_ERROR_CODES.has(code)) return "expired";
@@ -89,19 +77,8 @@ export function classifyRecoveryError(error: unknown): Exclude<
   return "unknown";
 }
 
-function isMissingSessionError(error: unknown): boolean {
-  return isAuthSessionMissingError(error) ||
-    (isAuthApiError(error) && error.code === "session_not_found");
-}
-
-function stateFromError(error: unknown): Exclude<
-  PasswordResetConfirmState,
-  undefined | { status: "updated" }
-> {
-  return { status: classifyRecoveryError(error) } as Exclude<
-    PasswordResetConfirmState,
-    undefined | { status: "updated" }
-  >;
+function stateFromError(error: unknown): PasswordResetConfirmState {
+  return { status: classifyRecoveryError(error) };
 }
 
 export async function completePasswordReset(
@@ -130,12 +107,16 @@ export async function completePasswordReset(
     }
 
     sessionTokens = updateResult.session ?? sessionTokens;
-    await dependencies.session.start(sessionTokens);
-    return { status: "updated" };
   } catch (error) {
-    if (error instanceof AuthError && isMissingSessionError(error)) {
-      return { status: "expired" };
-    }
     return stateFromError(error);
   }
+
+  // The password is already changed here, so a failure to start the cookie
+  // session must not be reported as an ordinary save failure or as success.
+  try {
+    await dependencies.session.start(sessionTokens);
+  } catch {
+    return { status: "login_required" };
+  }
+  return { status: "updated" };
 }

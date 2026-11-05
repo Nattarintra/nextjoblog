@@ -1,10 +1,7 @@
-import {
-  isPasswordLongEnough,
-  MIN_PASSWORD_LENGTH,
-} from "@/lib/auth/password-policy";
+import { isPasswordLongEnough } from "@/lib/auth/password-policy";
 
 export type PasswordRequirementId = "length" | "match";
-export type PasswordRequirementMessageKey = "length" | "match";
+export type PasswordRequirementMessageKey = PasswordRequirementId;
 
 export type PasswordRequirement = {
   id: PasswordRequirementId;
@@ -39,11 +36,14 @@ export function validateNewPassword(input: {
 export function getPasswordRequirementState(input: {
   password: string;
   confirmation: string;
-}): { id: PasswordRequirementId; met: boolean }[] {
+}): {
+  id: PasswordRequirementId;
+  messageKey: PasswordRequirementMessageKey;
+  met: boolean;
+}[] {
   return NEW_PASSWORD_RULES.map((rule) => ({
     id: rule.id,
+    messageKey: rule.messageKey,
     met: rule.test(input),
   }));
 }
-
-export const PASSWORD_LENGTH_REQUIREMENT = MIN_PASSWORD_LENGTH;

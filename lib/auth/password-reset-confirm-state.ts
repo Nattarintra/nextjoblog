@@ -7,4 +7,10 @@ export type PasswordResetConfirmState =
   | { status: "same_password" }
   | { status: "network" }
   | { status: "expired" }
+  | { status: "login_required" }
   | { status: "unknown" };
+
+export type PasswordResetErrorStatus = Exclude<
+  NonNullable<PasswordResetConfirmState>["status"],
+  "updated"
+>;

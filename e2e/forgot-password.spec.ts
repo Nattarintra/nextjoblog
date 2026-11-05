@@ -113,29 +113,3 @@ test("keeps mailbox cleanup safe when a test fails", async ({ page }) => {
     await clearMailbox(email);
   }
 });
-
-test.fixme("recovery URL reaches the reset page after Story 0.7 ships", async ({ browser }) => {
-  test.info().annotations.push({
-    type: "handoff",
-    description: "Story 0.7 owns /api/auth/confirm and /reset-password.",
-  });
-  const email = resetEmail("recovery-navigation");
-  await seedConfirmedUser(email);
-  await clearMailbox(email);
-  const context = await browser.newContext({
-    extraHTTPHeaders: { "x-e2e-client-ip": "198.51.100.16" },
-  });
-
-  try {
-    const page = await context.newPage();
-    await page.goto("/forgot-password");
-    await page.getByLabel("Email").fill(email);
-    await page.getByRole("button", { name: "Send Reset Link" }).click();
-    const { recoveryUrl } = await waitForRecoveryEmail(email);
-    await page.goto(recoveryUrl);
-    await expect(page).toHaveURL(/\/reset-password/);
-  } finally {
-    await clearMailbox(email);
-    await context.close();
-  }
-});

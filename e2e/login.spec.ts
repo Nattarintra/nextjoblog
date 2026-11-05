@@ -1,8 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
 import { TEST_PASSWORD as password } from "./helpers/auth-users";
-import { supabaseAdmin } from "./helpers/supabase-admin";
+import { supabaseAdmin, supabaseAnon } from "./helpers/supabase-admin";
 
 const seedEmail = "login-seed@example.com";
 
@@ -105,11 +104,6 @@ test("scopes application rows to the signed-in user under RLS", async () => {
     posting_url: "https://example.com/jobs/2",
   });
   expect(insertTwoError).toBeNull();
-
-  const supabaseAnon = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
 
   const { error: signInError } = await supabaseAnon.auth.signInWithPassword({
     email: userOne.user!.email!,

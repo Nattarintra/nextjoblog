@@ -7,6 +7,7 @@ import {
   authLinkClassName,
   submitButtonClassName,
 } from "@/components/auth/styles";
+import { FORGOT_PASSWORD_PATH } from "@/lib/auth/paths";
 
 export function LoginFields({
   formAction,
@@ -54,7 +55,7 @@ export function LoginFields({
       </div>
       {forgotPasswordEnabled && (
         <div className="mb-5 text-right">
-          <Link className={authLinkClassName} href="/forgot-password">
+          <Link className={authLinkClassName} href={FORGOT_PASSWORD_PATH}>
             Forgot password?
           </Link>
         </div>

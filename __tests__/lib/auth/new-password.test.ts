@@ -21,8 +21,8 @@ describe("new password validation", () => {
       { id: "match", messageKey: "match" },
     ]);
     expect(getPasswordRequirementState({ password: "short", confirmation: "different" })).toEqual([
-      { id: "length", met: false },
-      { id: "match", met: false },
+      { id: "length", messageKey: "length", met: false },
+      { id: "match", messageKey: "match", met: false },
     ]);
   });
 });

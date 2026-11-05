@@ -2,9 +2,10 @@ import Link from "next/link"
 import type { ComponentProps } from "react"
 import { useEffect, useRef } from "react"
 
-import { AuthLogo } from "@/components/auth/AuthLogo"
 import { ClockStatusIcon } from "@/components/auth/AuthStatusIcons"
 import { authFooterClassName, authHeadingClassName, authSubtextClassName, secondaryButtonClassName, statusRingClassName, submitButtonClassName, visuallyHiddenClassName, waitCardClassName, waitLabelClassName, waitNoteClassName, waitTimeClassName, warningStatusRingClassName } from "@/components/auth/styles"
+import { AUTH_ACTION_LABELS } from "@/lib/auth/messages"
+import { LOGIN_PATH } from "@/lib/auth/paths"
 import { useCountdown } from "@/lib/hooks/use-countdown"
 
 export default function TooManyRequestsScreen({ email, retryAfterSeconds, action, isPending }: { email: string; retryAfterSeconds: number; action: ComponentProps<"form">["action"]; isPending: boolean }) {
@@ -41,11 +42,11 @@ export default function TooManyRequestsScreen({ email, retryAfterSeconds, action
       <form action={action}>
         <input type="hidden" name="email" value={email} />
         <button className={`${secondaryButtonClassName} mb-2.5`} type="submit" disabled={isPending || !isFinished}>
-          Request a New Link
+          {AUTH_ACTION_LABELS.requestNewLink}
         </button>
       </form>
-      <Link className={submitButtonClassName} href="/login">
-        Back to Log In
+      <Link className={submitButtonClassName} href={LOGIN_PATH}>
+        {AUTH_ACTION_LABELS.backToLogin}
       </Link>
 
       <div className={authFooterClassName}>Same message for every email address</div>
