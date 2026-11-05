@@ -2,7 +2,6 @@
 
 import { headers } from "next/headers";
 import { after } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
 import { getClientIp } from "@/lib/auth/client-ip";
 import { isValidEmail, normalizeEmail } from "@/lib/auth/email";
@@ -11,7 +10,7 @@ import { SupabaseRateLimiter } from "@/lib/auth/supabase-rate-limiter";
 import { requestPasswordReset } from "@/lib/auth/request-password-reset";
 import { isValidSiteUrl } from "@/lib/auth/site-url";
 import { isE2eHooksEnabled } from "@/lib/auth/test-hooks";
-import { getSupabaseConfig } from "@/lib/supabase/config";
+import { createStatelessSupabaseClient } from "@/lib/supabase/stateless";
 
 export type { ForgotPasswordFormState } from "@/lib/auth/password-reset-state";
 
@@ -29,7 +28,6 @@ export async function requestPasswordResetAction(
 
   try {
     const requestHeaders = await headers();
-    const config = getSupabaseConfig();
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
     const hashSecret = process.env.RATE_LIMIT_HASH_SECRET ?? "";
     const enabled = true;
@@ -45,13 +43,7 @@ export async function requestPasswordResetAction(
       return { status: "sent", email };
     }
 
-    const supabase = createClient(config.url, config.anonKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-      },
-    });
+    const supabase = createStatelessSupabaseClient();
     const limiter = new SupabaseRateLimiter(supabase);
 
     const result = await requestPasswordReset(

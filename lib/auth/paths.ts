@@ -1,4 +1,6 @@
 export const LOGIN_PATH = "/login";
+export const FORGOT_PASSWORD_PATH = "/forgot-password";
+export const RESET_PASSWORD_PATH = "/reset-password";
 export const DEFAULT_POST_LOGIN_PATH = "/dashboard";
 export const NEXT_PARAM_NAME = "next";
 export const MAX_NEXT_LENGTH = 2048;
@@ -6,8 +8,8 @@ export const MAX_NEXT_LENGTH = 2048;
 export const AUTH_PATH_PREFIXES = [
   "/login",
   "/signup",
-  "/forgot-password",
-  "/reset-password",
+  FORGOT_PASSWORD_PATH,
+  RESET_PASSWORD_PATH,
   "/api/auth",
 ] as const;
 

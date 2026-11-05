@@ -8,6 +8,7 @@ import { isValidEmail } from "@/lib/auth/email";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { logAuthEvent } from "@/lib/auth/log";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
+import { isPasswordLongEnough } from "@/lib/auth/password-policy";
 
 const AUTH_LOG_EVENT = {
   signupConfiguration: "auth.signup.configuration_error",
@@ -66,7 +67,7 @@ export async function signup(
   const email = typeof emailValue === "string" ? emailValue.trim() : "";
   const password = typeof passwordValue === "string" ? passwordValue : "";
 
-  if (password.length < 6) {
+  if (!isPasswordLongEnough(password)) {
     return { error: "weak_password" };
   }
 

@@ -13,6 +13,8 @@ import {
   authSubtextClassName,
   submitButtonClassName,
 } from "@/components/auth/styles";
+import { AUTH_ACTION_LABELS } from "@/lib/auth/messages";
+import { LOGIN_PATH } from "@/lib/auth/paths";
 
 export default function ForgotPasswordForm({
   action,
@@ -75,7 +77,7 @@ export default function ForgotPasswordForm({
       </form>
 
       <div className={authFooterClassName}>
-        <Link className={authLinkClassName} href="/login">← Back to Log In</Link>
+        <Link className={authLinkClassName} href={LOGIN_PATH}>← {AUTH_ACTION_LABELS.backToLogin}</Link>
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { describeAuthError, type AuthLogDetails } from "@/lib/auth/error-details";
+import { RESET_PASSWORD_PATH } from "@/lib/auth/paths";
 import {
   MIN_RESPONSE_MS,
   PASSWORD_RESET_EMAIL_COOLDOWN_POLICY,
@@ -75,7 +76,7 @@ function isDenied(
 }
 
 function createRecoveryRedirect(siteUrl: string): string {
-  return new URL("/reset-password", siteUrl).toString();
+  return new URL(RESET_PASSWORD_PATH, siteUrl).toString();
 }
 
 async function runProviderCall(
