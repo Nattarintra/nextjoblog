@@ -477,7 +477,7 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 
 #### Automated
 
-- [ ] 6.1 Linting passes with docs-only changes
+- [x] 6.1 Linting passes with docs-only changes
 
 #### Manual
 

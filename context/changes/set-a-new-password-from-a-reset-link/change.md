@@ -3,11 +3,13 @@ change_id: set-a-new-password-from-a-reset-link
 title: Set a new password from a reset link
 status: implementing
 created: 2026-10-22
-updated: 2026-10-29
+updated: 2026-11-05
 archived_at: null
 ---
 
 ## Notes
+
+See `research.md`, `plan.md` and `plan-brief.md` in this folder.
 
 Story 0.7 — Set a New Password from a Reset Link
 
