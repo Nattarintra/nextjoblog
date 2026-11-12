@@ -1,10 +1,10 @@
 ---
 change_id: set-a-new-password-from-a-reset-link
 title: Set a new password from a reset link
-status: impl_reviewed
+status: archived
 created: 2026-10-22
-updated: 2026-11-05
-archived_at: null
+updated: 2026-11-12
+archived_at: 2026-11-12T20:09:21Z
 ---
 
 ## Notes
