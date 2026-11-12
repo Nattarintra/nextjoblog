@@ -7,9 +7,9 @@ repository: nextjoblog
 topic: "Set a new password from a reset link (Story 0.7): /reset-password, link expired/used, password updated login banner"
 tags: [research, auth, password-reset, supabase, nextjs-16, tailwind, a11y, testing]
 status: complete
-last_updated: 2026-10-22
+last_updated: 2026-11-09
 last_updated_by: Natta
-last_updated_note: "All nine open questions resolved: minimum length 6, auto-login, Server Action, inline save-failure errors, scanner limitation, CI checks, change.md pointer, notification email out of scope"
+last_updated_note: "Follow-up production investigation: reset request can report sent without calling Supabase when Vercel configuration, app rate limits, or hosted rate-limit RPC are unavailable"
 ---
 
 # Research: Set a new password from a reset link (Story 0.7)
@@ -32,7 +32,7 @@ Story 0.6 left `/reset-password` public (`lib/auth/paths.ts`) but there is no pa
 2. **Auto-login (decided): a real cookie session, created only after the password is saved.**
    - The mockup (`scr-reset-done`, lines 1886-1996; notes at 3031-3032) says: on success the user stays logged in, no `signOut()`, `router.replace('/dashboard')`, a "Password updated" toast, and a fresh 30-day session cycle (Story 0.3). `replace` keeps Back from returning to the used link. No `next` is carried over.
    - The fragment tokens live only in the browser. Until the save succeeds there is no cookie, so `proxy.ts` and `requireSession()` see no session and protected pages stay unreachable. That meets the archived boundary ("no protected access before the password update") with no recovery marker or classifier.
-   - **Trap to design around**: if the cookie session is created *before* `updateUser`, a rejected save (too short, same password, network) would leave the user logged in through the link with the old password. So validate and update with a **stateless** client (`persistSession: false`), and create the cookie session only after that succeeds.
+   - **Trap to design around**: if the cookie session is created _before_ `updateUser`, a rejected save (too short, same password, network) would leave the user logged in through the link with the old password. So validate and update with a **stateless** client (`persistSession: false`), and create the cookie session only after that succeeds.
    - **Verify in CI**: `getBaseSessionExpiresAt` reads `claims.amr[0].timestamp` (`lib/session/claims.ts`). A recovery session's first `amr` entry is expected to be `{ method: "otp", timestamp }` set at link click (inside the 1-hour link window). If it is absent the session is classed `invalid` and the user bounces to login. Confirm this and that the 30-day clock starts from it.
    - `@supabase/ssr`'s browser client forces PKCE and rejects implicit URLs (`GoTrueClient.ts:3865`), so our own code parses the fragment.
 3. **The minimum password length is 6, but the rule is duplicated.**
@@ -249,15 +249,15 @@ The browser sends the fragment tokens and the new password to a Server Action (`
 
 A failed save never starts a session and never loses what the user typed. Each failure maps to one closed error code and one message, shown inline above the button with `role="alert"`. The user can correct the input and retry without reopening the email.
 
-| Code | When | Message (draft) | Next step |
-| --- | --- | --- | --- |
-| `too_short` | client check, or Supabase `weak_password` (422) | "Use at least 6 characters. Your password hasn't been changed." | Fix the field and retry |
-| `mismatch` | client check, confirmation differs | "The two passwords don't match." | Fix the field and retry |
-| `same_password` | Supabase `same_password` (422): new equals current | "Choose a password different from your current one. Your password hasn't been changed." | Change the field and retry |
-| `offline` | `navigator.onLine` is false before submit | Existing `OFFLINE_ERROR_MESSAGE` | Reconnect and retry |
-| `network` | the request or the Supabase call fails (fetch error, status 0, 5xx) | "We couldn't save your password. Check your connection and try again." | Retry, tokens still in memory |
-| `expired` | Supabase rejects the tokens (`otp_expired`, `session_expired`, invalid JWT) | none; switch to the "This Reset Link No Longer Works" screen | Request a new link |
-| `unknown` | anything else | "Something went wrong. Please try again." | Retry |
+| Code            | When                                                                        | Message (draft)                                                                         | Next step                     |
+| --------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------- |
+| `too_short`     | client check, or Supabase `weak_password` (422)                             | "Use at least 6 characters. Your password hasn't been changed."                         | Fix the field and retry       |
+| `mismatch`      | client check, confirmation differs                                          | "The two passwords don't match."                                                        | Fix the field and retry       |
+| `same_password` | Supabase `same_password` (422): new equals current                          | "Choose a password different from your current one. Your password hasn't been changed." | Change the field and retry    |
+| `offline`       | `navigator.onLine` is false before submit                                   | Existing `OFFLINE_ERROR_MESSAGE`                                                        | Reconnect and retry           |
+| `network`       | the request or the Supabase call fails (fetch error, status 0, 5xx)         | "We couldn't save your password. Check your connection and try again."                  | Retry, tokens still in memory |
+| `expired`       | Supabase rejects the tokens (`otp_expired`, `session_expired`, invalid JWT) | none; switch to the "This Reset Link No Longer Works" screen                            | Request a new link            |
+| `unknown`       | anything else                                                               | "Something went wrong. Please try again."                                               | Retry                         |
 
 **Implementation flow**:
 
@@ -387,10 +387,10 @@ All nine items are resolved by the Decisions above. Items still to do in impleme
 
 Two items are out of scope here but must not be lost. The plan creates one change folder for each under `context/changes/` (each with its own `change.md`, via `/10x-new`), and links them from this change's Out of Scope notes.
 
-| Suggested change id | Story summary | Notes carried over from this research |
-| --- | --- | --- |
+| Suggested change id                         | Story summary                                                                                                                          | Notes carried over from this research                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sign-out-all-devices-after-password-reset` | When a password reset succeeds, every other session of the account is signed out, while the device that did the reset stays logged in. | Supabase does not end other sessions on a password change. Candidate approach: after `updateUser`, revoke sessions with `signOut({ scope: "others" })` on the cookie-backed client, or a global revoke followed by a fresh sign-in. Check the JWT risk: with asymmetric signing keys `getClaims` verifies locally, so another device's access token can work until `jwt_expiry` (3600 s). Needs a CI test with a second browser context. Depends on this change. |
-| `send-password-changed-notification-email` | After a successful reset (and later any password change), the account email gets a "your password was changed" notice. | Needs hosted SMTP and a template, and a local `[auth.email.notification.password_changed]` template. Test with the existing mail helper `e2e/helpers/auth-email.ts`. The built-in mailer is capped at a few emails per hour (`docs/production-auth.md`). Depends on this change. |
+| `send-password-changed-notification-email`  | After a successful reset (and later any password change), the account email gets a "your password was changed" notice.                 | Needs hosted SMTP and a template, and a local `[auth.email.notification.password_changed]` template. Test with the existing mail helper `e2e/helpers/auth-email.ts`. The built-in mailer is capped at a few emails per hour (`docs/production-auth.md`). Depends on this change.                                                                                                                                                                                 |
 
 #### Story: Sign out of all devices after a password reset
 
@@ -431,3 +431,43 @@ Two items are out of scope here but must not be lost. The plan creates one chang
 **Open questions**: whether the notice also applies to a password change made while logged in (a later story).
 
 Naming follows the existing kebab-case ids (`log-out-of-the-app`, `set-a-new-password-from-a-reset-link`).
+
+## Follow-up Research 2026-11-09 — Production reset email not received
+
+### Finding
+
+The visible "Check Your Email" state is deliberately neutral and does not prove that Supabase accepted or delivered an email. The most likely production cause from the supplied settings is a missing `RATE_LIMIT_HASH_SECRET` in Vercel Production. The action reads it at `app/actions/password-reset.ts:31-32`; `lib/auth/request-password-reset.ts:112-118` fails closed when it is absent or shorter than 32 characters, returns a neutral `sent` result, and never schedules the Supabase provider call. The test at `__tests__/lib/auth/request-password-reset.test.ts:133-145` locks in this behavior.
+
+The same neutral result occurs when `NEXT_PUBLIC_SITE_URL` is missing/invalid (`app/actions/password-reset.ts:31,39-44`), when the app's limiter denies the request silently (`lib/auth/request-password-reset.ts:148-181`), when the hosted limiter RPC is unavailable (`lib/auth/request-password-reset.ts:188-200`), or when Supabase's provider call returns an error (`lib/auth/request-password-reset.ts:82-103`).
+
+### Production settings comparison
+
+- `https://nextjoblog.vercel.app/reset-password` matches the redirect generated by `lib/auth/request-password-reset.ts:78-88`.
+- `/api/auth/confirm` is a legacy allow-list entry and is not used by the current implicit-fragment flow; it is not the reason the email is absent.
+- Supabase's `30 emails/hr` setting is not the only limiter. The application also enforces 60 seconds per email, 5 emails per email per hour, and 5 requests per IP per hour (`lib/auth/password-reset-config.ts:29-47`). Email/IP denials are intentionally silent.
+- The hosted database must contain the `consume_rate_limit` RPC from `supabase/migrations/20261020100000_create_rate_limit_buckets.sql`; this was not proven by the CI run, which uses local Supabase/Mailpit.
+- The change plan still marks hosted smoke test and production enablement pending (`plan.md:490-499`), so production delivery remains unverified.
+
+### Verification order
+
+1. In Vercel Production, verify `RATE_LIMIT_HASH_SECRET` exists and is at least 32 characters, alongside the Supabase URL/key, `NEXT_PUBLIC_SITE_URL=https://nextjoblog.vercel.app`, and `PASSWORD_RESET_ENABLED=1`.
+2. Redeploy after any environment-variable change; an existing deployment keeps its previous build-time environment (`docs/production-auth.md:97-110`).
+3. Confirm the hosted `consume_rate_limit` migration/RPC and grants are present.
+4. Inspect Vercel Function Logs while making one test request for `auth.password_reset.configuration_error`, `auth.password_reset.rate_limiter_error`, `auth.password_reset.silently_rate_limited`, and `auth.password_reset.provider_error`.
+5. Inspect Supabase Auth logs/email delivery for provider quota or SMTP failures. Test with a confirmed account after waiting at least 60 seconds and staying below the app's 5-per-hour email limit.
+
+No production settings were changed and no application code was modified during this follow-up.
+
+### Production deployment result
+
+On 2026-11-09, the hosted project `lzryuzxibhxgefgeacmm` was linked and its migration history inspected. The remote database already contained `session_extensions` with the expected schema, but migration `20260917100000` was missing from the remote migration history. The first `db push` therefore stopped with `relation "session_extensions" already exists` before reaching the password-reset migration.
+
+After verifying the remote schema matched the local migration, migration `20260917100000` was repaired as `applied` (history only; no table was dropped or recreated). `supabase db push` then successfully applied `20261020100000_create_rate_limit_buckets.sql`. Final migration list shows both `20260917100000` and `20261020100000` present remotely.
+
+The user should now retry one password-reset request after the existing 60-second email cooldown. If delivery still fails, the next evidence to inspect is the new Vercel/Supabase provider log entry rather than the rate-limiter error.
+
+### Follow-up result: provider error after rate limiter deployment
+
+After the rate-limiter migration was deployed, the production log changed to `auth.password_reset.provider_error { status: 500 }`. The hosted RPC privilege check also returned `true` for `anon`, so the limiter is no longer blocking the request. This confirms the app reaches Supabase `resetPasswordForEmail`, but Supabase fails while handing the message to its email provider.
+
+The next production checks are Supabase Authentication → Logs → Auth for the detailed email/provider error, and Authentication → Emails → SMTP Settings. The repository's hosted runbook documents that the built-in mailer is capped and not suitable for reliable production delivery (`docs/production-auth.md:75-89`), while local SMTP configuration remains commented out (`supabase/config.toml:236-243`). Configure a supported Custom SMTP provider or wait for/resolve the hosted mailer quota/provider failure, then retry with a confirmed account.

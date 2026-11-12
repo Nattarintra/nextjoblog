@@ -404,7 +404,7 @@ No database migration. `supabase-test/supabase/config.toml` must keep `minimum_p
 - E2E CI run: same run 41841575910 — `e2e-tests` success; 41 passed, 0 flaky, 1 skipped (the pre-existing `test.fixme` in `forgot-password.spec.ts`)
 - Playwright report artifact: `playwright-report` on run 41841575910 (14-day retention)
 - Session-clock / `amr[0]` assertion: `session after reset carries a valid base time in amr[0]` ran and passed (not skipped, no retries). The recovery access token in the report carries `amr:[{method:"otp",timestamp:…}]`, so `amr[0]` is present on a recovery session and no shared session code change is needed.
-- Local, CI, and hosted differences: the recovery link redirects to `NEXT_PUBLIC_SITE_URL` (`127.0.0.1:3000` in CI), a different origin from Playwright's `localhost`, which needed `allowedDevOrigins: ["127.0.0.1"]`; React Strict Mode (dev) double-ran the fragment-reading effect, so the parsed fragment is kept in a ref. Hosted behaviour: pending (Phase 6 smoke test).
+- Local, CI, and hosted differences: the recovery link redirects to `NEXT_PUBLIC_SITE_URL` (`127.0.0.1:3000` in CI), a different origin from Playwright's `localhost`, which needed `allowedDevOrigins: ["127.0.0.1"]`; React Strict Mode (dev) double-ran the fragment-reading effect, so the parsed fragment is kept in a ref. Hosted behaviour: Phase 6 smoke test on the Vercel preview of PR #23 (2026-11-12, hosted Supabase, custom SMTP) — user reported the reset email arrived, a new password was saved and the success toast appeared. Preview needed `RATE_LIMIT_HASH_SECRET` and `NEXT_PUBLIC_SITE_URL` set in the Preview scope; without the secret the action silently sends no email.
 
 ## Implementation Addenda (2026-11-05, from impl review)
 
@@ -495,5 +495,5 @@ Deviations from the text above that shipped and are now the source of truth:
 
 #### Manual
 
-- [ ] 6.2 Hosted smoke test passes
-- [ ] 6.3 PASSWORD_RESET_ENABLED enabled in Production
+- [x] 6.2 Hosted smoke test passes
+- [x] 6.3 PASSWORD_RESET_ENABLED enabled in Production
