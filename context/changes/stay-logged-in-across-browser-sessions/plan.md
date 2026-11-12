@@ -308,7 +308,7 @@ After this change is merged and deployed:
 #### Automated
 
 - [x] 2.1 `npm run lint` passes — 4a2d286
-- [ ] 2.2 Cookie-tampering e2e test passes
+- [x] 2.2 Cookie-tampering e2e test passes
 
 #### Manual
 
