@@ -1,10 +1,10 @@
 ---
 change_id: redirect-unauthenticated-users
 title: Redirect unauthenticated users from protected pages
-status: implementing
+status: archived
 created: 2026-10-01
-updated: 2026-10-08
-archived_at: null
+updated: 2026-11-12
+archived_at: 2026-11-12T20:42:53Z
 ---
 
 ## Notes
