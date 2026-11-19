@@ -1,7 +1,8 @@
 import type { ComponentProps } from "react";
 
 import { PasswordField } from "./PasswordField";
-import { authFieldLabelClassName, authInputClassName, submitButtonClassName } from "@/components/auth/styles";
+import { Button } from "@/components/ui/Button";
+import { controlClassName, LABEL_CLASS } from "@/components/ui/control-styles";
 
 export function SignupFields({
   formAction,
@@ -17,16 +18,14 @@ export function SignupFields({
   return (
     <form action={formAction} onSubmit={onSubmit}>
       <div className="mb-3.5">
-        <label htmlFor="email" className={authFieldLabelClassName}>
+        <label htmlFor="email" className={LABEL_CLASS}>
           Email
         </label>
-        <input className={authInputClassName} id="email" name="email" type="email" placeholder="you@example.com" required />
+        <input className={controlClassName(false)} id="email" name="email" type="email" placeholder="you@example.com" required />
       </div>
       <PasswordField message={passwordMessage} />
       <div className="mt-1.5 mb-5" />
-      <button className={submitButtonClassName} type="submit" disabled={isPending}>
-        {isPending ? "Creating account…" : "Sign Up"}
-      </button>
+      <Button variant="primary" fullWidth type="submit" pending={isPending} pendingLabel="Creating account…">Sign Up</Button>
     </form>
   );
 }

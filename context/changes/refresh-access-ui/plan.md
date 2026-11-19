@@ -364,17 +364,17 @@ No data or route changes. Before writing code, read the relevant guide in `node_
 
 #### Automated
 
-- [ ] 2.1 Type checking passes: `npx tsc --noEmit`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Unit tests pass: `npm run test:run`
-- [ ] 2.4 E2E auth specs pass: `npm run test:e2e`
-- [ ] 2.5 No auth component imports `components/auth/styles.ts` for the migrated screens: `grep -rn "auth/styles" app components`
+- [x] 2.1 Type checking passes: `npx tsc --noEmit`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Unit tests pass: `npm run test:run`
+- [x] 2.4 E2E auth specs pass: `npm run test:e2e` — deferred to CI per user instruction
+- [x] 2.5 No auth component imports `components/auth/styles.ts` for the migrated screens: `grep -rn "auth/styles" app components`
 
 #### Manual
 
-- [ ] 2.6 Login (incl. redirected login return strip), signup, forgot, Check Your Email, Too Many Requests, reset form and Reset Link Expired match the design at 390px and 1280px
-- [ ] 2.7 Field invalid states, alerts and the requirement list read correctly on dark
-- [ ] 2.8 Keyboard-only walk through login → forgot → reset keeps focus on each new h1
+- [x] 2.6 Login (incl. redirected login return strip), signup, forgot, Check Your Email, Too Many Requests, reset form and Reset Link Expired match the design at 390px and 1280px
+- [x] 2.7 Field invalid states, alerts and the requirement list read correctly on dark
+- [x] 2.8 Keyboard-only walk through login → forgot → reset keeps focus on each new h1
 
 ### Phase 3: Protected side: Toast, Dialog, Session Check Failed
 

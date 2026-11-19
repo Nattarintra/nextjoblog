@@ -2,13 +2,7 @@
 
 import { forwardRef, useId, useState } from "react";
 
-import {
-  authErrorClassName,
-  authFieldLabelClassName,
-  authInputClassName,
-  authInputWarningClassName,
-  visuallyHiddenClassName,
-} from "@/components/auth/styles";
+import { controlClassName, LABEL_CLASS } from "@/components/ui/control-styles";
 import { PASSWORD_INPUT_MESSAGES } from "@/lib/auth/messages";
 
 type PasswordInputProps = {
@@ -42,7 +36,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
   onBlur,
   showToggle = true,
 }, ref) {
-  const inputClassName = `${authInputClassName}${warning ? ` ${authInputWarningClassName}` : ""}${showToggle ? " pr-16" : ""}`;
+  const inputClassName = `${controlClassName(Boolean(error || warning))}${showToggle ? " pr-16" : ""}`;
   const [isVisible, setIsVisible] = useState(false);
   const generatedErrorId = useId();
   const errorId = `${id}-error-${generatedErrorId.replace(/:/g, "")}`;
@@ -50,7 +44,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
 
   return (
     <div>
-      <label htmlFor={id} className={authFieldLabelClassName}>
+      <label htmlFor={id} className={LABEL_CLASS}>
         {label}
       </label>
       <div className="relative">
@@ -83,11 +77,11 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
         )}
       </div>
       {error && (
-        <div id={errorId} className={authErrorClassName} role="alert">
+        <div id={errorId} className="mt-1.5 text-[13.5px] font-medium text-(--surface-error-text)" role="alert">
           {error}
         </div>
       )}
-      <span className={visuallyHiddenClassName} aria-live="polite">
+      <span className="sr-only" aria-live="polite">
         {isVisible ? PASSWORD_INPUT_MESSAGES.visibleAnnouncement(label) : ""}
       </span>
     </div>

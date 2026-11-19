@@ -1,7 +1,7 @@
 import { PASSWORD_HELPER_TEXT } from "./password-validation";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 
-const helperClassName = "mt-1.25 text-[11px]";
+const helperClassName = "mt-1.5 text-[13.5px] text-(--surface-help)";
 
 export function PasswordField({ message }: { message: string | null }) {
   return (

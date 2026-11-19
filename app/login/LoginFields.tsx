@@ -1,12 +1,9 @@
-import Link from "next/link";
 import type { ComponentProps } from "react";
 
-import {
-  authFieldLabelClassName,
-  authInputClassName,
-  authLinkClassName,
-  submitButtonClassName,
-} from "@/components/auth/styles";
+import { Button } from "@/components/ui/Button";
+import { controlClassName, LABEL_CLASS } from "@/components/ui/control-styles";
+import { AuthLink } from "@/components/auth/AuthFooter";
+import { LOGIN_MESSAGES } from "@/lib/auth/messages";
 import { FORGOT_PASSWORD_PATH } from "@/lib/auth/paths";
 
 export function LoginFields({
@@ -26,11 +23,11 @@ export function LoginFields({
     <form action={formAction}>
       <input type="hidden" name="next" value={nextPath} />
       <div className="mb-3.5">
-        <label htmlFor="email" className={authFieldLabelClassName}>
+        <label htmlFor="email" className={LABEL_CLASS}>
           Email
         </label>
         <input
-          className={authInputClassName}
+          className={controlClassName(hasError)}
           id="email"
           name="email"
           type="email"
@@ -40,11 +37,11 @@ export function LoginFields({
         />
       </div>
       <div className="mb-3.5">
-        <label htmlFor="password" className={authFieldLabelClassName}>
+        <label htmlFor="password" className={LABEL_CLASS}>
           Password
         </label>
         <input
-          className={authInputClassName}
+          className={controlClassName(hasError)}
           id="password"
           name="password"
           type="password"
@@ -55,14 +52,10 @@ export function LoginFields({
       </div>
       {forgotPasswordEnabled && (
         <div className="mb-5 text-right">
-          <Link className={authLinkClassName} href={FORGOT_PASSWORD_PATH}>
-            Forgot password?
-          </Link>
+          <AuthLink href={FORGOT_PASSWORD_PATH}>{LOGIN_MESSAGES.forgotPassword}</AuthLink>
         </div>
       )}
-      <button className={submitButtonClassName} type="submit" disabled={isPending}>
-        {isPending ? "Logging in…" : "Log In"}
-      </button>
+      <Button variant="primary" fullWidth type="submit" pending={isPending} pendingLabel="Logging in…">{LOGIN_MESSAGES.submit}</Button>
     </form>
   );
 }

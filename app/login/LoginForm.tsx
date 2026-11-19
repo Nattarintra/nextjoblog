@@ -1,24 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 
 import { login } from "@/app/actions/auth";
-import { AuthLogo } from "@/components/auth/AuthLogo";
-import {
-  authFooterClassName,
-  authHeadingClassName,
-  authLinkClassName,
-  authSubtextClassName,
-} from "@/components/auth/styles";
+import { AuthHeader } from "@/components/auth/AuthHeader";
+import { AuthFooter, AuthLink } from "@/components/auth/AuthFooter";
 
-import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
+import { LOGIN_MESSAGES, LOGOUT_MESSAGES } from "@/lib/auth/messages";
+import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths";
 import { LoginConfirmationRequiredAlert, LoginErrorAlert, LoginLoggedOutAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
 import { ReturnStrip } from "./ReturnStrip";
 
 export default function LoginForm({
-  nextPath = "/dashboard",
+  nextPath = DEFAULT_POST_LOGIN_PATH,
   destinationLabel,
   loggedOut = false,
   forgotPasswordEnabled = true,
@@ -34,25 +29,17 @@ export default function LoginForm({
 
   return (
     <>
-      <AuthLogo />
-      <h1 className={authHeadingClassName}>{returnLabel ? "Log In to Continue" : "Log In"}</h1>
-      <div className={authSubtextClassName}>
-        {returnLabel
-          ? "You need to be logged in to open this page."
-          : "Log your job applications and track every step in one place."}
-      </div>
+      <AuthHeader title={returnLabel ? LOGIN_MESSAGES.redirectHeading : LOGIN_MESSAGES.heading} subtitle={returnLabel ? LOGIN_MESSAGES.redirectSubtitle : LOGIN_MESSAGES.subtitle} />
 
       {loggedOut && <LoginLoggedOutAlert message={LOGOUT_MESSAGES.loggedOutBanner} />}
       {returnLabel && <ReturnStrip label={returnLabel} />}
 
-      {state && "error" in state && state.error === "invalid_credentials" && (
-        <LoginErrorAlert message="Email or password is incorrect" />
-      )}
+      {state && "error" in state && state.error === "invalid_credentials" && <LoginErrorAlert message={LOGIN_MESSAGES.invalidCredentials} />}
       {state && "error" in state && state.error === "unknown" && (
         <LoginErrorAlert message={state.message} />
       )}
       {state && "error" in state && state.error === "configuration" && (
-        <LoginErrorAlert message="We're unable to log in right now. Please try again shortly." />
+        <LoginErrorAlert message={LOGIN_MESSAGES.configuration} />
       )}
       {state && "status" in state && state.status === "confirmation_required" && (
         <LoginConfirmationRequiredAlert />
@@ -66,9 +53,7 @@ export default function LoginForm({
         forgotPasswordEnabled={forgotPasswordEnabled}
       />
 
-      <div className={authFooterClassName}>
-        Don&apos;t have an account? <Link className={authLinkClassName} href="/signup">Sign Up</Link>
-      </div>
+      <AuthFooter>{LOGIN_MESSAGES.noAccount} <AuthLink href="/signup">{LOGIN_MESSAGES.signUp}</AuthLink></AuthFooter>
     </>
   );
 }

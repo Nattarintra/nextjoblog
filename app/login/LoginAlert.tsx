@@ -1,4 +1,5 @@
 import { Alert } from "@/components/ui/Alert";
+import { LOGIN_MESSAGES } from "@/lib/auth/messages";
 
 export function LoginLoggedOutAlert({ message }: { message: string }) {
   return (
@@ -19,7 +20,7 @@ export function LoginErrorAlert({ message }: { message: string }) {
 export function LoginConfirmationRequiredAlert() {
   return (
     <Alert tone="warning" role="alert" className="mb-4" data-testid="login-alert">
-      Please verify your email before logging in. Check your inbox for the verification link.
+      {LOGIN_MESSAGES.confirmationRequired}
     </Alert>
   );
 }

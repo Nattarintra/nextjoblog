@@ -1,7 +1,7 @@
 /** Shared look of text-like controls (TextInput, DatePicker trigger, PasswordInput). Colours come from --surface-* variables. */
 export const CONTROL_CLASS = {
   base: "min-h-11 w-full rounded-[10px] border-[1.5px] border-(--surface-control-border) bg-(--surface-control-bg) px-3 py-[11px] font-body text-[15px] text-(--surface-control-text) placeholder:text-(--surface-control-placeholder) focus-visible:border-azure focus-visible:outline-[3px] focus-visible:outline-azure/35",
-  invalid: "border-(--surface-control-invalid-border) bg-(--surface-control-invalid-bg)",
+  invalid: "border-auth-danger border-(--surface-control-invalid-border) bg-(--surface-control-invalid-bg)",
 } as const;
 
 /** Shared label class, exported so PasswordInput matches FormField labels. */

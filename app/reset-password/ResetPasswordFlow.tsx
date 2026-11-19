@@ -3,8 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react"
 
 import { resetPasswordAction } from "@/app/actions/reset-password"
-import { AuthLogo } from "@/components/auth/AuthLogo"
-import { authHeadingClassName, authSubtextClassName } from "@/components/auth/styles"
+import { AuthHeader } from "@/components/auth/AuthHeader"
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages"
 import { RESET_PASSWORD_PATH } from "@/lib/auth/paths"
 import { parseRecoveryFragment, readRecoveryEmail, type RecoveryFragment } from "@/lib/auth/recovery-fragment"
@@ -79,7 +78,7 @@ export default function ResetPasswordFlow({
   if (flowStatus === "checking") {
     return (
       <div className="contents" data-reset-password-status="checking">
-        <p role="status" className={authSubtextClassName}>
+      <p role="status" className="text-[15px] leading-normal text-on-dark-2">
           {PASSWORD_RESET_MESSAGES.checking}
         </p>
       </div>
@@ -96,9 +95,7 @@ export default function ResetPasswordFlow({
 
   return (
     <div className="contents" data-reset-password-status="form">
-      <AuthLogo />
-      <h1 className={authHeadingClassName}>{PASSWORD_RESET_MESSAGES.formHeading}</h1>
-      <div className={authSubtextClassName}>{PASSWORD_RESET_MESSAGES.formSubtitle(email ?? "your account")}</div>
+      <AuthHeader title={PASSWORD_RESET_MESSAGES.formHeading} subtitle={PASSWORD_RESET_MESSAGES.formSubtitle(email ?? "your account")} />
       <NewPasswordForm action={formAction} accessToken={tokens.accessToken} refreshToken={tokens.refreshToken} state={state} isPending={isPending} />
     </div>
   )
