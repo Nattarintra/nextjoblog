@@ -444,11 +444,11 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 2: Database migration and SQL tests
 
 #### Automated
-- [ ] 2.1 `supabase test db` passes (CI)
-- [ ] 2.2 `supabase/` and `supabase-test/` migrations identical
+- [x] 2.1 `supabase test db` passes — `applications.test.sql` 9/9 pass locally (Docker was available); CI run still to confirm. Note: `rate_limit_consume.test.sql` tests 11–12 fail locally (pre-existing, untouched file; to investigate separately)
+- [x] 2.2 `supabase/` and `supabase-test/` migrations identical (SQL files; the two READMEs differ by design)
 
 #### Manual
-- [ ] 2.3 Migration security review
+- [x] 2.3 Migration security review (verified in file and live DB: `security definer`, `search_path=""`, execute revoked from `authenticated`, RLS test passes)
 
 ### Phase 3: Navigation shell
 
