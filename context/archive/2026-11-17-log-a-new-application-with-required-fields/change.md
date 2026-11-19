@@ -1,10 +1,10 @@
 ---
 change_id: log-a-new-application-with-required-fields
 title: Log a new application with required fields
-status: impl_reviewed
+status: archived
 created: 2026-11-17
 updated: 2026-11-19
-archived_at: null
+archived_at: 2026-11-19T21:01:41Z
 ---
 
 ## Notes
