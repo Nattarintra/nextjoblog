@@ -51,7 +51,7 @@ See `research.md` (§3 codebase, §4 design). Key facts:
 
 ## Prerequisites
 
-Obtain explicit approval **before Phase 1 starts** to add two dependencies: `react-day-picker` (runtime, pinned exact version, used in Phase 6) and `@axe-core/playwright` (dev, used in Phase 8). Neither is installed until its phase, but approval must not block the last phase.
+Approval to add two dependencies was **granted by the user on 2026-11-19**: `react-day-picker` (runtime, pinned exact version, installed in Phase 6) and `@axe-core/playwright` (dev, pinned exact version, installed in Phase 8). Neither is installed until its phase. Progress 6.1 still verifies React 19 / Tailwind v4 compatibility of `react-day-picker`; the approval covers adding it, not skipping that spike.
 
 ## Implementation Approach
 

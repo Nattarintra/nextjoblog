@@ -53,7 +53,7 @@ Pure, injected logic in `lib/applications` and `lib/navigation`; thin Server Act
 | 7. Pages | Form + list | React 19 form reset, focus |
 | 8. E2E/docs | CI evidence, axe | CI-only verification |
 
-**Prerequisites:** Stories 0.1–0.2 done; approval to add `react-day-picker` and `@axe-core/playwright`, obtained before Phase 1.
+**Prerequisites:** Stories 0.1–0.2 done; approval to add `react-day-picker` and `@axe-core/playwright` (granted 2026-11-19).
 **Estimated effort:** ~6–8 sessions.
 
 ## Open Risks & Assumptions
