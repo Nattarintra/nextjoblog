@@ -502,8 +502,8 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 8: E2E, a11y, docs and evidence
 
 #### Automated
-- [ ] 8.1 CI green, run ID recorded — pending push; `@axe-core/playwright` installed (exact version, approved)
-- [ ] 8.2 axe check passes — written in `e2e/applications.spec.ts`; runs in CI only (local Mac cannot run Playwright Chromium)
+- [x] 8.1 CI green — run 44602848127 (https://github.com/Nattarintra/nextjoblog/actions/runs/44602848127); `@axe-core/playwright` installed (exact version, approved)
+- [x] 8.2 axe check passes — `e2e/applications.spec.ts`, green in CI run 44602848127. It found a real Label-in-Name violation on the account row (fixed); the e2e run also found a dropped-connection save that lost the Retry state (fixed in `client-submit.ts`)
 - [x] 8.3 Local lint, typecheck, tests pass (77 files / 635 tests; 96% statements, 92.5% branches)
 
 #### Manual
