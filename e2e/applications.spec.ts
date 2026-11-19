@@ -85,7 +85,7 @@ test("keeps the input and succeeds on Retry after a failed save", async ({ brows
   await expect(fieldInput(page, "title")).toHaveValue(input.title);
 
   await page.unroute("**/*");
-  await page.getByRole("button", { name: APPLICATION_MESSAGES.retry }).click();
+  await page.getByRole("button", { name: APPLICATION_MESSAGES.retry, exact: true }).click();
 
   await expect(page).toHaveURL(new RegExp(`${APPLICATIONS_PATH}$`));
   await expect(page.getByRole("listitem").filter({ hasText: input.title })).toHaveCount(1);
