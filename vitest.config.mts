@@ -22,6 +22,12 @@ export default defineConfig({
           functions: 90,
           branches: 90,
         },
+        "lib/applications/**": {
+          lines: 90,
+          statements: 90,
+          functions: 90,
+          branches: 90,
+        },
       },
     },
   },

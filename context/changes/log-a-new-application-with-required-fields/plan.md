@@ -466,8 +466,8 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 4: Pure `lib/applications` modules
 
 #### Automated
-- [ ] 4.1 Table-driven unit tests pass
-- [ ] 4.2 `lib/applications/**` coverage ≥ 90%
+- [x] 4.1 Table-driven unit tests pass (94 tests; full suite 67 files / 514 tests)
+- [x] 4.2 `lib/applications/**` coverage ≥ 90% (threshold added to `vitest.config.mts`; global 95%, tsc and lint pass)
 
 ### Phase 5: Service, repository and Server Action
 
