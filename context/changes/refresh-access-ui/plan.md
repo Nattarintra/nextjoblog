@@ -351,7 +351,7 @@ No data or route changes. Before writing code, read the relevant guide in `node_
 - [x] 1.2 Linting passes: `npm run lint`
 - [x] 1.3 Unit tests pass: `npm run test:run`
 - [x] 1.4 Production build succeeds: `npm run build`
-- [ ] 1.8 E2E specs pass: `npm run test:e2e`
+- [x] 1.8 E2E specs pass: `npm run test:e2e`
 
 #### Manual
 
