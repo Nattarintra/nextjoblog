@@ -32,6 +32,7 @@ export const APPLICATION_PAGE_MESSAGES = {
   listSubtitle: "Every job you've applied to, newest first",
   listAriaLabel: "Applications",
   listLoadFailed: "Couldn't load your applications. Refresh the page to try again.",
+  listCapped: (count: number) => `Showing your ${count} most recent applications.`,
   appliedOn: (displayDate: string) => `Applied ${displayDate}`,
   openPosting: "Job posting",
   openPostingLabel: (title: string, company: string) => `Open job posting for ${title} at ${company}`,

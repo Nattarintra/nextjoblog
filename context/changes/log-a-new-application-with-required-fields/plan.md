@@ -421,6 +421,16 @@ List selects only displayed columns and uses the existing `(user_id, applied_dat
 ## Migration Notes
 One new migration, copied to `supabase-test/`. Forward-only; existing rows keep their status. Rollback = new migration restoring default `'interested'` and dropping the trigger.
 
+## Addenda
+
+Deviations found by the implementation review (2026-11-19) and accepted. The phase text above is the original plan; these notes are the current truth.
+
+- **Validation shape (Phase 4):** implemented as `REQUIRED_FIELDS: Record<FieldName, FieldRule>` (`{maxLength?, check?}`), with labels in `FIELD_LABELS` and order in `FIELD_NAMES`, instead of a `FieldRule[]` of `{name, label, validate}`. Behaviour is equivalent. Story 1.2 extends `FieldName`, `FIELD_NAMES`, `FIELD_LABELS` and the rule map (see `docs/applications.md`).
+- **Focus hook (Phase 7):** `useFocusFirstInvalid` lives inside `useApplicationForm.ts` with the signature `(errors, submission)`; field order comes from `firstInvalidField` in `lib/applications/form-view.ts`. Extract it to its own file when Edit needs it.
+- **List cap (Phase 5/7):** `list()` is capped at `LIST_PAGE_SIZE = 50` (`lib/applications/limits.ts`) and the list page shows an info alert when the cap is reached, until search and paging arrive in Story 1.11.
+
+- **Backfill migration (Phase 2):** `20261119110000_backfill_initial_status_history.sql` (copied to `supabase-test/`, tested in `applications_backfill.test.sql`) gives pre-trigger applications a first `status_history` row (current status at `created_at`; the true first status is not recoverable). The original Migration Notes still apply; this is an additional forward-only migration.
+
 ## References
 
 - Story and ACs: `context/changes/log-a-new-application-with-required-fields/change.md`

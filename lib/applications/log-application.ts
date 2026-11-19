@@ -7,7 +7,7 @@ import type {
   NewApplicationRecord,
 } from "@/lib/applications/types";
 import { normalizeApplicationValues, validateApplicationInput } from "@/lib/applications/validation";
-import { describeAuthError } from "@/lib/auth/error-details";
+import { describeError } from "@/lib/logging/error-details";
 
 export interface LogApplicationDependencies {
   writer: ApplicationWriter;
@@ -61,8 +61,10 @@ export async function logApplication(
     const retryId = newId();
     const retry = await writer.insert(buildRecord(retryId, input.userId, cleanValues));
     if (retry !== "id_conflict") return { status: "created", id: retryId };
+    // A fresh random id conflicting again should be unreachable; make it visible if it happens.
+    log(APPLICATION_EVENTS.idConflict);
   } catch (error) {
-    log(APPLICATION_EVENTS.saveFailed, describeAuthError(error));
+    log(APPLICATION_EVENTS.saveFailed, describeError(error));
   }
   return { status: "error", values: input.values };
 }

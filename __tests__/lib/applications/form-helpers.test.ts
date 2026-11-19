@@ -61,6 +61,12 @@ describe("withClientValidation", () => {
     const submit = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
     expect(await withClientValidation(submit)(undefined, formDataOf(VALID))).toEqual({ status: "error", values: VALID });
   });
+
+  it("rethrows the redirect that follows a successful save instead of showing a save failure", async () => {
+    const redirectError = Object.assign(new Error("NEXT_REDIRECT"), { digest: "NEXT_REDIRECT;push;/applications;307;" });
+    const submit = vi.fn().mockRejectedValue(redirectError);
+    await expect(withClientValidation(submit)(undefined, formDataOf(VALID))).rejects.toBe(redirectError);
+  });
 });
 
 describe("buildNewApplicationDefaults", () => {

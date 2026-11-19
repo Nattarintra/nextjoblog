@@ -13,6 +13,11 @@
   --danger-text: #a32a21;
   --success-tint: #e4f5ec;
   --success-text: #13633f;
+  --neutral-text: #404a58;
+  --info-tint: #e3ecf7;
+  --info-text: #1d4a7a;
+  --progress-tint: #e3e2fa;
+  --progress-text: #3d3a8c;
   --paper: #ffffff;
   --cobalt: #185fa5;
   --link: #185fa5;
@@ -51,6 +56,11 @@
   --color-danger-text: var(--danger-text);
   --color-success-tint: var(--success-tint);
   --color-success-text: var(--success-text);
+  --color-neutral-text: var(--neutral-text);
+  --color-info-tint: var(--info-tint);
+  --color-info-text: var(--info-text);
+  --color-progress-tint: var(--progress-tint);
+  --color-progress-text: var(--progress-text);
   --color-paper: var(--paper);
   --color-cobalt: var(--cobalt);
   --color-link: var(--link);

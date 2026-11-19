@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const LIB_DIR = join(process.cwd(), "lib/applications");
 const ACTION_FILE = join(process.cwd(), "app/actions/applications.ts");
+const ROUTE_DIR = join(process.cwd(), "app/(protected)/applications");
 
 const FORBIDDEN: Array<[string, RegExp]> = [
   ["rpc call", /\.rpc\(/],
@@ -11,10 +12,15 @@ const FORBIDDEN: Array<[string, RegExp]> = [
   ["interpolated SQL template", /`[^`]*\b(select|insert|update|delete|from|where)\b[^`]*\$\{/i],
 ];
 
-const featureFiles = [
-  ...readdirSync(LIB_DIR).filter((name) => name.endsWith(".ts")).map((name) => join(LIB_DIR, name)),
-  ACTION_FILE,
-];
+function sourceFilesIn(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) return sourceFilesIn(path);
+    return /\.tsx?$/.test(entry.name) ? [path] : [];
+  });
+}
+
+const featureFiles = [...sourceFilesIn(LIB_DIR), ...sourceFilesIn(ROUTE_DIR), ACTION_FILE];
 
 describe("applications feature files", () => {
   it.each(featureFiles)("%s builds no raw SQL or string filters", (file) => {

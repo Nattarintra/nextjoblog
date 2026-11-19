@@ -5,13 +5,14 @@ import { Alert } from "@/components/ui/Alert";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
 import { APPLICATION_EVENTS, logApplicationEvent } from "@/lib/applications/log";
 import { APPLICATION_PAGE_MESSAGES } from "@/lib/applications/messages";
 import { NEW_APPLICATION_PATH } from "@/lib/applications/paths";
 import { createApplicationReader } from "@/lib/applications/repository";
 import type { ApplicationSummary } from "@/lib/applications/types";
-import { describeAuthError } from "@/lib/auth/error-details";
 import { requireSession } from "@/lib/auth/require-session";
+import { describeError } from "@/lib/logging/error-details";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { NAV_MESSAGES } from "@/lib/navigation/messages";
 
@@ -27,7 +28,7 @@ async function loadApplications(): Promise<ApplicationSummary[] | null> {
   try {
     return await createApplicationReader(await createServerSupabaseClient()).list();
   } catch (error) {
-    logApplicationEvent(APPLICATION_EVENTS.listFailed, describeAuthError(error));
+    logApplicationEvent(APPLICATION_EVENTS.listFailed, describeError(error));
     return null;
   }
 }
@@ -56,7 +57,14 @@ export default async function ApplicationsPage() {
         {applications === null ? (
           <Alert tone="danger">{APPLICATION_PAGE_MESSAGES.listLoadFailed}</Alert>
         ) : (
-          <ApplicationList applications={applications} />
+          <>
+            <ApplicationList applications={applications} />
+            {applications.length >= LIST_PAGE_SIZE && (
+              <Alert tone="info" className="mt-4">
+                {APPLICATION_PAGE_MESSAGES.listCapped(LIST_PAGE_SIZE)}
+              </Alert>
+            )}
+          </>
         )}
       </div>
     </main>

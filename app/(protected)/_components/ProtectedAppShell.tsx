@@ -8,6 +8,7 @@ import { PasswordUpdatedToast } from "./PasswordUpdatedToast";
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
 import { SideNav } from "./SideNav";
 import { SiteHeader } from "./SiteHeader";
+import { useBodyScrollLock } from "./useBodyScrollLock";
 import { useLogout } from "./useLogout";
 import { useRestoreFocus } from "./useRestoreFocus";
 import { useShellModals } from "./useShellModals";
@@ -33,6 +34,10 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
   // Opening the account sheet from the drawer hands focus to the sheet instead.
   useRestoreFocus(drawerOpen, menuButtonRef, !accountOpen && !noticeOpen);
 
+  // The page scrolls inside the main column, so lock that too, for every modal.
+  const scrollLocked = drawerOpen || accountOpen || noticeOpen;
+  useBodyScrollLock(scrollLocked);
+
   return (
     <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]">
       <SideNav email={email} logoutControl={logoutControl} suspended={noticeOpen} />
@@ -48,7 +53,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
           onAccountOpenChange={setAccountOpen}
         />
         <PasswordUpdatedToast serverFlag={passwordUpdated} />
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">{children}</div>
+        <div className={`flex min-h-0 flex-1 flex-col ${scrollLocked ? "overflow-hidden" : "overflow-y-auto"}`}>{children}</div>
       </div>
       {drawerOpen && <NavDrawer email={email} onClose={closeDrawer} onOpenAccount={() => setAccountOpen(true)} />}
       <SessionExpiryNotice

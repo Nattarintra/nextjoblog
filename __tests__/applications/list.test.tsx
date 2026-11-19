@@ -24,6 +24,7 @@ vi.mock("@/app/actions/applications", () => ({ logApplicationAction: vi.fn() }))
 import ApplicationsPage from "@/app/(protected)/applications/page";
 import NewApplicationPage from "@/app/(protected)/applications/new/page";
 import { ApplicationRow } from "@/app/(protected)/applications/_components/ApplicationRow";
+import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
 import type { ApplicationSummary } from "@/lib/applications/types";
 
 const SESSION = { status: "authenticated", claims: { sub: "user-1" } };
@@ -57,6 +58,17 @@ describe("ApplicationsPage", () => {
     expect(items.map((item) => within(item).getByText(/Newest|Older/).textContent)).toEqual(["Newest", "Older"]);
     expect(within(items[0]).getByText("Applied")).toBeTruthy();
     expect(within(items[0]).getByText(/Applied 17 Nov 2026/)).toBeTruthy();
+  });
+
+  it("tells the user the list is capped only when the cap is reached", async () => {
+    mocks.list.mockResolvedValue(Array.from({ length: LIST_PAGE_SIZE }, (_, index) => application({ id: `a${index}` })));
+    const { unmount } = render(await ApplicationsPage());
+    expect(screen.getByText(`Showing your ${LIST_PAGE_SIZE} most recent applications.`)).toBeTruthy();
+    unmount();
+
+    mocks.list.mockResolvedValue([application()]);
+    render(await ApplicationsPage());
+    expect(screen.queryByText(/most recent applications/)).toBeNull();
   });
 
   it("shows the empty state with an Add action", async () => {

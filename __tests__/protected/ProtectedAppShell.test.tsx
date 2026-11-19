@@ -123,6 +123,25 @@ describe("ProtectedAppShell navigation", () => {
     expect(screen.getByRole("dialog", { name: "Account" })).toBeTruthy();
   });
 
+  it("keeps page scroll locked through the drawer-to-account handover and releases it on close", () => {
+    const { container } = renderShell();
+    const scroller = container.querySelector("p")?.parentElement as HTMLElement;
+    expect(scroller.className).toContain("overflow-y-auto");
+
+    fireEvent.click(menuButton());
+    const drawer = screen.getByRole("dialog", { name: "Main menu" });
+    const account = screen.getAllByRole("button", { name: /Account/ }).find((button) => drawer.contains(button)) as HTMLElement;
+    fireEvent.click(account);
+    expect(screen.getByRole("dialog", { name: "Account" })).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(scroller.className).toContain("overflow-hidden");
+
+    fireEvent.keyDown(screen.getByRole("dialog", { name: "Account" }), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+    expect(scroller.className).toContain("overflow-y-auto");
+  });
+
   it("logs out through the single shared control from the header account dialog", () => {
     renderShell();
     const headerAccount = screen.getAllByRole("button", { name: "Account" })[0];

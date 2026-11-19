@@ -9,9 +9,10 @@ type UseNavDrawerOptions = {
   initialFocusRef: RefObject<HTMLElement | null>;
 };
 
-// Behaviour of a mounted drawer: focus in, scroll lock, close on route change.
-// Esc and the focus trap come from useDialogKeyboardNavigation; focus return
-// from useRestoreFocus in the owner of the trigger.
+// Behaviour of a mounted drawer: focus in, close on route change. Esc and the
+// focus trap come from useDialogKeyboardNavigation; focus return from
+// useRestoreFocus and the scroll lock from useBodyScrollLock, both in the
+// owner of the trigger (the shell), so the lock also covers the account sheet.
 export function useNavDrawer({ onClose, initialFocusRef }: UseNavDrawerOptions): void {
   const pathname = usePathname();
   const openedAtPathname = useRef(pathname);
@@ -19,14 +20,6 @@ export function useNavDrawer({ onClose, initialFocusRef }: UseNavDrawerOptions):
   useEffect(() => {
     initialFocusRef.current?.focus();
   }, [initialFocusRef]);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, []);
 
   useEffect(() => {
     if (pathname !== openedAtPathname.current) onClose();

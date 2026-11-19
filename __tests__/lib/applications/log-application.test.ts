@@ -82,10 +82,11 @@ describe("logApplication", () => {
   });
 
   it("returns an error with the user's input after a second conflict", async () => {
-    const { deps, insert } = setup(["id_conflict", "id_conflict"]);
+    const { deps, insert, log } = setup(["id_conflict", "id_conflict"]);
     const result = await logApplication(deps, { userId: USER_ID, clientId: CLIENT_ID, values: VALID_VALUES });
     expect(result).toEqual({ status: "error", values: VALID_VALUES });
     expect(insert).toHaveBeenCalledTimes(2);
+    expect(log).toHaveBeenCalledWith(APPLICATION_EVENTS.idConflict);
   });
 
   it("returns an error and logs only the code when the writer throws", async () => {

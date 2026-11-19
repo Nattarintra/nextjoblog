@@ -3,9 +3,9 @@ import type { StatusTone } from "@/lib/applications/status";
 import type { ApplicationStatus } from "@/lib/applications/types";
 
 export const STATUS_TONE_CLASS: Record<StatusTone, string> = {
-  neutral: "bg-subtle text-[#404a58]",
-  info: "bg-[#e3ecf7] text-[#1d4a7a]",
-  progress: "bg-[#e3e2fa] text-[#3d3a8c]",
+  neutral: "bg-subtle text-neutral-text",
+  info: "bg-info-tint text-info-text",
+  progress: "bg-progress-tint text-progress-text",
   success: "bg-success-tint text-success-text",
   danger: "bg-danger-tint text-danger-text",
 };

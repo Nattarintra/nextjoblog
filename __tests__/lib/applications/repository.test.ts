@@ -7,6 +7,7 @@ import {
   createApplicationWriter,
   createProfileTimeZoneReader,
 } from "@/lib/applications/repository";
+import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
 import type { NewApplicationRecord } from "@/lib/applications/types";
 
 type Result = { data?: unknown; error?: { code?: string } | null };
@@ -24,6 +25,10 @@ function fakeClient(results: { insert?: Result; select?: Result }) {
   builder.eq = record("eq");
   builder.order = vi.fn((...args: unknown[]) => {
     calls.push(["order", args]);
+    return builder;
+  });
+  builder.limit = vi.fn((...args: unknown[]) => {
+    calls.push(["limit", args]);
     return builder;
   });
   builder.returns = record("returns", results.select);
@@ -99,6 +104,12 @@ describe("createApplicationReader", () => {
     ]);
     const selected = calls.find(([name]) => name === "select")?.[1][0] as string;
     expect(selected).toBe("id, title, company, applied_date, location, posting_url, status");
+  });
+
+  it("caps the list at the page size", async () => {
+    const { client, calls } = fakeClient({ select: { data: [] } });
+    await createApplicationReader(client).list();
+    expect(calls).toContainEqual(["limit", [LIST_PAGE_SIZE]]);
   });
 
   it("returns an empty list when no data comes back", async () => {
