@@ -3,6 +3,7 @@ import type { AuthLogDetails } from "@/lib/auth/error-details";
 export const APPLICATION_EVENTS = {
   saveFailed: "applications.log.save_failed",
   missingUserId: "applications.log.missing_user_id",
+  listFailed: "applications.log.list_failed",
 } as const;
 
 export type ApplicationLogger = (event: string, details?: AuthLogDetails) => void;

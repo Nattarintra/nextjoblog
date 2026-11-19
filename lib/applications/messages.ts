@@ -25,3 +25,24 @@ export const APPLICATION_MESSAGES = {
   retry: "Retry",
   save: "Save",
 } as const;
+
+/** Copy for the Add and List screens (design section 02). */
+export const APPLICATION_PAGE_MESSAGES = {
+  listTitle: "Applications",
+  listSubtitle: "Every job you've applied to, newest first",
+  listAriaLabel: "Applications",
+  listLoadFailed: "Couldn't load your applications. Refresh the page to try again.",
+  appliedOn: (displayDate: string) => `Applied ${displayDate}`,
+  openPosting: "Job posting",
+  openPostingLabel: (title: string, company: string) => `Open job posting for ${title} at ${company}`,
+  emptyTitle: "No applications yet",
+  emptyDescription:
+    "Every job you apply to will show up here, newest first. Start with the one you applied to most recently.",
+  newTitle: "Add application",
+  newSubtitle: "Fields marked * are required. Everything else can be added later.",
+  requiredSection: "Required",
+  appliedDateHelp: "Defaults to today. Change it if you applied earlier.",
+  cancel: "Cancel",
+  saveFailedTitle: "Couldn't save.",
+  saveFailedDetail: "Check your connection — everything you entered is still here.",
+} as const;

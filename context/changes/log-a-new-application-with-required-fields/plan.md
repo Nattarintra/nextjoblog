@@ -481,23 +481,23 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 6: `components/ui/` kit
 
 #### Automated
-- [ ] 6.1 `react-day-picker` approved, pinned and compatible
-- [ ] 6.2 Component tests pass
-- [ ] 6.3 Coverage, typecheck, lint pass
+- [x] 6.1 `react-day-picker` approved, pinned (10.0.2, exact) and compatible: renders and is keyboard-operable under React 19.2.8 / jsdom; unstyled, styled through `classNames` + Tailwind tokens (no bundled stylesheet)
+- [x] 6.2 Component tests pass (67 tests across `__tests__/ui` and dates helpers)
+- [x] 6.3 Coverage, typecheck, lint pass (74 files / 608 tests; 95.8% statements; `components/ui` 99% statements)
 
 #### Manual
-- [ ] 6.4 Visual match with design
+- [x] 6.4 Visual match with design (checked by the user on a temporary preview page, since removed)
 
 ### Phase 7: Form and list pages
 
 #### Automated
-- [ ] 7.1 Form behaviour tests pass (AC coverage)
-- [ ] 7.2 Page tests and guard test pass
-- [ ] 7.3 Coverage, typecheck, lint pass
+- [x] 7.1 Form behaviour tests pass (AC coverage: today default, 4 messages + summary, focus first invalid, https example, retained input + Retry, pending, Enter)
+- [x] 7.2 Page tests and guard test pass (list order, empty, load error, session failure, time-zone today)
+- [x] 7.3 Coverage, typecheck, lint pass (77 files / 635 tests; 96% statements, 92.5% branches)
 
 #### Manual
-- [ ] 7.4 Keyboard and screen-reader pass
-- [ ] 7.5 Mobile layout usable
+- [x] 7.4 Keyboard and screen-reader pass (confirmed by user)
+- [x] 7.5 Mobile layout usable (confirmed by user)
 
 ### Phase 8: E2E, a11y, docs and evidence
 
