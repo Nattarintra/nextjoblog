@@ -456,7 +456,7 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 - [x] 3.1 Nav logic and component tests pass
 - [x] 3.2 Updated account/layout tests pass (`AccountControls.test.tsx` renamed to `SideNav.test.tsx`: the inline desktop Log Out is replaced by the design's account row + dialog; same assertions kept)
 - [x] 3.3 Guard test, typecheck, lint, coverage pass (61 files / 420 tests, 95% statements)
-- [ ] 3.7 CI green for updated logout and session-expiry e2e
+- [x] 3.7 CI green for updated logout and session-expiry e2e — CI green (confirmed by user)
 
 #### Manual
 - [x] 3.4 Desktop and mobile match design
