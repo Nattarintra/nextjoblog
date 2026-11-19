@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { FORGOT_MESSAGES } from "@/lib/auth/messages";
 import { seedConfirmedUser, setClientIp, uniqueEmail } from "./helpers/auth-users";
 import { clearMailbox, expectMailboxEmpty, waitForRecoveryEmail } from "./helpers/auth-email";
 
@@ -92,7 +93,7 @@ test("shows the server-authoritative IP limit countdown", async ({ page }, testI
   }
 
   await expect(page.getByRole("heading", { name: "Too Many Reset Requests" })).toBeVisible();
-  await expect(page.getByText("Please wait before requesting another reset link.")).toBeVisible();
+  await expect(page.getByText(FORGOT_MESSAGES.limited.description)).toBeVisible();
   const countdown = page.locator("[aria-hidden='true']").filter({ hasText: /^\d+:\d{2}$/ });
   await expect(countdown).toHaveText(/^\d+:\d{2}$/);
   const countdownText = await countdown.textContent();
