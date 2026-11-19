@@ -453,15 +453,15 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 3: Navigation shell
 
 #### Automated
-- [ ] 3.1 Nav logic and component tests pass
-- [ ] 3.2 Updated account/layout tests pass
-- [ ] 3.3 Guard test, typecheck, lint, coverage pass
+- [x] 3.1 Nav logic and component tests pass
+- [x] 3.2 Updated account/layout tests pass (`AccountControls.test.tsx` renamed to `SideNav.test.tsx`: the inline desktop Log Out is replaced by the design's account row + dialog; same assertions kept)
+- [x] 3.3 Guard test, typecheck, lint, coverage pass (61 files / 420 tests, 95% statements)
 - [ ] 3.7 CI green for updated logout and session-expiry e2e
 
 #### Manual
-- [ ] 3.4 Desktop and mobile match design
-- [ ] 3.5 Keyboard-only drawer walkthrough
-- [ ] 3.6 Logout and session-expiry still work
+- [x] 3.4 Desktop and mobile match design
+- [x] 3.5 Keyboard-only drawer walkthrough
+- [x] 3.6 Logout and session-expiry still work
 
 ### Phase 4: Pure `lib/applications` modules
 

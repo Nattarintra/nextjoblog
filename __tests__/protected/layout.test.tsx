@@ -12,7 +12,12 @@ vi.mock("@/lib/session", () => ({
 }));
 vi.mock("next/headers", () => ({ cookies: cookiesMock }));
 vi.mock("@/app/(protected)/_components/ProtectedAppShell", () => ({
-  ProtectedAppShell: ({ email }: { email?: string }) => <div data-testid="chrome">{email ?? "no-email"}</div>,
+  ProtectedAppShell: ({ email, children }: { email?: string; children: React.ReactNode }) => (
+    <div>
+      <div data-testid="chrome">{email ?? "no-email"}</div>
+      {children}
+    </div>
+  ),
 }));
 
 import ProtectedLayout from "@/app/(protected)/layout";

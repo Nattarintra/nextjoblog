@@ -16,17 +16,18 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
   const noticeWindowMs = getSessionNoticeWindowMs();
   const passwordUpdated = (await cookies()).get(PASSWORD_UPDATED_TOAST_FLAG)?.value === PASSWORD_UPDATED_TOAST_FLAG_VALUE;
 
+  if (effective.status !== "authenticated") {
+    return <div className="flex min-h-[100svh] flex-col bg-app-bg text-ink [color-scheme:light]">{children}</div>;
+  }
+
   return (
-    <div className="flex min-h-[100svh] flex-col bg-mist">
-      {effective.status === "authenticated" && (
-        <ProtectedAppShell
-          email={typeof effective.claims.email === "string" ? effective.claims.email : undefined}
-          sessionExpiresAt={effective.effectiveExpiresAt}
-          noticeWindowMs={noticeWindowMs}
-          passwordUpdated={passwordUpdated}
-        />
-      )}
+    <ProtectedAppShell
+      email={typeof effective.claims.email === "string" ? effective.claims.email : undefined}
+      sessionExpiresAt={effective.effectiveExpiresAt}
+      noticeWindowMs={noticeWindowMs}
+      passwordUpdated={passwordUpdated}
+    >
       {children}
-    </div>
+    </ProtectedAppShell>
   );
 }
