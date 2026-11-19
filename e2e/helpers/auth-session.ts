@@ -7,10 +7,11 @@ import { TEST_PASSWORD } from "./auth-users";
 export const password = TEST_PASSWORD;
 export const BASE_URL = "http://localhost:3000";
 export const MOBILE_VIEWPORT = { width: 390, height: 844 };
+export const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 
-export async function signUpNewUser(browser: Browser, label: string) {
+export async function signUpNewUser(browser: Browser, label: string, viewport = MOBILE_VIEWPORT) {
   const email = `auth-session-${label}+${Date.now()}@example.com`;
-  const context = await browser.newContext({ baseURL: BASE_URL, viewport: MOBILE_VIEWPORT });
+  const context = await browser.newContext({ baseURL: BASE_URL, viewport });
   const page = await context.newPage();
   await page.goto("/signup");
   await page.getByLabel("Email").fill(email);

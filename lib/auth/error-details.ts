@@ -1,11 +1,3 @@
-export type AuthLogDetails = { code?: string; status?: number };
-
-export function describeAuthError(error: unknown): AuthLogDetails {
-  if (typeof error !== "object" || error === null) return {};
-
-  const { code, status } = error as { code?: unknown; status?: unknown };
-  return {
-    ...(typeof code === "string" ? { code } : {}),
-    ...(typeof status === "number" ? { status } : {}),
-  };
-}
+// The implementation is feature-neutral and lives in lib/logging; these keep the auth names.
+export { describeError as describeAuthError } from "@/lib/logging/error-details";
+export type { ErrorLogDetails as AuthLogDetails } from "@/lib/logging/error-details";

@@ -7,10 +7,10 @@ const alertBaseClassName =
 
 export function DuplicateEmailAlert() {
   return (
-    <div className={`${alertBaseClassName} text-warning-fg`} role="alert" data-testid="signup-alert">
+    <div className={`${alertBaseClassName} text-warning-text`} role="alert" data-testid="signup-alert">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
-        <path d="M12 3l9 17H3L12 3z" className="stroke-warning-fg" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M12 10v4M12 17h.01" className="stroke-warning-fg" strokeWidth="2" strokeLinecap="round" />
+        <path d="M12 3l9 17H3L12 3z" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M12 10v4M12 17h.01" className="stroke-warning-text" strokeWidth="2" strokeLinecap="round" />
       </svg>
       <span>
         This email is already in use — <Link className={`${authLinkClassName} underline`} href="/login">Log In</Link> instead
@@ -29,10 +29,10 @@ export function UnknownErrorAlert({ message }: { message: string }) {
 
 export function ConfirmationRequiredAlert() {
   return (
-    <div className={`${alertBaseClassName} text-warning-fg`} role="alert" data-testid="signup-alert">
+    <div className={`${alertBaseClassName} text-warning-text`} role="alert" data-testid="signup-alert">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
-        <path d="M4 5h16v14H4V5z" className="stroke-warning-fg" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M4 6l8 7 8-7" className="stroke-warning-fg" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M4 5h16v14H4V5z" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M4 6l8 7 8-7" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
       </svg>
       <span>
         Your account was created — check your email to verify it before you{" "}

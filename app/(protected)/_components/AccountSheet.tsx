@@ -11,8 +11,8 @@ import { LogoutButton } from "./LogoutButton";
 import type { LogoutControl } from "./useLogout";
 
 const styles = {
-  overlay: "fixed inset-0 z-40 flex items-end justify-center bg-black/50 md:hidden",
-  sheet: "w-full max-w-md rounded-t-[18px] bg-paper px-5 pb-6 pt-5 text-navy shadow-xl",
+  overlay: "fixed inset-0 z-40 flex items-end justify-center bg-black/50 md:items-center md:px-6",
+  sheet: "w-full max-w-md rounded-t-[18px] bg-paper px-5 pb-6 pt-5 text-navy shadow-xl md:max-w-sm md:rounded-[14px]",
   identity: "mb-4 flex items-center gap-3",
   avatar: "flex size-11 shrink-0 items-center justify-center rounded-full bg-navy text-[16px] font-bold text-white",
   heading: "text-[12px] font-semibold uppercase tracking-wide text-navy/70",

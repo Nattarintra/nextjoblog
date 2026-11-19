@@ -2,8 +2,8 @@ import type { KeyboardEvent, RefObject } from "react";
 import { useCallback } from "react";
 
 type UseDialogKeyboardNavigationOptions = {
-  firstFocusableRef: RefObject<HTMLButtonElement | null>;
-  lastFocusableRef: RefObject<HTMLButtonElement | null>;
+  firstFocusableRef: RefObject<HTMLElement | null>;
+  lastFocusableRef: RefObject<HTMLElement | null>;
   onEscape: () => void;
 };
 
