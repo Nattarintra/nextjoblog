@@ -502,9 +502,9 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 8: E2E, a11y, docs and evidence
 
 #### Automated
-- [ ] 8.1 CI green, run ID recorded
-- [ ] 8.2 axe check passes
-- [ ] 8.3 Local lint, typecheck, tests pass
+- [ ] 8.1 CI green, run ID recorded — pending push; `@axe-core/playwright` installed (exact version, approved)
+- [ ] 8.2 axe check passes — written in `e2e/applications.spec.ts`; runs in CI only (local Mac cannot run Playwright Chromium)
+- [x] 8.3 Local lint, typecheck, tests pass (77 files / 635 tests; 96% statements, 92.5% branches)
 
 #### Manual
 - [ ] 8.4 All `change.md` acceptance criteria verified
