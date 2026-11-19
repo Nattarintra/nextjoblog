@@ -1,5 +1,5 @@
 import { readApplicationFormData } from "@/lib/applications/form-data";
-import type { ApplicationFormState } from "@/lib/applications/types";
+import type { ApplicationFormState, ApplicationFormValues } from "@/lib/applications/types";
 import { validateApplicationInput } from "@/lib/applications/validation";
 
 export type ApplicationSubmit = (
@@ -13,6 +13,23 @@ export function withClientValidation(submit: ApplicationSubmit): ApplicationSubm
     const { values } = readApplicationFormData(formData);
     const errors = validateApplicationInput(values);
     if (Object.keys(errors).length > 0) return { status: "invalid", errors, values };
-    return submit(previousState, formData);
+    return submitKeepingInput(submit, previousState, formData, values);
   };
+}
+
+/**
+ * A dropped connection rejects the action call itself (the server never got to return a state),
+ * so it is mapped to the same "save failed" state: the form keeps the input and offers Retry.
+ */
+async function submitKeepingInput(
+  submit: ApplicationSubmit,
+  previousState: ApplicationFormState,
+  formData: FormData,
+  values: ApplicationFormValues,
+): Promise<ApplicationFormState> {
+  try {
+    return await submit(previousState, formData);
+  } catch {
+    return { status: "error", values };
+  }
 }

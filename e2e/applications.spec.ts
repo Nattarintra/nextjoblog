@@ -111,6 +111,10 @@ for (const [name, viewport] of [
   test(`exposes exactly one visible navigation landmark at ${name}`, async ({ browser }) => {
     const { context, page } = await signUpNewUser(browser, `apps-nav-${viewport.width}`, viewport);
     await page.goto(APPLICATIONS_PATH);
+    // Below the desktop breakpoint the side nav is hidden and the drawer's landmark only exists while it is open.
+    if (viewport.width < DESKTOP_VIEWPORT.width) {
+      await page.getByRole("button", { name: NAV_MESSAGES.openMenuLabel }).click();
+    }
     await expect(page.getByRole("navigation")).toHaveCount(1);
     await context.close();
   });

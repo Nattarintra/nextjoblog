@@ -56,6 +56,11 @@ describe("withClientValidation", () => {
     expect(await withClientValidation(submit)(undefined, data)).toEqual({ status: "error", values: VALID });
     expect(submit).toHaveBeenCalledWith(undefined, data);
   });
+
+  it("keeps the input as a save failure when the call itself rejects (connection dropped)", async () => {
+    const submit = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+    expect(await withClientValidation(submit)(undefined, formDataOf(VALID))).toEqual({ status: "error", values: VALID });
+  });
 });
 
 describe("buildNewApplicationDefaults", () => {
