@@ -1,51 +1,36 @@
-import Link from "next/link";
-
-import { authLinkClassName } from "@/components/auth/styles";
-
-const alertBaseClassName =
-  "flex items-start gap-2.25 rounded-[10px] bg-warning-tint px-3 py-2.75 mb-4 text-xs leading-normal";
+import { AuthLink } from "@/components/auth/AuthFooter";
+import { Alert } from "@/components/ui/Alert";
+import { LOGIN_PATH } from "@/lib/auth/paths";
 
 export function DuplicateEmailAlert() {
   return (
-    <div className={`${alertBaseClassName} text-warning-text`} role="alert" data-testid="signup-alert">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
-        <path d="M12 3l9 17H3L12 3z" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M12 10v4M12 17h.01" className="stroke-warning-text" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-      <span>
-        This email is already in use — <Link className={`${authLinkClassName} underline`} href="/login">Log In</Link> instead
-      </span>
-    </div>
+    <Alert tone="warning" role="alert" className="mb-4" data-testid="signup-alert">
+      This email is already in use — <AuthLink className="underline" href={LOGIN_PATH}>Log In</AuthLink> instead
+    </Alert>
   );
 }
 
 export function UnknownErrorAlert({ message }: { message: string }) {
   return (
-    <div className={`${alertBaseClassName} text-auth-danger`} role="alert" data-testid="signup-alert">
+    <Alert tone="danger" className="mb-4" data-testid="signup-alert">
       {message}
-    </div>
+    </Alert>
   );
 }
 
 export function ConfirmationRequiredAlert() {
   return (
-    <div className={`${alertBaseClassName} text-warning-text`} role="alert" data-testid="signup-alert">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" className="mt-0.25 shrink-0" aria-hidden="true">
-        <path d="M4 5h16v14H4V5z" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
-        <path d="M4 6l8 7 8-7" className="stroke-warning-text" strokeWidth="2" strokeLinejoin="round" />
-      </svg>
-      <span>
-        Your account was created — check your email to verify it before you{" "}
-        <Link className={`${authLinkClassName} underline`} href="/login">Log In</Link>
-      </span>
-    </div>
+    <Alert tone="warning" role="alert" className="mb-4" data-testid="signup-alert">
+      Your account was created — check your email to verify it before you{" "}
+      <AuthLink className="underline" href={LOGIN_PATH}>Log In</AuthLink>
+    </Alert>
   );
 }
 
 export function ConfigurationErrorAlert() {
   return (
-    <div className={`${alertBaseClassName} text-auth-danger`} role="alert" data-testid="signup-alert">
+    <Alert tone="danger" className="mb-4" data-testid="signup-alert">
       We&apos;re unable to create accounts right now. Please try again shortly.
-    </div>
+    </Alert>
   );
 }

@@ -347,18 +347,18 @@ No data or route changes. Before writing code, read the relevant guide in `node_
 
 #### Automated
 
-- [ ] 1.1 Type checking passes: `npx tsc --noEmit`
-- [ ] 1.2 Linting passes: `npm run lint`
-- [ ] 1.3 Unit tests pass: `npm run test:run`
-- [ ] 1.4 Production build succeeds: `npm run build`
+- [x] 1.1 Type checking passes: `npx tsc --noEmit`
+- [x] 1.2 Linting passes: `npm run lint`
+- [x] 1.3 Unit tests pass: `npm run test:run`
+- [x] 1.4 Production build succeeds: `npm run build`
 - [ ] 1.8 E2E specs pass: `npm run test:e2e`
 
 #### Manual
 
-- [ ] 1.5 Login, signup, forgot and reset pages show the brand panel on desktop and the single column with logo and glow on mobile
-- [ ] 1.6 Light-surface pages (dashboard, application forms) look unchanged against the reference screenshots taken before Phase 1
-- [ ] 1.7 Short phone viewport scrolls with the keyboard open
-- [ ] 1.9 Next.js guides in `node_modules/next/dist/docs/` read before coding, with any deprecation noted in the plan
+- [x] 1.5 Login, signup, forgot and reset pages show the brand panel on desktop and the single column with logo and glow on mobile
+- [x] 1.6 Light-surface pages (dashboard, application forms) look unchanged against the reference screenshots taken before Phase 1
+- [x] 1.7 Short phone viewport scrolls with the keyboard open
+- [x] 1.9 Next.js guides in `node_modules/next/dist/docs/` read before coding, with any deprecation noted in the plan (read link, client components, page/layout conventions: no deprecation affects this phase)
 
 ### Phase 2: Auth screens and shared status components
 

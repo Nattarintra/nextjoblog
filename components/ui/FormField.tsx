@@ -3,6 +3,7 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 
+import { LABEL_CLASS } from "@/components/ui/control-styles";
 import { fieldId } from "@/components/ui/field-ids";
 import { UI_MESSAGES } from "@/components/ui/messages";
 
@@ -45,10 +46,10 @@ export function FormField({ name, label, required = false, help, error, span, ch
 
   return (
     <div className={`mb-4 flex flex-col gap-1.5 ${span === "full" ? "md:col-span-2" : ""}`}>
-      <label id={labelId} htmlFor={id} className="flex items-baseline gap-1.5 text-sm font-semibold text-ink">
+      <label id={labelId} htmlFor={id} className={LABEL_CLASS}>
         {label}
         {required && (
-          <span className="text-danger-text">
+          <span className="text-(--surface-required)">
             <span aria-hidden="true">{UI_MESSAGES.requiredMarker}</span>
             <span className="sr-only">{UI_MESSAGES.requiredSrText}</span>
           </span>
@@ -58,12 +59,12 @@ export function FormField({ name, label, required = false, help, error, span, ch
         {children}
       </FormFieldContext.Provider>
       {help && (
-        <span id={helpId} className="text-[13px] text-text-3">
+        <span id={helpId} className="text-[13.5px] text-(--surface-help)">
           {help}
         </span>
       )}
       {error && (
-        <p id={errorId} className="flex items-start gap-[7px] text-[13.5px] font-medium text-danger-text">
+        <p id={errorId} className="flex items-start gap-[7px] text-[13.5px] font-medium text-(--surface-error-text)">
           <span aria-hidden="true" className="mt-0.5 inline-flex size-4 flex-none items-center justify-center rounded-full bg-danger font-mono text-[11px] font-semibold text-on-dark">
             !
           </span>

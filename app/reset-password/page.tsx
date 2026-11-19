@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 
 import ResetPasswordFlow from "./ResetPasswordFlow";
 
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function ResetPasswordPage() {
   return (
-    <AuthPageShell>
+    <AuthLayout>
       <ResetPasswordFlow />
-    </AuthPageShell>
+    </AuthLayout>
   );
 }
