@@ -1,9 +1,8 @@
 import type { ReactNode } from "react"
 
-import { archivo, workSans } from "./fonts"
 import { authGlowClassName, authPageContentClassName, authPageFrameClassName } from "./styles"
 
-const authPageClassName = [archivo.variable, workSans.variable, "min-h-[100svh]", "flex", "items-center", "justify-center", "bg-navy", "text-white", "[font-family:var(--font-work-sans)]"].join(" ")
+const authPageClassName = ["min-h-[100svh]", "flex", "items-center", "justify-center", "bg-navy", "text-white", "[font-family:var(--font-work-sans)]"].join(" ")
 
 export function AuthPageShell({ children }: { children: ReactNode }) {
   return (

@@ -7,7 +7,7 @@ import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
 import type { LogoutControl } from "./useLogout";
 
 const BASE_CLASS =
-  "cursor-pointer border border-danger-fg bg-white font-semibold text-danger-fg focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
+  "cursor-pointer border border-danger-text bg-white font-semibold text-danger-text focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
 
 const VARIANT_CLASS = {
   sheet: `${BASE_CLASS} min-h-11 rounded-[10px] px-3.5 py-2 text-[14px] focus-visible:ring-azure`,

@@ -44,7 +44,7 @@ export function PasswordUpdatedToast({ serverFlag = false }: PasswordUpdatedToas
   if (!visible) return null;
 
   return (
-    <div className="mx-4 mt-4 flex items-start gap-3 rounded-xl border border-success-fg/20 bg-success-tint px-3 py-3 text-sm text-success-fg" role="status">
+    <div className="mx-4 mt-4 flex items-start gap-3 rounded-xl border border-success-text/20 bg-success-tint px-3 py-3 text-sm text-success-text" role="status">
       <span aria-hidden="true">✓</span>
       <span className="flex-1">
         <strong className="block">{PASSWORD_RESET_MESSAGES.toast.title}</strong>

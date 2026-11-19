@@ -434,12 +434,12 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 1: Design token swap (mechanical)
 
 #### Automated
-- [ ] 1.1 Existing suite passes unchanged
-- [ ] 1.2 Typecheck and lint pass
-- [ ] 1.3 No `-fg` token usages remain
+- [x] 1.1 Existing suite passes unchanged
+- [x] 1.2 Typecheck and lint pass
+- [x] 1.3 No `-fg` token usages remain
 
 #### Manual
-- [ ] 1.4 Login, signup, dashboard look correct
+- [x] 1.4 Login, signup, dashboard look correct
 
 ### Phase 2: Database migration and SQL tests
 
