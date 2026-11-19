@@ -30,6 +30,10 @@ const ICON_SHAPES = {
       <path d="M4 10h16M8 3.5v3M16 3.5v3" strokeWidth="1.9" strokeLinecap="round" />
     </>
   ),
+  chevronLeft: <path d="M15 6l-6 6 6 6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />,
+  chevronRight: <path d="M9 6l6 6-6 6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />,
+  back: <path d="M19 12H5M11 6l-6 6 6 6" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />,
+  retry: <path d="M20 12a8 8 0 10-2.6 5.9M20 5v5h-5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />,
   check: <path d="M20 6L9 17l-5-5" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />,
   alert: (
     <>

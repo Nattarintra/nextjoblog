@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDisplayDate, isValidIsoDate, todayInTimeZone } from "@/lib/applications/dates";
+import { formatDisplayDate, isoToLocalDate, isValidIsoDate, localDateToIso, todayInTimeZone } from "@/lib/applications/dates";
 
 describe("isValidIsoDate", () => {
   it.each([
@@ -42,5 +42,23 @@ describe("formatDisplayDate", () => {
 
   it("returns invalid input unchanged", () => {
     expect(formatDisplayDate("2026-02-30")).toBe("2026-02-30");
+  });
+});
+
+describe("isoToLocalDate / localDateToIso", () => {
+  it("round-trips a valid ISO date without a time-zone shift", () => {
+    const date = isoToLocalDate("2026-03-01");
+    expect(date?.getDate()).toBe(1);
+    expect(date?.getMonth()).toBe(2);
+    expect(localDateToIso(date!)).toBe("2026-03-01");
+  });
+
+  it("returns undefined for invalid input", () => {
+    expect(isoToLocalDate("2026-02-30")).toBeUndefined();
+    expect(isoToLocalDate("")).toBeUndefined();
+  });
+
+  it("pads short years, months and days", () => {
+    expect(localDateToIso(new Date(2026, 0, 5))).toBe("2026-01-05");
   });
 });

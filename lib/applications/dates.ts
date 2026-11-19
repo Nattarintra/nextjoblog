@@ -31,3 +31,16 @@ export function formatDisplayDate(isoDate: string): string {
     year: "numeric",
   }).format(new Date(`${isoDate}T00:00:00Z`));
 }
+
+/** Local-time Date for a valid ISO date (no UTC shift), for calendar widgets. */
+export function isoToLocalDate(isoDate: string): Date | undefined {
+  if (!isValidIsoDate(isoDate)) return undefined;
+  const [year, month, day] = isoDate.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** Inverse of `isoToLocalDate`: YYYY-MM-DD from a local-time Date. */
+export function localDateToIso(date: Date): string {
+  const pad = (n: number, width: number) => String(n).padStart(width, "0");
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1, 2)}-${pad(date.getDate(), 2)}`;
+}
