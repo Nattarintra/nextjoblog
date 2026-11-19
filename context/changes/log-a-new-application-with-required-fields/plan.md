@@ -509,4 +509,4 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 - [x] 8.3 Local lint, typecheck, tests pass (77 files / 635 tests; 96% statements, 92.5% branches)
 
 #### Manual
-- [ ] 8.4 All `change.md` acceptance criteria verified
+- [x] 8.4 All `change.md` acceptance criteria verified — each AC mapped to unit/component tests and CI e2e (run 44602848127); screen-reader pass confirmed at 7.4. Real offline→online Retry not hand-tested (e2e simulates it by aborting the request)
