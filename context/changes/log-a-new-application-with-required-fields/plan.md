@@ -472,11 +472,11 @@ One new migration, copied to `supabase-test/`. Forward-only; existing rows keep 
 ### Phase 5: Service, repository and Server Action
 
 #### Automated
-- [ ] 5.1 Service tests pass
-- [ ] 5.2 Repository tests pass (8 keys, spoof ignored)
-- [ ] 5.3 Action tests pass
-- [ ] 5.4 Static no-SQL-string test passes
-- [ ] 5.5 Coverage, typecheck, lint pass
+- [x] 5.1 Service tests pass (7 tests)
+- [x] 5.2 Repository tests pass (8 keys, spoof ignored; 12 tests)
+- [x] 5.3 Action tests pass (7 tests)
+- [x] 5.4 Static no-SQL-string test passes
+- [x] 5.5 Coverage, typecheck, lint pass (72 files / 557 tests; 95.5% statements, 91.7% branches; lib/applications/** over 90%)
 
 ### Phase 6: `components/ui/` kit
 

@@ -27,3 +27,17 @@ export type NewApplicationRecord = ApplicationFormValues & {
   user_id: string;
   status: ApplicationStatus;
 };
+
+/** What the list screen needs per row; never the full record. */
+export type ApplicationSummary = Pick<NewApplicationRecord, "id" | "status"> & ApplicationFormValues;
+
+/** Outcome of a single insert attempt. `id_conflict` = id taken by different content or by another user. */
+export type InsertOutcome = "inserted" | "already_exists" | "id_conflict";
+
+export type LogApplicationResult =
+  | { status: "created"; id: string }
+  | { status: "invalid"; errors: FieldErrors; values: ApplicationFormValues }
+  | { status: "error"; values: ApplicationFormValues };
+
+/** State a form receives back from the action; success redirects, so it never appears here. */
+export type ApplicationFormState = undefined | Exclude<LogApplicationResult, { status: "created" }>;
