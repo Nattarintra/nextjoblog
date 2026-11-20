@@ -1,7 +1,7 @@
 ---
 change_id: refresh-access-ui
 title: Refresh Access (Story 0) UI to match updated screen designs
-status: implementing
+status: implemented
 created: 2026-11-19
 updated: 2026-11-20
 archived_at: null

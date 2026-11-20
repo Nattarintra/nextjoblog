@@ -397,15 +397,15 @@ No data or route changes. Before writing code, read the relevant guide in `node_
 
 #### Automated
 
-- [x] 4.1 Type checking passes: `npx tsc --noEmit`
-- [x] 4.2 Linting passes: `npm run lint`
-- [x] 4.3 Unit tests pass: `npm run test:run`
-- [x] 4.4 Full E2E passes, including axe at 390px and 1280px: `npm run test:e2e` — deferred to CI per user instruction
-- [x] 4.5 Production build succeeds: `npm run build` — verified with `npx next build --webpack`; Turbopack worker creation is restricted in this environment
-- [x] 4.6 Dead-code grep is clean: `grep -rn "auth/styles\|auth-label\|session-step" app components`
+- [x] 4.1 Type checking passes: `npx tsc --noEmit` — 9463b85
+- [x] 4.2 Linting passes: `npm run lint` — 9463b85
+- [x] 4.3 Unit tests pass: `npm run test:run` — 9463b85
+- [x] 4.4 Full E2E passes, including axe at 390px and 1280px: `npm run test:e2e` — deferred to CI per user instruction — 9463b85
+- [x] 4.5 Production build succeeds: `npm run build` — verified with `npx next build --webpack`; Turbopack worker creation is restricted in this environment — 9463b85
+- [x] 4.6 Dead-code grep is clean: `grep -rn "auth/styles\|auth-label\|session-step" app components` — 9463b85
 
 #### Manual
 
-- [x] 4.7 Side-by-side review of the Playwright screenshots against `supabase/docs/nextjoblog-mvp-screens.html` for all 13 screens at 390px and 1280px
-- [x] 4.8 Dashboard and application pages (light surface) unchanged
-- [x] 4.9 Auth flow behaves identically end to end (sign up, log in, forgot, reset, log out)
+- [x] 4.7 Side-by-side review of the Playwright screenshots against `supabase/docs/nextjoblog-mvp-screens.html` for all 13 screens at 390px and 1280px — 9463b85
+- [x] 4.8 Dashboard and application pages (light surface) unchanged — 9463b85
+- [x] 4.9 Auth flow behaves identically end to end (sign up, log in, forgot, reset, log out) — 9463b85
