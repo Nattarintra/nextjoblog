@@ -66,7 +66,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
         />
         {showToggle && (
           <button
-            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1 text-[11px] font-semibold text-sky focus:outline focus:outline-2 focus:outline-azure"
+            className="absolute top-1/2 right-2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-md px-2 text-[11px] font-semibold text-sky focus:outline focus:outline-2 focus:outline-azure"
             type="button"
             aria-pressed={isVisible}
             aria-label={PASSWORD_INPUT_MESSAGES.toggleLabel(isVisible, label)}
