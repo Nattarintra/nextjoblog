@@ -15,8 +15,8 @@ export const BUTTON_VARIANT_CLASS = {
 } as const;
 
 export const BUTTON_SIZE_CLASS = {
-  md: "min-h-11 rounded-xl px-[18px] py-[13px] text-[15px]",
-  sm: "min-h-11 rounded-[10px] px-3.5 py-[9px] text-sm md:min-h-0",
+  md: "min-h-[44px] rounded-xl px-[18px] py-[13px] text-[15px]",
+  sm: "min-h-[44px] rounded-[10px] px-3.5 py-[9px] text-sm md:min-h-0",
 } as const;
 
 export type ButtonVariant = keyof typeof BUTTON_VARIANT_CLASS;
