@@ -9,6 +9,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { logAuthEvent } from "@/lib/auth/log";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
 import { isPasswordLongEnough } from "@/lib/auth/password-policy";
+import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths";
 
 const AUTH_LOG_EVENT = {
   signupConfiguration: "auth.signup.configuration_error",
@@ -128,7 +129,7 @@ export async function signup(
     };
   }
 
-  redirect("/dashboard");
+  redirect(DEFAULT_POST_LOGIN_PATH);
 }
 
 export async function login(

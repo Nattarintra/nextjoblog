@@ -7,7 +7,7 @@ import { AuthHeader } from "@/components/auth/AuthHeader";
 import { AuthFooter, AuthLink } from "@/components/auth/AuthFooter";
 
 import { LOGIN_MESSAGES, LOGOUT_MESSAGES } from "@/lib/auth/messages";
-import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths";
+import { DEFAULT_POST_LOGIN_PATH, SIGNUP_PATH } from "@/lib/auth/paths";
 import { LoginConfirmationRequiredAlert, LoginErrorAlert, LoginLoggedOutAlert } from "./LoginAlert";
 import { LoginFields } from "./LoginFields";
 import { ReturnStrip } from "./ReturnStrip";
@@ -53,7 +53,7 @@ export default function LoginForm({
         forgotPasswordEnabled={forgotPasswordEnabled}
       />
 
-      <AuthFooter>{LOGIN_MESSAGES.noAccount} <AuthLink href="/signup">{LOGIN_MESSAGES.signUp}</AuthLink></AuthFooter>
+      <AuthFooter>{LOGIN_MESSAGES.noAccount} <AuthLink href={SIGNUP_PATH}>{LOGIN_MESSAGES.signUp}</AuthLink></AuthFooter>
     </>
   );
 }

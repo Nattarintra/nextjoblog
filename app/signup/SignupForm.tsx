@@ -7,6 +7,7 @@ import { signup } from "@/app/actions/auth";
 import { AuthHeader } from "@/components/auth/AuthHeader";
 import { AuthFooter, AuthLink } from "@/components/auth/AuthFooter";
 import { SIGNUP_MESSAGES } from "@/lib/auth/messages";
+import { LOGIN_PATH } from "@/lib/auth/paths";
 import { getPasswordValidationError, PASSWORD_HELPER_TEXT } from "./password-validation";
 import {
   ConfigurationErrorAlert,
@@ -58,7 +59,7 @@ export default function SignupForm() {
         isPending={isPending}
       />
 
-      <AuthFooter>{SIGNUP_MESSAGES.haveAccount} <AuthLink href="/login">{SIGNUP_MESSAGES.logIn}</AuthLink></AuthFooter>
+      <AuthFooter>{SIGNUP_MESSAGES.haveAccount} <AuthLink href={LOGIN_PATH}>{SIGNUP_MESSAGES.logIn}</AuthLink></AuthFooter>
     </>
   );
 }

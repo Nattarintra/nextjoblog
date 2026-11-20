@@ -36,7 +36,6 @@
   --on-dark-3: #9db0c6;
   --neutral: #5b6472;
   --star: #e0a526;
-  --auth-label: #cfe1f5;
   --auth-danger: #ffb4ab;
   --auth-danger-ring: rgb(192 54 44 / 24%);
   --auth-warning: #f3c47a;
@@ -85,7 +84,7 @@
   --surface-control-placeholder: rgb(255 255 255 / 45%);
   --surface-control-invalid-border: var(--auth-field-error);
   --surface-control-invalid-bg: var(--auth-field-error-tint);
-  --surface-label: var(--auth-label);
+  --surface-label: var(--on-dark-2);
   --surface-required: var(--auth-field-error);
   --surface-help: var(--on-dark-3);
   --surface-error-text: var(--auth-field-error);
@@ -140,7 +139,6 @@
   --color-on-dark-3: var(--on-dark-3);
   --color-neutral: var(--neutral);
   --color-star: var(--star);
-  --color-auth-label: var(--auth-label);
   --color-auth-danger: var(--auth-danger);
   --color-auth-danger-ring: var(--auth-danger-ring);
   --color-auth-warning: var(--auth-warning);

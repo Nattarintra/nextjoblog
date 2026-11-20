@@ -7,7 +7,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div
       data-surface="dark"
-      className="auth-layout flex min-h-[100svh] bg-auth-bg text-on-dark [font-family:var(--font-work-sans)]"
+      className="auth-layout flex min-h-[100svh] bg-auth-bg font-body text-on-dark"
     >
       <AuthBrandPanel />
       <main className="relative flex min-h-[100svh] flex-1 flex-col overflow-y-auto overflow-x-hidden">

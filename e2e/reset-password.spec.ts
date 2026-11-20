@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 import { clearMailbox } from "./helpers/auth-email";
+import { expectNoAxeViolations } from "./helpers/axe";
 import { authCookieStorageKey } from "./helpers/auth-cookies";
 import {
   authCookieCount,
@@ -81,6 +82,7 @@ async function submitNewPassword(page: Page, password: string, confirmation = pa
 
 async function expectExpiredScreen(page: Page) {
   await expect(page.getByRole("heading", { name: MESSAGES.expired.heading })).toBeVisible();
+  await expectNoAxeViolations(page);
 }
 
 async function passwordWorks(email: string, password: string): Promise<boolean> {

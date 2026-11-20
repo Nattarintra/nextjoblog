@@ -1,11 +1,13 @@
 import Link from "next/link";
 
+import { DEFAULT_POST_LOGIN_PATH } from "@/lib/auth/paths";
+
 export default function NotFound() {
   return (
     <main className="flex min-h-[100svh] flex-col bg-[#e4f2ff] text-navy">
       <header className="flex items-center gap-2.5 bg-navy px-[18px] pb-3.5 pt-5 text-white">
         <Link
-          href="/dashboard"
+          href={DEFAULT_POST_LOGIN_PATH}
           aria-label="Go to Dashboard"
           className="flex h-[30px] w-[30px] items-center justify-center rounded-lg bg-white/12 outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
@@ -30,7 +32,7 @@ export default function NotFound() {
           </p>
           <div className="mt-2 grid w-full gap-2.5">
             <Link
-              href="/dashboard"
+              href={DEFAULT_POST_LOGIN_PATH}
               className="flex min-h-11 items-center justify-center rounded-xl bg-azure px-[18px] py-[13px] text-sm font-semibold text-white outline-none focus-visible:ring-2 focus-visible:ring-navy"
             >
               Go to Dashboard
