@@ -8,16 +8,23 @@ import {
   PASSWORD_UPDATED_TOAST_FLAG,
   PASSWORD_UPDATED_TOAST_FLAG_VALUE,
 } from "@/lib/auth/password-reset-confirm-config";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 import { ProtectedAppShell } from "./_components/ProtectedAppShell";
 
-function getAccountEmail(claims: { email?: unknown; user_metadata?: unknown }): string | undefined {
+async function getAccountEmail(claims: { email?: unknown; user_metadata?: unknown }): Promise<string | undefined> {
   if (typeof claims.email === "string") return claims.email;
   if (claims.user_metadata && typeof claims.user_metadata === "object" && "email" in claims.user_metadata) {
     const metadataEmail = (claims.user_metadata as { email?: unknown }).email;
     if (typeof metadataEmail === "string") return metadataEmail;
   }
-  return undefined;
+
+  try {
+    const { data } = await (await createServerSupabaseClient()).auth.getUser();
+    return data.user?.email ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
@@ -31,7 +38,7 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
 
   return (
     <ProtectedAppShell
-      email={getAccountEmail(effective.claims)}
+      email={await getAccountEmail(effective.claims)}
       sessionExpiresAt={effective.effectiveExpiresAt}
       noticeWindowMs={noticeWindowMs}
       passwordUpdated={passwordUpdated}

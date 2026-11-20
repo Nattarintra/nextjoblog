@@ -1,9 +1,10 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { effectiveMock, cookiesMock } = vi.hoisted(() => ({
+const { effectiveMock, cookiesMock, getUserMock } = vi.hoisted(() => ({
   effectiveMock: vi.fn(),
   cookiesMock: vi.fn(),
+  getUserMock: vi.fn(),
 }));
 
 vi.mock("@/lib/session", () => ({
@@ -11,6 +12,9 @@ vi.mock("@/lib/session", () => ({
   getSessionNoticeWindowMs: () => 1000,
 }));
 vi.mock("next/headers", () => ({ cookies: cookiesMock }));
+vi.mock("@/lib/supabase/server", () => ({
+  createServerSupabaseClient: async () => ({ auth: { getUser: getUserMock } }),
+}));
 vi.mock("@/app/(protected)/_components/ProtectedAppShell", () => ({
   ProtectedAppShell: ({ email, children }: { email?: string; children: React.ReactNode }) => (
     <div>
@@ -31,6 +35,8 @@ describe("ProtectedLayout", () => {
   beforeEach(() => {
     cleanup();
     effectiveMock.mockReset();
+    getUserMock.mockReset();
+    getUserMock.mockResolvedValue({ data: { user: null } });
     cookiesMock.mockResolvedValue({ get: () => undefined });
   });
 
@@ -57,6 +63,13 @@ describe("ProtectedLayout", () => {
       claims: { user_metadata: { email: "ada@example.com" } },
       effectiveExpiresAt: Date.now() + 1000,
     });
+    await renderLayout();
+    expect(screen.getByTestId("chrome").textContent).toBe("ada@example.com");
+  });
+
+  it("falls back to the authenticated user when claims omit email", async () => {
+    effectiveMock.mockResolvedValue({ status: "authenticated", claims: {}, effectiveExpiresAt: Date.now() + 1000 });
+    getUserMock.mockResolvedValue({ data: { user: { email: "ada@example.com" } } });
     await renderLayout();
     expect(screen.getByTestId("chrome").textContent).toBe("ada@example.com");
   });
