@@ -163,6 +163,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Auth controls have a hard touch-target contract, independent of utility generation. */
+.auth-layout input:not([type="hidden"]),
+.auth-layout button {
+  min-height: 44px;
+}
+
 .auth-layout:has([data-reset-password-status="checking"]) .auth-layout-glow {
   display: none;
 }
