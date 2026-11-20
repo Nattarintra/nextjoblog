@@ -59,6 +59,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
       <SessionExpiryNotice
         sessionExpiresAt={sessionExpiresAt}
         noticeWindowMs={noticeWindowMs}
+        disabled={drawerOpen || accountOpen}
         onShowChange={setNoticeOpen}
       />
     </div>

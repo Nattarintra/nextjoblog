@@ -9,19 +9,22 @@ import { useSessionExpiryNotice } from "./useSessionExpiryNotice";
 type SessionExpiryNoticeProps = {
   sessionExpiresAt: number;
   noticeWindowMs?: number;
+  disabled?: boolean;
   onShowChange?: (show: boolean) => void;
 };
 
 export function SessionExpiryNotice({
   sessionExpiresAt,
   noticeWindowMs = DEFAULT_NOTICE_WINDOW_MS,
+  disabled = false,
   onShowChange,
 }: SessionExpiryNoticeProps) {
-  const { dismiss, show } = useSessionExpiryNotice({ sessionExpiresAt, noticeWindowMs });
+  const { dismiss, show } = useSessionExpiryNotice({ sessionExpiresAt, noticeWindowMs, disabled });
+  const visible = show && !disabled;
 
   useEffect(() => {
-    onShowChange?.(show);
-  }, [onShowChange, show]);
+    onShowChange?.(visible);
+  }, [onShowChange, visible]);
 
-  return show ? <SessionExpiryNoticeDialog onDismiss={dismiss} /> : null;
+  return visible ? <SessionExpiryNoticeDialog onDismiss={dismiss} /> : null;
 }
