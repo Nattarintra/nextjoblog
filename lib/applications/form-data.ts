@@ -1,7 +1,8 @@
+import { emptyJobDetails } from "@/lib/applications/job-details";
 import { FIELD_NAMES, type ApplicationFormValues } from "@/lib/applications/types";
+import { isUuid } from "@/lib/applications/uuid";
 
 export const CLIENT_ID_FIELD = "client_id";
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface ApplicationFormData {
   values: ApplicationFormValues;
@@ -15,9 +16,10 @@ function readString(formData: FormData, name: string): string {
 }
 
 export function readApplicationFormData(formData: FormData): ApplicationFormData {
-  const values = Object.fromEntries(
-    FIELD_NAMES.map((field) => [field, readString(formData, field)]),
-  ) as ApplicationFormValues;
+  const values = {
+    ...Object.fromEntries(FIELD_NAMES.map((field) => [field, readString(formData, field)])),
+    ...emptyJobDetails(),
+  } as ApplicationFormValues;
   const clientId = readString(formData, CLIENT_ID_FIELD);
-  return { values, clientId: UUID_PATTERN.test(clientId) ? clientId : null };
+  return { values, clientId: isUuid(clientId) ? clientId : null };
 }

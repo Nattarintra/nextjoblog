@@ -411,8 +411,8 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 1: Pure domain modules and tables
 
 #### Automated
-- [ ] 1.1 New unit tests pass (`closing-date`, `tech-tags`, `job-details`, `uuid`, `paths`)
-- [ ] 1.2 Typecheck, lint and full suite pass
+- [x] 1.1 New unit tests pass (`closing-date`, `tech-tags`, `job-details`, `uuid`, `paths`)
+- [x] 1.2 Typecheck, lint and full suite pass
 
 ### Phase 2: Validation, form-data, form-view
 

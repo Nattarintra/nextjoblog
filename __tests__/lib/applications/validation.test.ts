@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { MAX_TEXT_LENGTH, MAX_URL_LENGTH } from "@/lib/applications/limits";
 import { validateApplicationInput, normalizeApplicationValues } from "@/lib/applications/validation";
 import { FIELD_NAMES, type ApplicationFormValues } from "@/lib/applications/types";
+import { emptyJobDetails } from "@/lib/applications/job-details";
 
 const VALID: ApplicationFormValues = {
   title: "Frontend Engineer",
@@ -10,6 +11,7 @@ const VALID: ApplicationFormValues = {
   applied_date: "2026-11-17",
   location: "Remote",
   posting_url: "https://jobs.spotify.com/12345",
+  ...emptyJobDetails(),
 };
 
 const with_ = (patch: Partial<ApplicationFormValues>): ApplicationFormValues => ({ ...VALID, ...patch });
@@ -27,7 +29,7 @@ describe("validateApplicationInput", () => {
 
   it("reports all errors in form order", () => {
     const errors = validateApplicationInput({
-      title: "", company: "", applied_date: "", location: "", posting_url: "",
+      ...emptyJobDetails(), title: "", company: "", applied_date: "", location: "", posting_url: "",
     });
     expect(Object.keys(errors)).toEqual([...FIELD_NAMES]);
   });
@@ -79,7 +81,7 @@ describe("validateApplicationInput", () => {
 
 describe("normalizeApplicationValues", () => {
   it("trims every field", () => {
-    const padded = Object.fromEntries(FIELD_NAMES.map((f) => [f, ` ${VALID[f]} `])) as ApplicationFormValues;
+    const padded = { ...VALID, ...Object.fromEntries(FIELD_NAMES.map((f) => [f, ` ${VALID[f]} `])) } as ApplicationFormValues;
     expect(normalizeApplicationValues(padded)).toEqual(VALID);
   });
 });

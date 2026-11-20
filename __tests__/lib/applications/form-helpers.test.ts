@@ -4,19 +4,22 @@ import { withClientValidation } from "@/lib/applications/client-submit";
 import { firstInvalidField, initialFormValues, orderedErrors, resolveFormView } from "@/lib/applications/form-view";
 import { buildNewApplicationDefaults } from "@/lib/applications/new-application-defaults";
 import { DEFAULT_TIME_ZONE } from "@/lib/applications/limits";
+import { emptyJobDetails } from "@/lib/applications/job-details";
 
 const TODAY = "2026-11-19";
-const VALID = { title: "Dev", company: "Acme", applied_date: TODAY, location: "Lund", posting_url: "https://acme.test/1" };
+const VALID = { title: "Dev", company: "Acme", applied_date: TODAY, location: "Lund", posting_url: "https://acme.test/1", ...emptyJobDetails() };
 
-function formDataOf(values: Record<string, string>): FormData {
+function formDataOf(values: Record<string, string | string[]>): FormData {
   const data = new FormData();
-  for (const [key, value] of Object.entries(values)) data.set(key, value);
+  for (const [key, value] of Object.entries(values)) {
+    for (const item of Array.isArray(value) ? value : [value]) data.append(key, item);
+  }
   return data;
 }
 
 describe("form view helpers", () => {
   it("starts empty except for today's date", () => {
-    expect(initialFormValues(TODAY)).toEqual({ title: "", company: "", applied_date: TODAY, location: "", posting_url: "" });
+    expect(initialFormValues(TODAY)).toEqual({ title: "", company: "", applied_date: TODAY, location: "", posting_url: "", ...emptyJobDetails() });
   });
 
   it("shows initial values before any submission", () => {

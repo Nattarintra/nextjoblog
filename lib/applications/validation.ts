@@ -2,7 +2,7 @@ import { isValidIsoDate } from "@/lib/applications/dates";
 import { MAX_TEXT_LENGTH, MAX_URL_LENGTH } from "@/lib/applications/limits";
 import { APPLICATION_MESSAGES, FIELD_LABELS } from "@/lib/applications/messages";
 import { hasControlCharacters, normalizeText } from "@/lib/applications/text";
-import { FIELD_NAMES, type ApplicationFormValues, type FieldErrors, type FieldName } from "@/lib/applications/types";
+import { FIELD_NAMES, type ApplicationFormValues, type FieldErrors, type RequiredFieldName } from "@/lib/applications/types";
 import { isSafeHttpUrl } from "@/lib/applications/url";
 
 export interface FieldRule {
@@ -11,7 +11,7 @@ export interface FieldRule {
   check?: (value: string) => string | null;
 }
 
-export const REQUIRED_FIELDS: Record<FieldName, FieldRule> = {
+export const REQUIRED_FIELDS: Record<RequiredFieldName, FieldRule> = {
   title: { maxLength: MAX_TEXT_LENGTH },
   company: { maxLength: MAX_TEXT_LENGTH },
   location: { maxLength: MAX_TEXT_LENGTH },
@@ -24,13 +24,13 @@ export const REQUIRED_FIELDS: Record<FieldName, FieldRule> = {
   },
 };
 
-function lengthMessage(field: FieldName, max: number): string {
+function lengthMessage(field: RequiredFieldName, max: number): string {
   return field === "posting_url"
     ? APPLICATION_MESSAGES.urlTooLong(max)
     : APPLICATION_MESSAGES.tooLong(FIELD_LABELS[field], max);
 }
 
-function validateField(field: FieldName, raw: string): string | null {
+function validateField(field: RequiredFieldName, raw: string): string | null {
   const label = FIELD_LABELS[field];
   const rule = REQUIRED_FIELDS[field];
   const value = normalizeText(raw);
@@ -54,6 +54,7 @@ export function validateApplicationInput(values: ApplicationFormValues): FieldEr
 
 export function normalizeApplicationValues(values: ApplicationFormValues): ApplicationFormValues {
   return Object.fromEntries(
-    FIELD_NAMES.map((field) => [field, normalizeText(values[field])]),
-  ) as ApplicationFormValues;
+    [...FIELD_NAMES.map((field) => [field, normalizeText(values[field])] as const),
+      ...Object.entries(values).filter(([field]) => !FIELD_NAMES.includes(field as RequiredFieldName))],
+  ) as unknown as ApplicationFormValues;
 }

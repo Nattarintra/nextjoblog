@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useLayoutEffect } from "react";
 
 import { fieldId } from "@/components/ui/field-ids";
 import { withClientValidation, type ApplicationSubmit } from "@/lib/applications/client-submit";
@@ -11,7 +11,7 @@ type FormSnapshot = { result: ApplicationFormState; submission: number };
 
 /** Focuses the first invalid control after each submission (not on first render). */
 function useFocusFirstInvalid(errors: ReturnType<typeof resolveFormView>["errors"], submission: number): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (submission === 0) return;
     const field = firstInvalidField(errors);
     if (field) document.getElementById(fieldId(field))?.focus();

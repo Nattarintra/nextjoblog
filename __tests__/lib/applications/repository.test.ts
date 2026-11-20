@@ -50,6 +50,12 @@ const RECORD: NewApplicationRecord = {
   location: "Stockholm",
   posting_url: "https://acme.test/1",
   status: "applied",
+  closing_date: null,
+  salary_info: null,
+  work_format: null,
+  contract_type: null,
+  discipline: null,
+  tech_stack: [],
 };
 
 describe("createApplicationWriter", () => {

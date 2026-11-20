@@ -9,6 +9,12 @@ export const FIELD_LABELS: Record<FieldName, string> = {
   applied_date: "Applied date",
   location: "Location",
   posting_url: "Job posting link",
+  closing_date: "Closing date",
+  salary_info: "Salary",
+  work_format: "Work arrangement",
+  contract_type: "Contract type",
+  discipline: "Track",
+  tech_stack: "Required technologies",
 };
 
 export const APPLICATION_MESSAGES = {
@@ -19,6 +25,9 @@ export const APPLICATION_MESSAGES = {
   invalidDate: "Enter a valid date",
   invalidUrl: `That isn't a link. Paste the full address, like ${EXAMPLE_POSTING_URL}`,
   urlTooLong: (max: number = MAX_URL_LENGTH) => `The link must be ${max} characters or fewer`,
+  invalidChoice: (label: string) => `Choose a valid ${label.toLowerCase()}`,
+  tooManyTags: (max: number) => `Add no more than ${max} technologies`,
+  tagTooLong: (max: number) => `Each technology must be ${max} characters or fewer`,
   summaryHeading: (count: number) =>
     `${count} ${count === 1 ? "field needs" : "fields need"} attention before saving`,
   saveFailed: "Couldn't save. Check your connection — everything you entered is still here.",
@@ -46,4 +55,16 @@ export const APPLICATION_PAGE_MESSAGES = {
   cancel: "Cancel",
   saveFailedTitle: "Couldn't save.",
   saveFailedDetail: "Check your connection — everything you entered is still here.",
+  jobDetailsSection: "Job details",
+  optionalHint: "optional",
+  closingBeforeApplied: "Closing date is before the applied date — double check (you can still save)",
+  salaryPlaceholder: "e.g. 45,000–52,000 SEK/month",
+  techPlaceholder: "Add a technology, then press Enter",
+  removeTagLabel: (tag: string) => `Remove ${tag}`,
+  clearChoiceLabel: (label: string) => `Clear ${label.toLowerCase()}`,
+  tagAddedAnnouncement: (tag: string) => `${tag} added`,
+  tagRemovedAnnouncement: (tag: string) => `${tag} removed`,
+  notProvided: "Not provided",
+  detailTitle: "Application details",
+  postingLinkLabel: (title: string, company: string) => `Open job posting for ${title} at ${company}`,
 } as const;

@@ -37,6 +37,12 @@ function buildRecord(
     location: values.location,
     posting_url: values.posting_url,
     status: INITIAL_APPLICATION_STATUS,
+    closing_date: null,
+    salary_info: null,
+    work_format: null,
+    contract_type: null,
+    discipline: null,
+    tech_stack: [],
   };
 }
 

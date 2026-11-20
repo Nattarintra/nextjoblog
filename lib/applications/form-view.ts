@@ -1,8 +1,9 @@
 import type { ApplicationFormState, ApplicationFormValues, FieldErrors } from "@/lib/applications/types";
+import { emptyJobDetails } from "@/lib/applications/job-details";
 import { FIELD_NAMES } from "@/lib/applications/types";
 
 export function initialFormValues(today: string): ApplicationFormValues {
-  return { title: "", company: "", applied_date: today, location: "", posting_url: "" };
+  return { title: "", company: "", applied_date: today, location: "", posting_url: "", ...emptyJobDetails() };
 }
 
 /** What the form shows: the last submission's values and errors, else the initial values. */
