@@ -263,6 +263,8 @@ Delete what is now dead and verify accessibility and visual match across breakpo
 
 **Contract**: `grep` for `#f3c47a`, `rgba(184,113,11`, `"/signup"`, `"/login"`, `"/dashboard"` in `app/` and `components/auth` returns only path-constant definitions.
 
+**Implementation addendum**: The Phase 4 path-literal cleanup also updates `app/actions/auth.ts`, `app/page.tsx`, and `app/not-found.tsx` to consume `DEFAULT_POST_LOGIN_PATH`. These files were intentionally included because they contained the remaining `/dashboard` literals covered by this contract.
+
 #### 2. Responsive and a11y verification
 
 **Files**: `e2e/helpers/axe.ts` (new, shared `expectNoAxeViolations(page)`), `e2e/auth-responsive.spec.ts` (new, covers the screens reachable by plain navigation), plus axe calls added inside the existing specs that already reach the stateful screens, reusing `@axe-core/playwright` and `e2e/helpers`.

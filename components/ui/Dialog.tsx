@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import type { ReactNode, RefObject } from "react";
 
 import { useDialogKeyboardNavigation } from "@/lib/hooks/use-dialog-keyboard-navigation";
@@ -23,11 +24,13 @@ export function Dialog({
   onEscape,
   children,
 }: DialogProps) {
-  const handleKeyDown = useDialogKeyboardNavigation({ firstFocusableRef, lastFocusableRef, onEscape });
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useDialogKeyboardNavigation({ containerRef: dialogRef, firstFocusableRef, lastFocusableRef, onEscape });
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-3 md:items-center md:px-6">
       <div
+        ref={dialogRef}
         data-surface={tone === "dark" ? "dark" : undefined}
         role="dialog"
         aria-modal="true"

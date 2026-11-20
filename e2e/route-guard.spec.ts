@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 import { TEST_PASSWORD as password } from "./helpers/auth-users";
-import { expectNoAxeViolations } from "./helpers/axe";
+import { expectResponsiveScreen } from "./helpers/axe";
 
 const email = `route-guard+${Date.now()}@example.com`;
 
@@ -46,7 +46,7 @@ test("rejects unsafe next values", async ({ page }) => {
   }
 });
 
-test("fails closed and recovers with Try Again", async ({ page }) => {
+test("fails closed and recovers with Try Again", async ({ page }, testInfo) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
@@ -56,7 +56,7 @@ test("fails closed and recovers with Try Again", async ({ page }) => {
   await page.context().addCookies([{ name: "e2e-session-check", value: "fail", url: "http://localhost:3000" }]);
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: /couldn't verify your session/i })).toBeVisible();
-  await expectNoAxeViolations(page);
+  await expectResponsiveScreen(page, testInfo, "session-check-failed");
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
   await page.context().clearCookies({ name: "e2e-session-check" });
   await page.getByRole("button", { name: "Try Again" }).click();

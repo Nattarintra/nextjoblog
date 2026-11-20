@@ -122,12 +122,15 @@ export const LOGIN_MESSAGES = {
   redirectHeading: "Log In to Continue",
   subtitle: "Log your job applications and track every step in one place.",
   redirectSubtitle: "You need to be logged in to open this page.",
+  emailLabel: "Email",
+  passwordLabel: "Password",
   invalidCredentials: "Email or password is incorrect",
   configuration: "We're unable to log in right now. Please try again shortly.",
   confirmationRequired:
     "Please verify your email before logging in. Check your inbox for the verification link.",
   forgotPassword: "Forgot password?",
   submit: "Log In",
+  pendingSubmit: "Logging in…",
   noAccount: "Don't have an account?",
   signUp: "Sign Up",
 } as const;
@@ -135,10 +138,13 @@ export const LOGIN_MESSAGES = {
 export const SIGNUP_MESSAGES = {
   heading: "Create Your NextJobLog Account",
   subtitle: "Your application data is encrypted and visible only to you.",
+  emailLabel: "Email",
+  passwordLabel: "Password",
   duplicateEmailPrefix: "This email is already in use —",
   duplicateEmailAction: "Log In",
   duplicateEmailSuffix: "instead",
   submit: "Sign Up",
+  pendingSubmit: "Creating account…",
   haveAccount: "Already have an account?",
   logIn: "Log In",
 } as const;
@@ -148,7 +154,9 @@ export const FORGOT_MESSAGES = {
   subtitle:
     "Enter the email you signed up with. We'll send you a link to set a new password.",
   hint: "The link works once. You'll set your new password on the page it opens.",
+  emailLabel: "Email",
   submit: "Send Reset Link",
+  pendingSubmit: "Sending reset link…",
   invalidEmail: "Enter a valid email address, like you@example.com",
   backToLogin: "← Back to Log In",
   sent: {
@@ -160,6 +168,7 @@ export const FORGOT_MESSAGES = {
       "Nothing there? Check your spam folder, or make sure the email above is the one you signed up with.",
     ],
     resend: "Resend Link",
+    resendIn: (formatted: string) => `Resend Link in ${formatted}`,
     differentEmail: "Use a different email",
   },
   limited: {

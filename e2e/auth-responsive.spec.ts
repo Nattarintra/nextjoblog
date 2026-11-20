@@ -15,7 +15,7 @@ for (const [name, path, heading] of screens) {
     ["mobile", MOBILE_VIEWPORT],
     ["desktop", DESKTOP_VIEWPORT],
   ] as const) {
-    test(`${name} has a usable ${viewportName} layout`, async ({ browser }) => {
+    test(`${name} has a usable ${viewportName} layout`, async ({ browser }, testInfo) => {
       const context = await browser.newContext({ viewport });
       const page = await context.newPage();
       try {
@@ -37,6 +37,10 @@ for (const [name, path, heading] of screens) {
           }
         }
         await expectNoAxeViolations(page);
+        await page.screenshot({
+          path: testInfo.outputPath(`${name.replaceAll(" ", "-")}-${viewportName}.png`),
+          fullPage: true,
+        });
       } finally {
         await context.close();
       }

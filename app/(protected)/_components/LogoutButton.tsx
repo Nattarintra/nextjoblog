@@ -2,16 +2,16 @@
 
 import { forwardRef } from "react";
 
+import { buttonClassName } from "@/components/ui/Button";
 import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
 
 import type { LogoutControl } from "./useLogout";
 
-const BASE_CLASS =
-  "cursor-pointer border border-danger-text bg-white font-semibold text-danger-text focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
+const BASE_CLASS = "cursor-pointer disabled:opacity-60";
 
 const VARIANT_CLASS = {
-  sheet: `${BASE_CLASS} order-first min-h-11 w-full rounded-[10px] bg-transparent px-3.5 py-2 text-[14px] text-danger-text focus-visible:ring-azure md:order-none md:w-auto md:flex-none`,
-  inline: `${BASE_CLASS} inline-flex min-h-8 items-center justify-center rounded-lg px-3 py-1 text-xs focus-visible:ring-sky`,
+  sheet: `${buttonClassName({ variant: "danger-outline", size: "md", fullWidth: true })} ${BASE_CLASS} order-first bg-transparent md:order-none md:w-auto md:flex-none`,
+  inline: `${buttonClassName({ variant: "danger-outline", size: "sm" })} ${BASE_CLASS} md:min-h-0`,
 } as const;
 
 type LogoutButtonProps = {

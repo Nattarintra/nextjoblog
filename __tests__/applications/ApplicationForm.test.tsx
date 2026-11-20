@@ -43,7 +43,7 @@ describe("ApplicationForm", () => {
       expect(input.getAttribute("aria-invalid")).toBe("true");
       expect(document.getElementById(input.getAttribute("aria-describedby")!)?.textContent).toMatch(/enter|isn't/i);
     }
-    expect(screen.getByRole("alert").textContent).toContain("4 fields need attention");
+    expect(screen.getByText("4 fields need attention before saving")).toBeTruthy();
     expect(submit).not.toHaveBeenCalled();
   });
 

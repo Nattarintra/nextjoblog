@@ -75,6 +75,10 @@ export default function NewPasswordForm({
     else errorRef.current?.focus();
   }, [state]);
 
+  useEffect(() => {
+    if (localError === OFFLINE_ERROR_MESSAGE) errorRef.current?.focus();
+  }, [localError]);
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const validation = validateNewPassword({ password, confirmation });
     if (!navigator.onLine) {

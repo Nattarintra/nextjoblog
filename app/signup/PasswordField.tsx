@@ -1,5 +1,6 @@
 import { PASSWORD_HELPER_TEXT } from "./password-validation";
 import { PasswordInput } from "@/components/auth/PasswordInput";
+import { SIGNUP_MESSAGES } from "@/lib/auth/messages";
 
 const helperClassName = "mt-1.5 text-[13.5px] text-(--surface-help)";
 
@@ -9,7 +10,7 @@ export function PasswordField({ message }: { message: string | null }) {
       <PasswordInput
         id="password"
         name="password"
-        label="Password"
+        label={SIGNUP_MESSAGES.passwordLabel}
         autoComplete="new-password"
         placeholder="••••••••"
         error={message}

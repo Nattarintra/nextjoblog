@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { FORGOT_MESSAGES } from "@/lib/auth/messages";
 import { seedConfirmedUser, setClientIp, uniqueEmail } from "./helpers/auth-users";
 import { clearMailbox, expectMailboxEmpty, waitForRecoveryEmail } from "./helpers/auth-email";
-import { expectNoAxeViolations } from "./helpers/axe";
+import { expectResponsiveScreen } from "./helpers/axe";
 
 const BASE_CLIENT_IP = "198.51.100.10";
 const IP_LIMIT_TEST_BASE_OCTET = 20;
@@ -23,7 +23,7 @@ async function openForgotPassword(page: Page, ip: string): Promise<void> {
 
 test.describe.configure({ mode: "default" });
 
-test("registered email shows the neutral screen and receives a recovery URL", async ({ page }) => {
+test("registered email shows the neutral screen and receives a recovery URL", async ({ page }, testInfo) => {
   const email = resetEmail("registered");
   await seedConfirmedUser(email);
   await clearMailbox(email);
@@ -33,7 +33,7 @@ test("registered email shows the neutral screen and receives a recovery URL", as
   await page.getByRole("button", { name: "Send Reset Link" }).click();
 
   await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
-  await expectNoAxeViolations(page);
+  await expectResponsiveScreen(page, testInfo, "forgot-check-your-email");
   const { recoveryUrl } = await waitForRecoveryEmail(email);
   const redirectTo = new URL(recoveryUrl).searchParams.get("redirect_to");
   expect(redirectTo).toBe("http://127.0.0.1:3000/reset-password");
@@ -41,7 +41,7 @@ test("registered email shows the neutral screen and receives a recovery URL", as
   await clearMailbox(email);
 });
 
-test("unknown email shows the same neutral screen without a message", async ({ page }) => {
+test("unknown email shows the same neutral screen without a message", async ({ page }, testInfo) => {
   const email = resetEmail("unknown");
   await clearMailbox(email);
   await openForgotPassword(page, "198.51.100.11");
@@ -50,6 +50,7 @@ test("unknown email shows the same neutral screen without a message", async ({ p
   await page.getByRole("button", { name: "Send Reset Link" }).click();
 
   await expect(page.getByRole("heading", { name: "Check Your Email" })).toBeVisible();
+  await expectResponsiveScreen(page, testInfo, "forgot-check-your-email-unknown");
   await expect(page.getByText("If this email exists in our system, we've sent a link.")).toBeVisible();
   await expectMailboxEmpty(email);
   await clearMailbox(email);
@@ -95,7 +96,7 @@ test("shows the server-authoritative IP limit countdown", async ({ page }, testI
   }
 
   await expect(page.getByRole("heading", { name: "Too Many Reset Requests" })).toBeVisible();
-  await expectNoAxeViolations(page);
+  await expectResponsiveScreen(page, testInfo, "forgot-too-many-requests");
   await expect(page.getByText(FORGOT_MESSAGES.limited.description)).toBeVisible();
   const countdown = page.locator("[aria-hidden='true']").filter({ hasText: /^\d+:\d{2}$/ });
   await expect(countdown).toHaveText(/^\d+:\d{2}$/);

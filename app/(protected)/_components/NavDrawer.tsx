@@ -29,9 +29,11 @@ export function NavDrawer({ email, onClose, onOpenAccount }: NavDrawerProps) {
   const pathname = usePathname();
   const closeRef = useRef<HTMLButtonElement>(null);
   const accountRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   useNavDrawer({ onClose, initialFocusRef: closeRef });
   const handleKeyDown = useDialogKeyboardNavigation({
+    containerRef: drawerRef,
     firstFocusableRef: closeRef,
     lastFocusableRef: accountRef,
     onEscape: onClose,
@@ -44,6 +46,7 @@ export function NavDrawer({ email, onClose, onOpenAccount }: NavDrawerProps) {
   return (
     <div role="presentation" className="fixed inset-0 z-40 flex bg-[rgba(1,8,18,0.5)] md:hidden" onClick={closeOnBackdropClick}>
       <div
+        ref={drawerRef}
         id={NAV_DRAWER_ID}
         role="dialog"
         aria-modal="true"

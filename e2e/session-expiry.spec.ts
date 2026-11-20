@@ -11,6 +11,7 @@ import {
   sessionStartedAtMs,
 } from "./helpers/auth-session";
 import { supabaseAdmin } from "./helpers/supabase-admin";
+import { expectResponsiveScreen } from "./helpers/axe";
 
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
@@ -173,7 +174,7 @@ test.describe("RLS after session restoration", () => {
 test.describe("application-managed session extension cycles", () => {
   test("extends through two notice cycles and remains accessible past the original expiry", async ({
     page,
-  }) => {
+  }, testInfo) => {
     test.setTimeout(100_000);
 
     const email = `extension-cycle+${Date.now()}@example.com`;
@@ -191,6 +192,7 @@ test.describe("application-managed session extension cycles", () => {
 
     await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_000 - Date.now()));
     await expect(dialog).toBeVisible();
+    await expectResponsiveScreen(page, testInfo, "session-expiry-dialog");
     await page.getByRole("button", { name: "Yes" }).click();
     await expect(dialog).toBeHidden();
 
@@ -234,7 +236,7 @@ test.describe("real session expiry (short timebox)", () => {
     execSync("supabase start", { stdio: "inherit" });
   });
 
-  test("shows the expiry notice and clears the cookie once the session truly expires", async ({ page }) => {
+  test("shows the expiry notice and clears the cookie once the session truly expires", async ({ page }, testInfo) => {
     test.setTimeout(75_000);
 
     const email = `expiry-test+${Date.now()}@example.com`;
@@ -263,6 +265,7 @@ test.describe("real session expiry (short timebox)", () => {
     await expect(dialog).toBeHidden();
     await page.waitForTimeout(750);
     await expect(dialog).toBeVisible();
+    await expectResponsiveScreen(page, testInfo, "session-expiry-dialog-real-expiry");
 
     // Wait past the full 30s timebox, then force a new request through
     // proxy.ts — that's what actually re-checks expiry and clears cookies.
