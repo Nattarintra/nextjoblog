@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 
+import { AccountSheet } from "./AccountSheet";
 import { NavDrawer } from "./NavDrawer";
 import { PasswordUpdatedToast } from "./PasswordUpdatedToast";
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
@@ -40,7 +41,14 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
 
   return (
     <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]">
-      <SideNav email={email} logoutControl={logoutControl} suspended={noticeOpen} />
+      <SideNav
+        email={email}
+        logoutControl={logoutControl}
+        suspended={noticeOpen}
+        open={accountOpen}
+        onOpenChange={setAccountOpen}
+        renderSheet={false}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader
           email={email}
@@ -56,6 +64,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
         <div className={`flex min-h-0 flex-1 flex-col ${scrollLocked ? "overflow-hidden" : "overflow-y-auto"}`}>{children}</div>
       </div>
       {drawerOpen && <NavDrawer email={email} onClose={closeDrawer} onOpenAccount={() => setAccountOpen(true)} />}
+      {accountOpen && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setAccountOpen(false)} />}
       <SessionExpiryNotice
         sessionExpiresAt={sessionExpiresAt}
         noticeWindowMs={noticeWindowMs}

@@ -37,7 +37,8 @@ export function SiteHeader({
   onAccountOpenChange,
 }: SiteHeaderProps) {
   return (
-    <header className="flex h-14 flex-none items-center gap-2.5 bg-navy px-3 text-on-dark md:hidden">
+    <>
+      <header className="flex h-14 flex-none items-center gap-2.5 bg-navy px-3 text-on-dark md:hidden">
       <button
         ref={menuButtonRef}
         type="button"
@@ -57,7 +58,9 @@ export function SiteHeader({
         suspended={suspended}
         open={accountOpen}
         onOpenChange={onAccountOpenChange}
+        renderSheet={false}
       />
-    </header>
+      </header>
+    </>
   );
 }
