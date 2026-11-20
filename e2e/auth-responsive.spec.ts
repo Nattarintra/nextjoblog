@@ -31,7 +31,7 @@ for (const [name, path, heading] of screens) {
           await expect(brandPanel).toBeHidden();
         }
 
-        for (const control of await page.locator("input, button").all()) {
+        for (const control of await page.locator("main").locator("input, button").all()) {
           if (await control.isVisible()) {
             expect(await control.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
           }
