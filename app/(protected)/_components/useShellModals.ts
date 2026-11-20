@@ -10,7 +10,9 @@ export function useShellModals(suspended: boolean) {
 
   if (suspended !== prevSuspended) {
     setPrevSuspended(suspended);
-    if (suspended) setActive(null);
+    // An account dialog may be in the middle of a logout flow. Let it finish
+    // instead of replacing it with the expiry notice during the transition.
+    if (suspended && active !== "account") setActive(null);
   }
 
   const openDrawer = useCallback(() => setActive("drawer"), []);

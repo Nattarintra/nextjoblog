@@ -51,6 +51,16 @@ describe("ProtectedLayout", () => {
     expect(screen.getByTestId("chrome").textContent).toBe("no-email");
   });
 
+  it("falls back to the email in user metadata", async () => {
+    effectiveMock.mockResolvedValue({
+      status: "authenticated",
+      claims: { user_metadata: { email: "ada@example.com" } },
+      effectiveExpiresAt: Date.now() + 1000,
+    });
+    await renderLayout();
+    expect(screen.getByTestId("chrome").textContent).toBe("ada@example.com");
+  });
+
   it("renders no top bar when unauthenticated", async () => {
     effectiveMock.mockResolvedValue({ status: "unauthenticated", reason: "missing" });
     await renderLayout();

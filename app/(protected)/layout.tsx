@@ -11,6 +11,15 @@ import {
 
 import { ProtectedAppShell } from "./_components/ProtectedAppShell";
 
+function getAccountEmail(claims: { email?: unknown; user_metadata?: unknown }): string | undefined {
+  if (typeof claims.email === "string") return claims.email;
+  if (claims.user_metadata && typeof claims.user_metadata === "object" && "email" in claims.user_metadata) {
+    const metadataEmail = (claims.user_metadata as { email?: unknown }).email;
+    if (typeof metadataEmail === "string") return metadataEmail;
+  }
+  return undefined;
+}
+
 export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
   const effective = await getEffectiveSessionExpiry();
   const noticeWindowMs = getSessionNoticeWindowMs();
@@ -22,7 +31,7 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
 
   return (
     <ProtectedAppShell
-      email={typeof effective.claims.email === "string" ? effective.claims.email : undefined}
+      email={getAccountEmail(effective.claims)}
       sessionExpiresAt={effective.effectiveExpiresAt}
       noticeWindowMs={noticeWindowMs}
       passwordUpdated={passwordUpdated}
