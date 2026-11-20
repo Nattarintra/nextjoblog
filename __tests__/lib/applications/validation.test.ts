@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_TEXT_LENGTH, MAX_URL_LENGTH } from "@/lib/applications/limits";
+import { MAX_TAG_COUNT, MAX_TAG_LENGTH, MAX_TEXT_LENGTH, MAX_URL_LENGTH } from "@/lib/applications/limits";
 import { validateApplicationInput, normalizeApplicationValues } from "@/lib/applications/validation";
 import { FIELD_NAMES, type ApplicationFormValues } from "@/lib/applications/types";
 import { emptyJobDetails } from "@/lib/applications/job-details";
@@ -83,5 +83,60 @@ describe("normalizeApplicationValues", () => {
   it("trims every field", () => {
     const padded = { ...VALID, ...Object.fromEntries(FIELD_NAMES.map((f) => [f, ` ${VALID[f]} `])) } as ApplicationFormValues;
     expect(normalizeApplicationValues(padded)).toEqual(VALID);
+  });
+
+  it("normalizes salary, optional choices, dates and tags", () => {
+    expect(normalizeApplicationValues(with_({
+      closing_date: " 2026-12-01 ",
+      salary_info: " 60 000 SEK ",
+      work_format: " remote ",
+      contract_type: " contract ",
+      discipline: " frontend ",
+      tech_stack: [" React ", "react", " TypeScript "] as string[],
+    }))).toEqual({
+      ...VALID,
+      closing_date: "2026-12-01",
+      salary_info: "60 000 SEK",
+      work_format: "remote",
+      contract_type: "contract",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    });
+  });
+});
+
+describe("optional fields", () => {
+  it("allows all optional fields to be empty", () => {
+    expect(validateApplicationInput(VALID)).toEqual({});
+  });
+
+  it.each([
+    ["closing_date", "2026-02-30"],
+    ["work_format", "office"],
+    ["contract_type", "temporary"],
+    ["discipline", "designer"],
+  ] as const)("rejects invalid %s", (field, value) => {
+    expect(validateApplicationInput(with_({ [field]: value }))).toHaveProperty(field);
+  });
+
+  it("does not reject a closing date before the applied date", () => {
+    expect(validateApplicationInput(with_({ applied_date: "2026-08-25", closing_date: "2026-08-20" }))).toEqual({});
+  });
+
+  it.each([
+    [MAX_TEXT_LENGTH, false],
+    [MAX_TEXT_LENGTH + 1, true],
+  ])("validates salary length %i -> error %s", (length, hasError) => {
+    expect("salary_info" in validateApplicationInput(with_({ salary_info: "a".repeat(length) }))).toBe(hasError);
+  });
+
+  it("rejects control characters in optional text and tags", () => {
+    expect(validateApplicationInput(with_({ salary_info: "60\u0000k" }))).toHaveProperty("salary_info");
+    expect(validateApplicationInput(with_({ tech_stack: ["React\n"] }))).toHaveProperty("tech_stack");
+  });
+
+  it("rejects too many or too-long technologies", () => {
+    expect(validateApplicationInput(with_({ tech_stack: Array.from({ length: MAX_TAG_COUNT + 1 }, (_, i) => `Tag ${i}`) }))).toHaveProperty("tech_stack");
+    expect(validateApplicationInput(with_({ tech_stack: ["a".repeat(MAX_TAG_LENGTH + 1)] }))).toHaveProperty("tech_stack");
   });
 });

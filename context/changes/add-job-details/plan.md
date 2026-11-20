@@ -411,14 +411,14 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 1: Pure domain modules and tables
 
 #### Automated
-- [x] 1.1 New unit tests pass (`closing-date`, `tech-tags`, `job-details`, `uuid`, `paths`)
-- [x] 1.2 Typecheck, lint and full suite pass
+- [x] 1.1 New unit tests pass (`closing-date`, `tech-tags`, `job-details`, `uuid`, `paths`) — ca91350
+- [x] 1.2 Typecheck, lint and full suite pass — ca91350
 
 ### Phase 2: Validation, form-data, form-view
 
 #### Automated
-- [ ] 2.1 Validation, form-data, form-view tests pass (required behaviour unchanged)
-- [ ] 2.2 `lib/applications/**` coverage ≥ 90%
+- [x] 2.1 Validation, form-data, form-view tests pass (required behaviour unchanged)
+- [x] 2.2 `lib/applications/**` coverage ≥ 90%
 
 ### Phase 3: Service, repository, port, Server Action
 

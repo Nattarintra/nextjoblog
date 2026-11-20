@@ -31,6 +31,28 @@ describe("readApplicationFormData", () => {
     expect(values.title).toBe("");
   });
 
+  it("reads optional fields and repeated technologies", () => {
+    const data = formWith({
+      closing_date: "2026-12-01",
+      salary_info: "60k",
+      work_format: "remote",
+      contract_type: "permanent",
+      discipline: "frontend",
+      tech_stack: "React",
+    });
+    data.append("tech_stack", "TypeScript");
+    data.append("tech_stack", new Blob(["ignored"]));
+
+    expect(readApplicationFormData(data).values).toMatchObject({
+      closing_date: "2026-12-01",
+      salary_info: "60k",
+      work_format: "remote",
+      contract_type: "permanent",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    });
+  });
+
   it.each(["", "not-a-uuid", "3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b-extra"])("rejects client id %j", (client_id) => {
     expect(readApplicationFormData(formWith({ client_id })).clientId).toBeNull();
   });

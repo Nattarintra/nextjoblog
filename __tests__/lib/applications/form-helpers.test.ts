@@ -38,9 +38,13 @@ describe("form view helpers", () => {
   });
 
   it("orders errors and finds the first invalid field in form order", () => {
-    const errors = { posting_url: "link", title: "title" };
+    const errors = { tech_stack: "tags", posting_url: "link", title: "title" };
     expect(firstInvalidField(errors)).toBe("title");
-    expect(orderedErrors(errors)).toEqual([{ field: "title", message: "title" }, { field: "posting_url", message: "link" }]);
+    expect(orderedErrors(errors)).toEqual([
+      { field: "title", message: "title" },
+      { field: "posting_url", message: "link" },
+      { field: "tech_stack", message: "tags" },
+    ]);
     expect(firstInvalidField({})).toBeUndefined();
   });
 });
