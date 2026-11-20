@@ -1,11 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { signup } from "@/app/actions/auth";
 
-import { AuthLogo } from "@/components/auth/AuthLogo";
+import { AuthHeader } from "@/components/auth/AuthHeader";
+import { AuthFooter, AuthLink } from "@/components/auth/AuthFooter";
+import { SIGNUP_MESSAGES } from "@/lib/auth/messages";
+import { LOGIN_PATH } from "@/lib/auth/paths";
 import { getPasswordValidationError, PASSWORD_HELPER_TEXT } from "./password-validation";
 import {
   ConfigurationErrorAlert,
@@ -14,12 +16,6 @@ import {
   UnknownErrorAlert,
 } from "./SignupAlerts";
 import { SignupFields } from "./SignupFields";
-import {
-  authFooterClassName,
-  authHeadingClassName,
-  authLinkClassName,
-  authSubtextClassName,
-} from "@/components/auth/styles";
 
 export default function SignupForm() {
   const [state, formAction, isPending] = useActionState(signup, undefined);
@@ -45,11 +41,7 @@ export default function SignupForm() {
 
   return (
     <>
-      <AuthLogo />
-      <h1 className={authHeadingClassName}>Create Your NextJobLog Account</h1>
-      <div className={authSubtextClassName}>
-        Your application data is encrypted and visible only to you.
-      </div>
+      <AuthHeader title={SIGNUP_MESSAGES.heading} subtitle={SIGNUP_MESSAGES.subtitle} />
 
       {state && "error" in state && state.error === "duplicate_email" && <DuplicateEmailAlert />}
       {state && "error" in state && state.error === "unknown" && (
@@ -67,9 +59,7 @@ export default function SignupForm() {
         isPending={isPending}
       />
 
-      <div className={authFooterClassName}>
-        Already have an account? <Link className={authLinkClassName} href="/login">Log In</Link>
-      </div>
+      <AuthFooter>{SIGNUP_MESSAGES.haveAccount} <AuthLink href={LOGIN_PATH}>{SIGNUP_MESSAGES.logIn}</AuthLink></AuthFooter>
     </>
   );
 }

@@ -24,6 +24,7 @@ import ForgotPasswordFlow from "@/app/forgot-password/ForgotPasswordFlow";
 import ForgotPasswordForm from "@/app/forgot-password/ForgotPasswordForm";
 import TooManyRequestsScreen from "@/app/forgot-password/TooManyRequestsScreen";
 import { formatCountdown, useCountdown } from "@/lib/hooks/use-countdown";
+import { FORGOT_MESSAGES } from "@/lib/auth/messages";
 
 const noopAction = vi.fn();
 
@@ -91,7 +92,7 @@ describe("forgot-password screens", () => {
       />,
     );
 
-    expect(screen.getByRole("alert").textContent).toContain("Please wait");
+    expect(screen.getByRole("alert").textContent).toContain(FORGOT_MESSAGES.limited.description);
     expect(screen.getByText("1:00")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Request a New Link" }) as HTMLButtonElement).disabled).toBe(true);
   });

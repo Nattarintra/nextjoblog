@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
+import { Toast } from "@/components/ui/Toast";
 import {
   PASSWORD_UPDATED_TOAST_COOKIE_PATH,
   PASSWORD_UPDATED_TOAST_COOKIE_SAME_SITE,
@@ -43,21 +44,5 @@ export function PasswordUpdatedToast({ serverFlag = false }: PasswordUpdatedToas
 
   if (!visible) return null;
 
-  return (
-    <div className="mx-4 mt-4 flex items-start gap-3 rounded-xl border border-success-fg/20 bg-success-tint px-3 py-3 text-sm text-success-fg" role="status">
-      <span aria-hidden="true">✓</span>
-      <span className="flex-1">
-        <strong className="block">{PASSWORD_RESET_MESSAGES.toast.title}</strong>
-        {PASSWORD_RESET_MESSAGES.toast.body}
-      </span>
-      <button
-        className="rounded-md px-1 text-lg leading-none focus:outline focus:outline-2 focus:outline-azure"
-        type="button"
-        aria-label={PASSWORD_RESET_MESSAGES.toast.dismissLabel}
-        onClick={() => setVisible(false)}
-      >
-        ×
-      </button>
-    </div>
-  );
+  return <Toast {...PASSWORD_RESET_MESSAGES.toast} onDismiss={() => setVisible(false)} />;
 }

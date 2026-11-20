@@ -6,6 +6,7 @@ import {
   logInInNewContext,
   signUpNewUser,
 } from "./helpers/auth-session";
+import { expectResponsiveScreen } from "./helpers/axe";
 
 const DASHBOARD_URL = /\/dashboard$/;
 const LOGGED_OUT_LOGIN_URL = /\/login\?loggedOut=1$/;
@@ -20,7 +21,7 @@ async function openAccountSheet(page: Page) {
   return sheet;
 }
 
-test("logs out, lands on the login banner, and Back never shows the dashboard", async ({ browser }) => {
+test("logs out, lands on the login banner, and Back never shows the dashboard", async ({ browser }, testInfo) => {
   const { email, context, page } = await signUpNewUser(browser, "logout-happy");
   await expect(page).toHaveURL(DASHBOARD_URL);
   // Signup leaves [/signup, /dashboard]. Visit another protected page and come
@@ -29,6 +30,7 @@ test("logs out, lands on the login banner, and Back never shows the dashboard", 
   await page.goto("/applications/123");
   await page.goto("/dashboard");
   const sheet = await openAccountSheet(page);
+  await expectResponsiveScreen(page, testInfo, "account-dialog");
   await expect(sheet.getByText(email)).toBeVisible();
 
   await sheet.getByRole("button", { name: "Log Out" }).click();
@@ -69,7 +71,7 @@ test("logging out in one context leaves another context of the same user logged 
 });
 
 test.describe("failure outcomes", () => {
-  test("shows still-logged-in error, then Try Again succeeds once the fault clears", async ({ browser }) => {
+  test("shows still-logged-in error, then Try Again succeeds once the fault clears", async ({ browser }, testInfo) => {
     const { context, page } = await signUpNewUser(browser, "logout-fail");
     await context.addCookies([{ name: "e2e-logout", value: "fail", url: BASE_URL }]);
 
@@ -77,6 +79,7 @@ test.describe("failure outcomes", () => {
     await sheet.getByRole("button", { name: "Log Out" }).click();
 
     await expect(sheet.getByRole("alert")).toContainText("You're still logged in on this device");
+    await expectResponsiveScreen(page, testInfo, "logout-failed-dialog");
     await expect(page).toHaveURL(DASHBOARD_URL);
 
     await context.clearCookies({ name: "e2e-logout" });

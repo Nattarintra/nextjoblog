@@ -67,6 +67,20 @@ describe("SessionExpiryNotice", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("defers the notice while another modal is active", () => {
+    const sessionExpiresAt = Date.now() + 30_000;
+    const { rerender } = render(
+      <SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} disabled />,
+    );
+
+    act(() => vi.advanceTimersByTime(28_000));
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    rerender(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} />);
+    act(() => vi.advanceTimersByTime(0));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
   it("keeps the notice open until the user responds", () => {
     const sessionExpiresAt = Date.now() + 1_000;
     render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={2_000} />);

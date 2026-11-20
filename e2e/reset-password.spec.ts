@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 import { clearMailbox } from "./helpers/auth-email";
+import { expectNoAxeViolations, expectResponsiveScreen } from "./helpers/axe";
 import { authCookieStorageKey } from "./helpers/auth-cookies";
 import {
   authCookieCount,
@@ -81,6 +82,7 @@ async function submitNewPassword(page: Page, password: string, confirmation = pa
 
 async function expectExpiredScreen(page: Page) {
   await expect(page.getByRole("heading", { name: MESSAGES.expired.heading })).toBeVisible();
+  await expectNoAxeViolations(page);
 }
 
 async function passwordWorks(email: string, password: string): Promise<boolean> {
@@ -95,7 +97,7 @@ async function cleanup({ email, context }: Pick<Setup, "email" | "context">) {
   await context.close();
 }
 
-test("saves a new password, signs in, shows the toast and survives reload", async ({ browser }) => {
+test("saves a new password, signs in, shows the toast and survives reload", async ({ browser }, testInfo) => {
   const flow = await openRecoveryFlow(browser, "happy");
   const { page } = flow;
   try {
@@ -124,6 +126,7 @@ test("saves a new password, signs in, shows the toast and survives reload", asyn
       `history before: ${JSON.stringify(historyBefore)}; after: ${JSON.stringify(historyAfter)}; navigations: ${JSON.stringify(navigations)}`,
     ).toBe(historyBefore.length);
     await expect(page.getByRole("status").filter({ hasText: MESSAGES.toast.title })).toBeVisible();
+    await expectResponsiveScreen(page, testInfo, "password-updated-toast");
 
     await page.reload();
     await expect(page).toHaveURL(new RegExp(`${DEFAULT_POST_LOGIN_PATH}$`));
@@ -207,7 +210,7 @@ test("reusing the current password shows an inline error and changes nothing", a
   }
 });
 
-test("a used link shows the expired screen and routes back to forgot-password", async ({ browser }) => {
+test("a used link shows the expired screen and routes back to forgot-password", async ({ browser }, testInfo) => {
   const flow = await openRecoveryFlow(browser, "used");
   try {
     await openResetForm(flow.page, flow.recoveryUrl);
@@ -219,6 +222,7 @@ test("a used link shows the expired screen and routes back to forgot-password", 
       const secondPage = await second.newPage();
       await secondPage.goto(flow.recoveryUrl);
       await expectExpiredScreen(secondPage);
+      await expectResponsiveScreen(secondPage, testInfo, "reset-link-expired");
 
       await secondPage.getByRole("link", { name: MESSAGES.expired.requestLink }).click();
       await expect(secondPage).toHaveURL(new RegExp(`${FORGOT_PASSWORD_PATH}$`));

@@ -1,9 +1,11 @@
 import { Logo } from "@/components/Logo";
 
-export function AuthLogo() {
+type AuthLogoProps = { size?: 36 | 40 };
+
+export function AuthLogo({ size = 40 }: AuthLogoProps) {
   return (
-    <div className="mb-6.5" aria-label="NextJobLog">
-      <Logo />
+    <div className="mb-6.5 md:hidden" role="img" aria-label="NextJobLog">
+      <Logo size={size} />
     </div>
   );
 }

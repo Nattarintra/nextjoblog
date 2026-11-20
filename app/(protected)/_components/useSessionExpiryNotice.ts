@@ -15,12 +15,22 @@ function setRespondedCookie(sessionExpiresAt: number): void {
   document.cookie = `${RESPONDED_COOKIE_NAME}=${sessionExpiresAt}; expires=${new Date(sessionExpiresAt).toUTCString()}; path=/`;
 }
 
-type UseSessionExpiryNoticeOptions = { sessionExpiresAt: number; noticeWindowMs?: number };
+type UseSessionExpiryNoticeOptions = {
+  sessionExpiresAt: number;
+  noticeWindowMs?: number;
+  disabled?: boolean;
+};
 
-export function useSessionExpiryNotice({ sessionExpiresAt, noticeWindowMs = DEFAULT_NOTICE_WINDOW_MS }: UseSessionExpiryNoticeOptions) {
+export function useSessionExpiryNotice({
+  sessionExpiresAt,
+  noticeWindowMs = DEFAULT_NOTICE_WINDOW_MS,
+  disabled = false,
+}: UseSessionExpiryNoticeOptions) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    if (disabled) return;
+
     let timer: ReturnType<typeof setTimeout>;
     function checkNotice(): void {
       const now = Date.now();
@@ -31,7 +41,7 @@ export function useSessionExpiryNotice({ sessionExpiresAt, noticeWindowMs = DEFA
     }
     timer = setTimeout(checkNotice, 0);
     return () => clearTimeout(timer);
-  }, [noticeWindowMs, sessionExpiresAt]);
+  }, [disabled, noticeWindowMs, sessionExpiresAt]);
 
   function dismiss(): void {
     setRespondedCookie(sessionExpiresAt);

@@ -8,17 +8,98 @@
   --azure: #1976d2;
   --mist: #e4f2ff;
   --warning-tint: #fbf0dc;
-  --warning-fg: #8a5608;
+  --warning-text: #7a4a05;
   --danger-tint: #fbe9e7;
-  --danger-fg: #8a271f;
-  --success-tint: #e3f4e8;
-  --success-fg: #1c5c34;
-  --paper: #fbfaf7;
-  --auth-label: #cfe1f5;
+  --danger-text: #a32a21;
+  --success-tint: #e4f5ec;
+  --success-text: #13633f;
+  --neutral-text: #404a58;
+  --info-tint: #e3ecf7;
+  --info-text: #1d4a7a;
+  --progress-tint: #e3e2fa;
+  --progress-text: #3d3a8c;
+  --paper: #ffffff;
+  --cobalt: #185fa5;
+  --link: #185fa5;
+  --danger: #c0362c;
+  --success: #1e8e5a;
+  --warning: #b8710b;
+  --app-bg: #f4f7fb;
+  --subtle: #eceef1;
+  --border: #d5dce6;
+  --border-strong: #b9c3d0;
+  --text: #0f1b2a;
+  --text-2: #3b4859;
+  --text-3: #526074;
+  --on-dark: #ffffff;
+  --on-dark-2: #c9d8ea;
+  --on-dark-3: #9db0c6;
+  --neutral: #5b6472;
+  --star: #e0a526;
   --auth-danger: #ffb4ab;
   --auth-danger-ring: rgb(192 54 44 / 24%);
   --auth-warning: #f3c47a;
   --auth-warning-ring: rgb(184 113 11 / 22%);
+  --auth-bg: #010812;
+  --auth-brand-from: #042c53;
+  --auth-brand-to: #021a33;
+  --auth-danger-text: #ffd6d1;
+  --auth-danger-tint: rgb(192 54 44 / 22%);
+  --auth-warning-text: #ffe2b0;
+  --auth-warning-tint: rgb(184 113 11 / 24%);
+  --auth-success-text: #c9f0dc;
+  --auth-success-tint: rgb(30 142 90 / 24%);
+  --auth-field-error: #ff8a7e;
+  --auth-field-error-tint: rgb(255 138 126 / 10%);
+
+  /* Surface variables read by the ui/ kit. Light defaults; see [data-surface="dark"]. */
+  --surface-control-border: var(--border-strong);
+  --surface-control-bg: var(--paper);
+  --surface-control-text: var(--text);
+  --surface-control-placeholder: var(--text-3);
+  --surface-control-invalid-border: var(--danger);
+  --surface-control-invalid-bg: color-mix(in oklab, var(--danger-tint) 30%, transparent);
+  --surface-label: var(--text);
+  --surface-required: var(--danger-text);
+  --surface-help: var(--text-3);
+  --surface-error-text: var(--danger-text);
+  --surface-alert-danger-bg: var(--danger-tint);
+  --surface-alert-danger-text: var(--danger-text);
+  --surface-alert-warning-bg: var(--warning-tint);
+  --surface-alert-warning-text: var(--warning-text);
+  --surface-alert-success-bg: var(--success-tint);
+  --surface-alert-success-text: var(--success-text);
+  --surface-secondary-border: var(--border-strong);
+  --surface-secondary-bg: var(--paper);
+  --surface-secondary-text: var(--navy);
+  --surface-secondary-hover: var(--app-bg);
+  --surface-danger-outline-border: var(--danger);
+  --surface-danger-outline-text: var(--danger-text);
+}
+
+[data-surface="dark"] {
+  --surface-control-border: rgb(255 255 255 / 28%);
+  --surface-control-bg: rgb(255 255 255 / 6%);
+  --surface-control-text: var(--on-dark);
+  --surface-control-placeholder: rgb(255 255 255 / 45%);
+  --surface-control-invalid-border: var(--auth-field-error);
+  --surface-control-invalid-bg: var(--auth-field-error-tint);
+  --surface-label: var(--on-dark-2);
+  --surface-required: var(--auth-field-error);
+  --surface-help: var(--on-dark-3);
+  --surface-error-text: var(--auth-field-error);
+  --surface-alert-danger-bg: var(--auth-danger-tint);
+  --surface-alert-danger-text: var(--auth-danger-text);
+  --surface-alert-warning-bg: var(--auth-warning-tint);
+  --surface-alert-warning-text: var(--auth-warning-text);
+  --surface-alert-success-bg: var(--auth-success-tint);
+  --surface-alert-success-text: var(--auth-success-text);
+  --surface-secondary-border: rgb(255 255 255 / 40%);
+  --surface-secondary-bg: transparent;
+  --surface-secondary-text: var(--on-dark);
+  --surface-secondary-hover: rgb(255 255 255 / 10%);
+  --surface-danger-outline-border: var(--auth-field-error);
+  --surface-danger-outline-text: var(--auth-field-error);
 }
 
 @theme inline {
@@ -29,19 +110,44 @@
   --color-azure: var(--azure);
   --color-mist: var(--mist);
   --color-warning-tint: var(--warning-tint);
-  --color-warning-fg: var(--warning-fg);
+  --color-warning-text: var(--warning-text);
   --color-danger-tint: var(--danger-tint);
-  --color-danger-fg: var(--danger-fg);
+  --color-danger-text: var(--danger-text);
   --color-success-tint: var(--success-tint);
-  --color-success-fg: var(--success-fg);
+  --color-success-text: var(--success-text);
+  --color-neutral-text: var(--neutral-text);
+  --color-info-tint: var(--info-tint);
+  --color-info-text: var(--info-text);
+  --color-progress-tint: var(--progress-tint);
+  --color-progress-text: var(--progress-text);
   --color-paper: var(--paper);
-  --color-auth-label: var(--auth-label);
+  --color-cobalt: var(--cobalt);
+  --color-link: var(--link);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-app-bg: var(--app-bg);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-ink: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-2: var(--on-dark-2);
+  --color-on-dark-3: var(--on-dark-3);
+  --color-neutral: var(--neutral);
+  --color-star: var(--star);
   --color-auth-danger: var(--auth-danger);
   --color-auth-danger-ring: var(--auth-danger-ring);
   --color-auth-warning: var(--auth-warning);
   --color-auth-warning-ring: var(--auth-warning-ring);
+  --color-auth-bg: var(--auth-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-archivo);
+  --font-body: var(--font-work-sans);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -57,32 +163,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.auth-page-content:has([data-reset-password-status="checking"]) > .auth-page-glow {
+.auth-layout:has([data-reset-password-status="checking"]) .auth-layout-glow {
   display: none;
-}
-
-.session-steps {
-  counter-reset: session-step;
-  list-style: none;
-  padding-left: 0;
-}
-
-.session-step {
-  counter-increment: session-step;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.session-step::before {
-  content: counter(session-step);
-  flex: none;
-  margin-top: 1px;
-  border: 1px solid rgb(181 212 244 / 40%);
-  border-radius: 5px;
-  padding: 1px 5px;
-  color: var(--sky);
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 10px;
-  line-height: 1.4;
 }

@@ -1,84 +1,22 @@
-import Link from "next/link";
 import type { ComponentProps } from "react";
-import { useEffect, useRef } from "react";
-
-import { AuthLogo } from "@/components/auth/AuthLogo";
-import {
-  authFieldLabelClassName,
-  authFooterClassName,
-  authHeadingClassName,
-  authHintClassName,
-  authInputClassName,
-  authLinkClassName,
-  authSubtextClassName,
-  submitButtonClassName,
-} from "@/components/auth/styles";
-import { AUTH_ACTION_LABELS } from "@/lib/auth/messages";
+import { AuthFooter, AuthLink } from "@/components/auth/AuthFooter";
+import { AuthHeader } from "@/components/auth/AuthHeader";
+import { Button } from "@/components/ui/Button";
+import { FormField } from "@/components/ui/FormField";
+import { TextInput } from "@/components/ui/TextInput";
+import { FORGOT_MESSAGES } from "@/lib/auth/messages";
 import { LOGIN_PATH } from "@/lib/auth/paths";
 
-export default function ForgotPasswordForm({
-  action,
-  isPending,
-  hasError,
-  onSubmit,
-}: {
-  action: ComponentProps<"form">["action"];
-  isPending: boolean;
-  hasError: boolean;
-  onSubmit: (email: string) => void;
-}) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-
-  useEffect(() => {
-    headingRef.current?.focus();
-  }, []);
-
-  return (
-    <>
-      <AuthLogo />
-      <h1 ref={headingRef} tabIndex={-1} className={authHeadingClassName}>
-        Forgot Your Password?
-      </h1>
-      <div className={authSubtextClassName}>Enter your email and we&apos;ll send you a secure reset link.</div>
-
-      <form
-        action={action}
-        noValidate
-        onSubmit={(event) => {
-          const value = new FormData(event.currentTarget).get("email");
-          if (typeof value === "string") onSubmit(value.trim());
-        }}
-      >
-        <div className="mb-3.5">
-          <label htmlFor="forgot-password-email" className={authFieldLabelClassName}>
-            Email
-          </label>
-          <input
-            className={authInputClassName}
-            id="forgot-password-email"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            autoComplete="email"
-            required
-            aria-invalid={hasError}
-            aria-describedby={hasError ? "forgot-password-email-error" : undefined}
-          />
-          {hasError && (
-            <p id="forgot-password-email-error" className="mt-1.5 text-[12px] text-auth-danger" role="alert">
-              Enter a valid email address, like you@example.com
-            </p>
-          )}
-        </div>
-        <p className={authHintClassName}>The link works once. You&apos;ll set your new password on the page it opens.</p>
-        <button className={`${submitButtonClassName} mt-5`} type="submit" disabled={isPending}>
-          {isPending ? "Sending reset link…" : "Send Reset Link"}
-        </button>
-      </form>
-
-      <div className={authFooterClassName}>
-        <Link className={authLinkClassName} href={LOGIN_PATH}>← {AUTH_ACTION_LABELS.backToLogin}</Link>
-      </div>
-    </>
-  );
+export default function ForgotPasswordForm({ action, isPending, hasError, onSubmit }: { action: ComponentProps<"form">["action"]; isPending: boolean; hasError: boolean; onSubmit: (email: string) => void }) {
+  return <>
+    <AuthHeader title={FORGOT_MESSAGES.heading} subtitle={FORGOT_MESSAGES.subtitle} focusHeading />
+    <form action={action} noValidate onSubmit={(event) => { const value = new FormData(event.currentTarget).get("email"); if (typeof value === "string") onSubmit(value.trim()); }}>
+      <FormField name="email" id="forgot-password-email" label={FORGOT_MESSAGES.emailLabel} required error={hasError ? FORGOT_MESSAGES.invalidEmail : undefined}>
+        <TextInput type="email" placeholder="you@example.com" autoComplete="email" />
+      </FormField>
+      <p className="mt-4 text-[13.5px] leading-relaxed text-on-dark-3">{FORGOT_MESSAGES.hint}</p>
+      <div className="mt-5"><Button variant="primary" fullWidth type="submit" pending={isPending} pendingLabel={FORGOT_MESSAGES.pendingSubmit}>{FORGOT_MESSAGES.submit}</Button></div>
+    </form>
+    <AuthFooter><AuthLink href={LOGIN_PATH}>{FORGOT_MESSAGES.backToLogin}</AuthLink></AuthFooter>
+  </>;
 }

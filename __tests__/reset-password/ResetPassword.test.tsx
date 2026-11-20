@@ -116,6 +116,7 @@ describe("reset-password UI", () => {
 
     expect(action).not.toHaveBeenCalled();
     expect(screen.getByRole("alert").textContent).toContain("offline");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("alert")));
   });
 
   it("renders the provider error and keeps the fields available", () => {
