@@ -5,15 +5,18 @@ import { UI_MESSAGES } from "@/components/ui/messages";
 
 export const BUTTON_VARIANT_CLASS = {
   primary: "bg-azure text-on-dark hover:brightness-95",
-  secondary: "border-[1.5px] border-border-strong bg-paper text-navy hover:bg-app-bg",
+  secondary:
+    "border-[1.5px] border-(--surface-secondary-border) bg-(--surface-secondary-bg) text-(--surface-secondary-text) hover:bg-(--surface-secondary-hover)",
   navy: "bg-navy text-on-dark hover:brightness-110",
   danger: "bg-danger text-on-dark hover:brightness-95",
+  "danger-outline":
+    "border-[1.5px] border-(--surface-danger-outline-border) bg-transparent text-(--surface-danger-outline-text) hover:bg-(--surface-secondary-hover)",
   ghost: "bg-transparent text-link hover:bg-app-bg",
 } as const;
 
 export const BUTTON_SIZE_CLASS = {
-  md: "min-h-11 rounded-xl px-[18px] py-[13px] text-[15px]",
-  sm: "min-h-11 rounded-[10px] px-3.5 py-[9px] text-sm md:min-h-0",
+  md: "min-h-[44px] rounded-xl px-[18px] py-[13px] text-[15px]",
+  sm: "min-h-[44px] rounded-[10px] px-3.5 py-[9px] text-sm md:min-h-0",
 } as const;
 
 export type ButtonVariant = keyof typeof BUTTON_VARIANT_CLASS;

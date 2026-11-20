@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 import SignupForm from "./SignupForm";
 
 export const metadata: Metadata = {
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function SignupPage() {
   return (
-    <AuthPageShell>
+    <AuthLayout>
       <SignupForm />
-    </AuthPageShell>
+    </AuthLayout>
   );
 }

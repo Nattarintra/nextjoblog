@@ -69,7 +69,7 @@ export const PASSWORD_RESET_MESSAGES = {
 
 export const LOGOUT_MESSAGES = {
   stillSignedIn:
-    "We couldn't log you out. You're still logged in on this device. Please try again.",
+    "We couldn't log you out. You're still logged in on this device. Check your connection and try again.",
   unconfirmed:
     "We couldn't confirm that you were logged out. Please try again.",
   configuration: "Log out is unavailable right now. Please try again later.",
@@ -102,4 +102,97 @@ export const PASSWORD_RESET_CONFIRM_LOG_EVENT = {
   providerError: "auth.password_reset_confirm.provider_error",
   sessionStartError: "auth.password_reset_confirm.session_start_error",
   unexpectedError: "auth.password_reset_confirm.unexpected_error",
+} as const;
+
+export const AUTH_BRAND_MESSAGES = {
+  headline: "Every application, every step, in one place.",
+  paragraph:
+    "Built for applying to many roles at once across Malmö, Lund, Copenhagen and remote.",
+  bullets: [
+    "Never lose track of where you applied",
+    "Follow-up reminders that actually fire",
+    "See which CV gets responses",
+  ],
+  footer: "Your data is visible only to you",
+  productName: "NextJobLog",
+} as const;
+
+export const LOGIN_MESSAGES = {
+  heading: "Log In",
+  redirectHeading: "Log In to Continue",
+  subtitle: "Log your job applications and track every step in one place.",
+  redirectSubtitle: "You need to be logged in to open this page.",
+  emailLabel: "Email",
+  passwordLabel: "Password",
+  invalidCredentials: "Email or password is incorrect",
+  configuration: "We're unable to log in right now. Please try again shortly.",
+  confirmationRequired:
+    "Please verify your email before logging in. Check your inbox for the verification link.",
+  forgotPassword: "Forgot password?",
+  submit: "Log In",
+  pendingSubmit: "Logging in…",
+  noAccount: "Don't have an account?",
+  signUp: "Sign Up",
+} as const;
+
+export const SIGNUP_MESSAGES = {
+  heading: "Create Your NextJobLog Account",
+  subtitle: "Your application data is encrypted and visible only to you.",
+  emailLabel: "Email",
+  passwordLabel: "Password",
+  duplicateEmailPrefix: "This email is already in use —",
+  duplicateEmailAction: "Log In",
+  duplicateEmailSuffix: "instead",
+  submit: "Sign Up",
+  pendingSubmit: "Creating account…",
+  haveAccount: "Already have an account?",
+  logIn: "Log In",
+} as const;
+
+export const FORGOT_MESSAGES = {
+  heading: "Forgot Your Password?",
+  subtitle:
+    "Enter the email you signed up with. We'll send you a link to set a new password.",
+  hint: "The link works once. You'll set your new password on the page it opens.",
+  emailLabel: "Email",
+  submit: "Send Reset Link",
+  pendingSubmit: "Sending reset link…",
+  invalidEmail: "Enter a valid email address, like you@example.com",
+  backToLogin: "← Back to Log In",
+  sent: {
+    heading: "Check Your Email",
+    status: "If this email exists in our system, we've sent a link.",
+    steps: [
+      "Open the email from NextJobLog. It can take a minute to arrive.",
+      "Tap the link to set a new password. It only works once.",
+      "Nothing there? Check your spam folder, or make sure the email above is the one you signed up with.",
+    ],
+    resend: "Resend Link",
+    resendIn: (formatted: string) => `Resend Link in ${formatted}`,
+    differentEmail: "Use a different email",
+  },
+  limited: {
+    heading: "Too Many Reset Requests",
+    description:
+      "To protect your inbox and your account, we've paused reset emails from this device for a short while.",
+    waitLabel: "You can try again in",
+    waitNote:
+      "Any link we already sent still works. Check your inbox before requesting another.",
+    requestNewLink: AUTH_ACTION_LABELS.requestNewLink,
+    footnote: "Same message for every email address",
+  },
+} as const;
+
+export const SESSION_ERROR_MESSAGES = {
+  heading: "We Couldn't Verify Your Session",
+  description:
+    "Something went wrong while checking that it's you, so your applications are hidden until we can confirm it.",
+  steps: [
+    "Check that you're connected to the internet.",
+    "Tap Try Again. You'll stay on this page if it works.",
+    "If it keeps failing, log in again.",
+  ],
+  retry: "Try Again",
+  goToLogin: "Go to Log In",
+  footnote: "No application data was loaded",
 } as const;

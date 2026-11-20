@@ -4,11 +4,7 @@ import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 
 import { PasswordInput } from "@/components/auth/PasswordInput";
-import {
-  authBlockErrorClassName,
-  authHintClassName,
-  submitButtonClassName,
-} from "@/components/auth/styles";
+import { Button } from "@/components/ui/Button";
 import { OFFLINE_ERROR_MESSAGE, PASSWORD_RESET_MESSAGES } from "@/lib/auth/messages";
 import { validateNewPassword } from "@/lib/auth/new-password";
 import type { PasswordResetConfirmState } from "@/lib/auth/password-reset-confirm-state";
@@ -79,6 +75,10 @@ export default function NewPasswordForm({
     else errorRef.current?.focus();
   }, [state]);
 
+  useEffect(() => {
+    if (localError === OFFLINE_ERROR_MESSAGE) errorRef.current?.focus();
+  }, [localError]);
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const validation = validateNewPassword({ password, confirmation });
     if (!navigator.onLine) {
@@ -131,20 +131,13 @@ export default function NewPasswordForm({
         />
       </div>
       <PasswordRequirements password={password} confirmation={confirmation} id={REQUIREMENTS_ID} />
-      {email && <p className={authHintClassName}>{PASSWORD_RESET_MESSAGES.resettingFor(email)}</p>}
+      {email && <p className="mt-4 text-[13.5px] leading-relaxed text-on-dark-3">{PASSWORD_RESET_MESSAGES.resettingFor(email)}</p>}
       {error && (
-        <div ref={errorRef} className={authBlockErrorClassName} role="alert" tabIndex={-1}>
+        <div ref={errorRef} className="mt-4 text-[13.5px] leading-relaxed text-(--surface-error-text)" role="alert" tabIndex={-1}>
           {error}
         </div>
       )}
-      <button
-        className={`${submitButtonClassName} mt-5`}
-        type="submit"
-        disabled={isPending}
-        aria-busy={isPending}
-      >
-        {isPending ? PASSWORD_RESET_MESSAGES.savingButton : PASSWORD_RESET_MESSAGES.saveButton}
-      </button>
+      <div className="mt-5"><Button variant="primary" fullWidth type="submit" pending={isPending} pendingLabel={PASSWORD_RESET_MESSAGES.savingButton} aria-busy={isPending}>{PASSWORD_RESET_MESSAGES.saveButton}</Button></div>
     </form>
   );
 }

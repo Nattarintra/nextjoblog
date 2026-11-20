@@ -92,8 +92,12 @@ describe("AccountMenu / AccountSheet", () => {
     fireEvent.click(screen.getByRole("button", { name: "Account" }));
     const close = screen.getByRole("button", { name: "Close" });
     act(() => close.focus());
-    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab", shiftKey: true });
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Log Out" }));
+
+    act(() => screen.getByRole("button", { name: "Log Out" }).focus());
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Tab" });
+    expect(document.activeElement).toBe(close);
   });
 
   it("closes the sheet when suspended by the expiry notice", () => {

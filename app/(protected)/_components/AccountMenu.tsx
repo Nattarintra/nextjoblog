@@ -26,6 +26,7 @@ type AccountMenuProps = {
   // Controlled mode: the owner decides when the sheet is open.
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  renderSheet?: boolean;
   // Replaces the default avatar button, e.g. with the side-nav account row.
   renderTrigger?: (props: AccountTriggerProps) => ReactNode;
 };
@@ -55,6 +56,7 @@ export function AccountMenu({
   suspended = false,
   open: controlledOpen,
   onOpenChange,
+  renderSheet = true,
   renderTrigger = DefaultTrigger,
 }: AccountMenuProps) {
   const isControlled = controlledOpen !== undefined;
@@ -81,7 +83,7 @@ export function AccountMenu({
   return (
     <>
       {renderTrigger({ ref: triggerRef, open, onOpen: () => setOpen(true) })}
-      {open && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setOpen(false)} />}
+      {renderSheet && open && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setOpen(false)} />}
     </>
   );
 }

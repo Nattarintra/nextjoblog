@@ -2,26 +2,13 @@
 
 import { useEffect, useRef } from "react";
 
+import { Alert } from "@/components/ui/Alert";
+import { Dialog } from "@/components/ui/Dialog";
 import { LOGOUT_MESSAGES } from "@/lib/auth/messages";
-import { LoginErrorAlert } from "@/app/login/LoginAlert";
 
 import { deriveAccountInitial } from "./account-initial";
-import { useDialogKeyboardNavigation } from "./useDialogKeyboardNavigation";
 import { LogoutButton } from "./LogoutButton";
 import type { LogoutControl } from "./useLogout";
-
-const styles = {
-  overlay: "fixed inset-0 z-40 flex items-end justify-center bg-black/50 md:items-center md:px-6",
-  sheet: "w-full max-w-md rounded-t-[18px] bg-paper px-5 pb-6 pt-5 text-navy shadow-xl md:max-w-sm md:rounded-[14px]",
-  identity: "mb-4 flex items-center gap-3",
-  avatar: "flex size-11 shrink-0 items-center justify-center rounded-full bg-navy text-[16px] font-bold text-white",
-  heading: "text-[12px] font-semibold uppercase tracking-wide text-navy/70",
-  email: "min-w-0 break-words text-[14px] font-semibold",
-  device: "text-xs text-navy/70",
-  actions: "flex flex-col gap-2.5",
-  close:
-    "min-h-11 cursor-pointer rounded-[10px] px-3.5 py-2 text-[14px] font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure",
-} as const;
 
 const HEADING_ID = "account-sheet-heading";
 
@@ -40,38 +27,23 @@ export function AccountSheet({ email, logoutControl, onClose }: AccountSheetProp
     logoutRef.current?.focus();
   }, []);
 
-  const handleKeyDown = useDialogKeyboardNavigation({
-    firstFocusableRef: logoutRef,
-    lastFocusableRef: closeRef,
-    onEscape: onClose,
-  });
-
   return (
-    <div className={styles.overlay}>
-      <div
-        className={styles.sheet}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={HEADING_ID}
-        aria-busy={isPending}
-        onKeyDown={handleKeyDown}
-      >
-        <div className={styles.identity}>
-          <div className={styles.avatar} aria-hidden="true">{deriveAccountInitial(email)}</div>
+    <Dialog labelledBy={HEADING_ID} busy={isPending} firstFocusableRef={closeRef} lastFocusableRef={logoutRef} onEscape={onClose}>
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-navy text-[18px] font-bold text-white" aria-hidden="true">{deriveAccountInitial(email)}</div>
           <div>
-            <h2 id={HEADING_ID} className={styles.heading}>{LOGOUT_MESSAGES.accountHeading}</h2>
-            <p className={styles.email}>{email ?? LOGOUT_MESSAGES.accountEmailFallback}</p>
-            <p className={styles.device}>{LOGOUT_MESSAGES.deviceNote}</p>
+            <h2 id={HEADING_ID} className="text-[19px] font-semibold text-ink">{LOGOUT_MESSAGES.accountHeading}</h2>
+            <p className="mono min-w-0 break-words text-[14px] text-text-2">{email ?? LOGOUT_MESSAGES.accountEmailFallback}</p>
           </div>
         </div>
-        {errorMessage && <LoginErrorAlert message={errorMessage} />}
-        <div className={styles.actions}>
-          <LogoutButton ref={logoutRef} variant="sheet" control={logoutControl} />
-          <button ref={closeRef} type="button" className={styles.close} onClick={onClose}>
+        <Alert tone="info" className="mb-4 bg-subtle text-text-2">{LOGOUT_MESSAGES.deviceNote}</Alert>
+        {errorMessage && <Alert tone="danger" className="mb-4">{errorMessage}</Alert>}
+        <div className="flex flex-col gap-2.5 md:flex-row md:justify-end">
+          <button ref={closeRef} type="button" className="min-h-11 cursor-pointer rounded-[10px] border-[1.5px] border-border-strong px-3.5 py-2 text-[14px] font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azure md:flex-none" onClick={onClose}>
             {LOGOUT_MESSAGES.closeLabel}
           </button>
+          <LogoutButton ref={logoutRef} variant="sheet" control={logoutControl} />
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

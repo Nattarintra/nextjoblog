@@ -1,12 +1,10 @@
-import Link from "next/link";
 import type { ComponentProps } from "react";
 
-import {
-  authFieldLabelClassName,
-  authInputClassName,
-  authLinkClassName,
-  submitButtonClassName,
-} from "@/components/auth/styles";
+import { Button } from "@/components/ui/Button";
+import { FormField } from "@/components/ui/FormField";
+import { TextInput } from "@/components/ui/TextInput";
+import { AuthLink } from "@/components/auth/AuthFooter";
+import { LOGIN_MESSAGES } from "@/lib/auth/messages";
 import { FORGOT_PASSWORD_PATH } from "@/lib/auth/paths";
 
 export function LoginFields({
@@ -25,44 +23,18 @@ export function LoginFields({
   return (
     <form action={formAction}>
       <input type="hidden" name="next" value={nextPath} />
-      <div className="mb-3.5">
-        <label htmlFor="email" className={authFieldLabelClassName}>
-          Email
-        </label>
-        <input
-          className={authInputClassName}
-          id="email"
-          name="email"
-          type="email"
-          placeholder="you@example.com"
-          required
-          aria-invalid={hasError}
-        />
-      </div>
-      <div className="mb-3.5">
-        <label htmlFor="password" className={authFieldLabelClassName}>
-          Password
-        </label>
-        <input
-          className={authInputClassName}
-          id="password"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          required
-          aria-invalid={hasError}
-        />
-      </div>
+      <FormField name="email" id="email" label={LOGIN_MESSAGES.emailLabel} required invalid={hasError}>
+        <TextInput type="email" placeholder="you@example.com" />
+      </FormField>
+      <FormField name="password" id="password" label={LOGIN_MESSAGES.passwordLabel} required invalid={hasError}>
+        <TextInput type="password" placeholder="••••••••" />
+      </FormField>
       {forgotPasswordEnabled && (
         <div className="mb-5 text-right">
-          <Link className={authLinkClassName} href={FORGOT_PASSWORD_PATH}>
-            Forgot password?
-          </Link>
+          <AuthLink href={FORGOT_PASSWORD_PATH}>{LOGIN_MESSAGES.forgotPassword}</AuthLink>
         </div>
       )}
-      <button className={submitButtonClassName} type="submit" disabled={isPending}>
-        {isPending ? "Logging in…" : "Log In"}
-      </button>
+      <Button variant="primary" fullWidth type="submit" pending={isPending} pendingLabel={LOGIN_MESSAGES.pendingSubmit}>{LOGIN_MESSAGES.submit}</Button>
     </form>
   );
 }

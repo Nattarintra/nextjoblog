@@ -36,11 +36,70 @@
   --on-dark-3: #9db0c6;
   --neutral: #5b6472;
   --star: #e0a526;
-  --auth-label: #cfe1f5;
   --auth-danger: #ffb4ab;
   --auth-danger-ring: rgb(192 54 44 / 24%);
   --auth-warning: #f3c47a;
   --auth-warning-ring: rgb(184 113 11 / 22%);
+  --auth-bg: #010812;
+  --auth-brand-from: #042c53;
+  --auth-brand-to: #021a33;
+  --auth-danger-text: #ffd6d1;
+  --auth-danger-tint: rgb(192 54 44 / 22%);
+  --auth-warning-text: #ffe2b0;
+  --auth-warning-tint: rgb(184 113 11 / 24%);
+  --auth-success-text: #c9f0dc;
+  --auth-success-tint: rgb(30 142 90 / 24%);
+  --auth-field-error: #ff8a7e;
+  --auth-field-error-tint: rgb(255 138 126 / 10%);
+
+  /* Surface variables read by the ui/ kit. Light defaults; see [data-surface="dark"]. */
+  --surface-control-border: var(--border-strong);
+  --surface-control-bg: var(--paper);
+  --surface-control-text: var(--text);
+  --surface-control-placeholder: var(--text-3);
+  --surface-control-invalid-border: var(--danger);
+  --surface-control-invalid-bg: color-mix(in oklab, var(--danger-tint) 30%, transparent);
+  --surface-label: var(--text);
+  --surface-required: var(--danger-text);
+  --surface-help: var(--text-3);
+  --surface-error-text: var(--danger-text);
+  --surface-alert-danger-bg: var(--danger-tint);
+  --surface-alert-danger-text: var(--danger-text);
+  --surface-alert-warning-bg: var(--warning-tint);
+  --surface-alert-warning-text: var(--warning-text);
+  --surface-alert-success-bg: var(--success-tint);
+  --surface-alert-success-text: var(--success-text);
+  --surface-secondary-border: var(--border-strong);
+  --surface-secondary-bg: var(--paper);
+  --surface-secondary-text: var(--navy);
+  --surface-secondary-hover: var(--app-bg);
+  --surface-danger-outline-border: var(--danger);
+  --surface-danger-outline-text: var(--danger-text);
+}
+
+[data-surface="dark"] {
+  --surface-control-border: rgb(255 255 255 / 28%);
+  --surface-control-bg: rgb(255 255 255 / 6%);
+  --surface-control-text: var(--on-dark);
+  --surface-control-placeholder: rgb(255 255 255 / 45%);
+  --surface-control-invalid-border: var(--auth-field-error);
+  --surface-control-invalid-bg: var(--auth-field-error-tint);
+  --surface-label: var(--on-dark-2);
+  --surface-required: var(--auth-field-error);
+  --surface-help: var(--on-dark-3);
+  --surface-error-text: var(--auth-field-error);
+  --surface-alert-danger-bg: var(--auth-danger-tint);
+  --surface-alert-danger-text: var(--auth-danger-text);
+  --surface-alert-warning-bg: var(--auth-warning-tint);
+  --surface-alert-warning-text: var(--auth-warning-text);
+  --surface-alert-success-bg: var(--auth-success-tint);
+  --surface-alert-success-text: var(--auth-success-text);
+  --surface-secondary-border: rgb(255 255 255 / 40%);
+  --surface-secondary-bg: transparent;
+  --surface-secondary-text: var(--on-dark);
+  --surface-secondary-hover: rgb(255 255 255 / 10%);
+  --surface-danger-outline-border: var(--auth-field-error);
+  --surface-danger-outline-text: var(--auth-field-error);
 }
 
 @theme inline {
@@ -80,11 +139,11 @@
   --color-on-dark-3: var(--on-dark-3);
   --color-neutral: var(--neutral);
   --color-star: var(--star);
-  --color-auth-label: var(--auth-label);
   --color-auth-danger: var(--auth-danger);
   --color-auth-danger-ring: var(--auth-danger-ring);
   --color-auth-warning: var(--auth-warning);
   --color-auth-warning-ring: var(--auth-warning-ring);
+  --color-auth-bg: var(--auth-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-archivo);
@@ -104,32 +163,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.auth-page-content:has([data-reset-password-status="checking"]) > .auth-page-glow {
+.auth-layout:has([data-reset-password-status="checking"]) .auth-layout-glow {
   display: none;
-}
-
-.session-steps {
-  counter-reset: session-step;
-  list-style: none;
-  padding-left: 0;
-}
-
-.session-step {
-  counter-increment: session-step;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.session-step::before {
-  content: counter(session-step);
-  flex: none;
-  margin-top: 1px;
-  border: 1px solid rgb(181 212 244 / 40%);
-  border-radius: 5px;
-  padding: 1px 5px;
-  color: var(--sky);
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 10px;
-  line-height: 1.4;
 }

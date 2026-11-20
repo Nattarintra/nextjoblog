@@ -1,55 +1,21 @@
-import Link from "next/link"
-import type { ComponentProps } from "react"
-import { useEffect, useRef } from "react"
-
-import { ClockStatusIcon } from "@/components/auth/AuthStatusIcons"
-import { authFooterClassName, authHeadingClassName, authSubtextClassName, secondaryButtonClassName, statusRingClassName, submitButtonClassName, visuallyHiddenClassName, waitCardClassName, waitLabelClassName, waitNoteClassName, waitTimeClassName, warningStatusRingClassName } from "@/components/auth/styles"
-import { AUTH_ACTION_LABELS } from "@/lib/auth/messages"
-import { LOGIN_PATH } from "@/lib/auth/paths"
-import { useCountdown } from "@/lib/hooks/use-countdown"
+import Link from "next/link";
+import type { ComponentProps } from "react";
+import { AuthFooter } from "@/components/auth/AuthFooter";
+import { AuthStatusScreen } from "@/components/auth/AuthStatusScreen";
+import { ClockStatusIcon } from "@/components/auth/AuthStatusIcons";
+import { WaitCard } from "@/components/auth/WaitCard";
+import { Button } from "@/components/ui/Button";
+import { FORGOT_MESSAGES } from "@/lib/auth/messages";
+import { LOGIN_PATH } from "@/lib/auth/paths";
+import { useCountdown } from "@/lib/hooks/use-countdown";
 
 export default function TooManyRequestsScreen({ email, retryAfterSeconds, action, isPending }: { email: string; retryAfterSeconds: number; action: ComponentProps<"form">["action"]; isPending: boolean }) {
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const { formatted, isFinished } = useCountdown(retryAfterSeconds)
-
-  useEffect(() => {
-    headingRef.current?.focus()
-  }, [])
-
-  return (
-    <>
-      <div className={`${statusRingClassName} ${warningStatusRingClassName}`} aria-hidden="true">
-        <ClockStatusIcon className="h-7 w-7" />
-      </div>
-      <h1 ref={headingRef} tabIndex={-1} className={authHeadingClassName}>
-        Too Many Reset Requests
-      </h1>
-      <div className={authSubtextClassName} role="alert">
-        Please wait before requesting another reset link.
-      </div>
-
-      <div className={waitCardClassName}>
-        <div className={waitLabelClassName}>You can try again in</div>
-        <div className={waitTimeClassName} aria-hidden="true">
-          {formatted}
-        </div>
-        <div className={visuallyHiddenClassName} aria-live="polite">
-          {isFinished ? "You can request a new reset link now." : ""}
-        </div>
-        <div className={waitNoteClassName}>Any link already sent will still work.</div>
-      </div>
-
-      <form action={action}>
-        <input type="hidden" name="email" value={email} />
-        <button className={`${secondaryButtonClassName} mb-2.5`} type="submit" disabled={isPending || !isFinished}>
-          {AUTH_ACTION_LABELS.requestNewLink}
-        </button>
-      </form>
-      <Link className={submitButtonClassName} href={LOGIN_PATH}>
-        {AUTH_ACTION_LABELS.backToLogin}
-      </Link>
-
-      <div className={authFooterClassName}>Same message for every email address</div>
-    </>
-  )
+  const { formatted, isFinished } = useCountdown(retryAfterSeconds);
+  const messages = FORGOT_MESSAGES.limited;
+  return <AuthStatusScreen tone="warning" icon={<ClockStatusIcon className="h-7 w-7" />} heading={messages.heading} description={messages.description} liveRegion="alert">
+    <WaitCard formatted={formatted} finished={isFinished} label={messages.waitLabel} note={messages.waitNote} />
+    <form action={action}><input type="hidden" name="email" value={email} /><Button variant="secondary" fullWidth type="submit" disabled={isPending || !isFinished}>{messages.requestNewLink}</Button></form>
+    <Link className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center rounded-xl border-[1.5px] border-(--surface-secondary-border) bg-(--surface-secondary-bg) px-[18px] py-[13px] text-[15px] font-semibold text-(--surface-secondary-text)" href={LOGIN_PATH}>{FORGOT_MESSAGES.backToLogin}</Link>
+    <AuthFooter small>{messages.footnote}</AuthFooter>
+  </AuthStatusScreen>;
 }

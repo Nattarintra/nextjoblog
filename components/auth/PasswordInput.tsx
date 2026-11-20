@@ -2,13 +2,7 @@
 
 import { forwardRef, useId, useState } from "react";
 
-import {
-  authErrorClassName,
-  authFieldLabelClassName,
-  authInputClassName,
-  authInputWarningClassName,
-  visuallyHiddenClassName,
-} from "@/components/auth/styles";
+import { controlClassName, LABEL_CLASS } from "@/components/ui/control-styles";
 import { PASSWORD_INPUT_MESSAGES } from "@/lib/auth/messages";
 
 type PasswordInputProps = {
@@ -42,7 +36,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
   onBlur,
   showToggle = true,
 }, ref) {
-  const inputClassName = `${authInputClassName}${warning ? ` ${authInputWarningClassName}` : ""}${showToggle ? " pr-16" : ""}`;
+  const inputClassName = `${controlClassName(Boolean(error || warning))}${showToggle ? " pr-16" : ""}`;
   const [isVisible, setIsVisible] = useState(false);
   const generatedErrorId = useId();
   const errorId = `${id}-error-${generatedErrorId.replace(/:/g, "")}`;
@@ -50,7 +44,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
 
   return (
     <div>
-      <label htmlFor={id} className={authFieldLabelClassName}>
+      <label htmlFor={id} className={LABEL_CLASS}>
         {label}
       </label>
       <div className="relative">
@@ -72,7 +66,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
         />
         {showToggle && (
           <button
-            className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-1 text-[11px] font-semibold text-sky focus:outline focus:outline-2 focus:outline-azure"
+            className="absolute top-1/2 right-2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-md px-2 text-[11px] font-semibold text-sky focus:outline focus:outline-2 focus:outline-azure"
             type="button"
             aria-pressed={isVisible}
             aria-label={PASSWORD_INPUT_MESSAGES.toggleLabel(isVisible, label)}
@@ -83,11 +77,11 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(fu
         )}
       </div>
       {error && (
-        <div id={errorId} className={authErrorClassName} role="alert">
+        <div id={errorId} className="mt-1.5 text-[13.5px] font-medium text-(--surface-error-text)" role="alert">
           {error}
         </div>
       )}
-      <span className={visuallyHiddenClassName} aria-live="polite">
+      <span className="sr-only" aria-live="polite">
         {isVisible ? PASSWORD_INPUT_MESSAGES.visibleAnnouncement(label) : ""}
       </span>
     </div>
