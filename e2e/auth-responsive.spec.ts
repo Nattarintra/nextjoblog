@@ -5,9 +5,9 @@ import { DESKTOP_VIEWPORT, MOBILE_VIEWPORT } from "./helpers/auth-session";
 
 const screens = [
   ["login", "/login", "Log In"],
-  ["signup", "/signup", "Create Account"],
-  ["forgot password", "/forgot-password", "Forgot Password"],
-  ["reset password", "/reset-password", "Reset Link Expired"],
+  ["signup", "/signup", "Create Your NextJobLog Account"],
+  ["forgot password", "/forgot-password", "Forgot Your Password?"],
+  ["reset password", "/reset-password", "This Reset Link No Longer Works"],
 ] as const;
 
 for (const [name, path, heading] of screens) {
@@ -24,7 +24,7 @@ for (const [name, path, heading] of screens) {
         await expect(page.locator("main")).toHaveCount(1);
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
 
-        const brandPanel = page.locator("aside");
+        const brandPanel = page.locator('aside[aria-hidden="true"]');
         if (viewportName === "desktop") {
           await expect(brandPanel).toBeVisible();
         } else {
