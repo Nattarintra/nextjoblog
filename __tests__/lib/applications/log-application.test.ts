@@ -55,6 +55,30 @@ describe("logApplication", () => {
     expect(newId).not.toHaveBeenCalled();
   });
 
+  it("persists normalized optional values and keeps empty optionals nullable", async () => {
+    const { deps, insert } = setup();
+    const values: ApplicationFormValues = {
+      ...VALID_VALUES,
+      closing_date: " 2026-12-01 ",
+      salary_info: " 45,000 SEK ",
+      work_format: "hybrid",
+      contract_type: "contract",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    };
+
+    await logApplication(deps, { userId: USER_ID, clientId: CLIENT_ID, values });
+
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      closing_date: "2026-12-01",
+      salary_info: "45,000 SEK",
+      work_format: "hybrid",
+      contract_type: "contract",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    }));
+  });
+
   it("generates an id when the client id is missing", async () => {
     const { deps, insert } = setup();
     const result = await logApplication(deps, { userId: USER_ID, clientId: null, values: VALID_VALUES });

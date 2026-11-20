@@ -20,7 +20,7 @@ vi.mock("@/lib/applications/log", async (importOriginal) => ({
 }));
 
 import { logApplicationAction } from "@/app/actions/applications";
-import { APPLICATIONS_PATH } from "@/lib/applications/paths";
+import { applicationDetailPath } from "@/lib/applications/paths";
 
 const CLIENT_ID = "11111111-1111-4111-8111-111111111111";
 
@@ -52,7 +52,7 @@ describe("logApplicationAction", () => {
     expect(mocks.insert).toHaveBeenCalledWith(
       expect.objectContaining({ id: CLIENT_ID, user_id: "user-1", status: "applied" }),
     );
-    expect(mocks.redirect).toHaveBeenCalledWith(APPLICATIONS_PATH);
+    expect(mocks.redirect).toHaveBeenCalledWith(applicationDetailPath(CLIENT_ID));
   });
 
   it("returns field errors and does not redirect for invalid input", async () => {

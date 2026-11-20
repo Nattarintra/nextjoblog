@@ -417,16 +417,16 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 2: Validation, form-data, form-view
 
 #### Automated
-- [x] 2.1 Validation, form-data, form-view tests pass (required behaviour unchanged)
-- [x] 2.2 `lib/applications/**` coverage ≥ 90%
+- [x] 2.1 Validation, form-data, form-view tests pass (required behaviour unchanged) — 4be46a9
+- [x] 2.2 `lib/applications/**` coverage ≥ 90% — 4be46a9
 
 ### Phase 3: Service, repository, port, Server Action
 
 #### Automated
-- [ ] 3.1 Service tests pass (optional values, empty → null)
-- [ ] 3.2 Repository tests pass (allow-list, idempotency with optional fields, `get`)
-- [ ] 3.3 Action redirect test passes
-- [ ] 3.4 Static no-SQL test, coverage, typecheck, lint pass
+- [x] 3.1 Service tests pass (optional values, empty → null)
+- [x] 3.2 Repository tests pass (allow-list, idempotency with optional fields, `get`)
+- [x] 3.3 Action redirect test passes
+- [x] 3.4 Static no-SQL test, coverage, typecheck, lint pass
 
 ### Phase 4: `components/ui/` additions
 
