@@ -364,34 +364,34 @@ No data or route changes. Before writing code, read the relevant guide in `node_
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npx tsc --noEmit`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Unit tests pass: `npm run test:run`
-- [x] 2.4 E2E auth specs pass: `npm run test:e2e` — deferred to CI per user instruction
-- [x] 2.5 No auth component imports `components/auth/styles.ts` for the migrated screens: `grep -rn "auth/styles" app components`
+- [x] 2.1 Type checking passes: `npx tsc --noEmit` — e8ccf33
+- [x] 2.2 Linting passes: `npm run lint` — e8ccf33
+- [x] 2.3 Unit tests pass: `npm run test:run` — e8ccf33
+- [x] 2.4 E2E auth specs pass: `npm run test:e2e` — deferred to CI per user instruction — e8ccf33
+- [x] 2.5 No auth component imports `components/auth/styles.ts` for the migrated screens: `grep -rn "auth/styles" app components` — e8ccf33
 
 #### Manual
 
-- [x] 2.6 Login (incl. redirected login return strip), signup, forgot, Check Your Email, Too Many Requests, reset form and Reset Link Expired match the design at 390px and 1280px
-- [x] 2.7 Field invalid states, alerts and the requirement list read correctly on dark
-- [x] 2.8 Keyboard-only walk through login → forgot → reset keeps focus on each new h1
+- [x] 2.6 Login (incl. redirected login return strip), signup, forgot, Check Your Email, Too Many Requests, reset form and Reset Link Expired match the design at 390px and 1280px — e8ccf33
+- [x] 2.7 Field invalid states, alerts and the requirement list read correctly on dark — e8ccf33
+- [x] 2.8 Keyboard-only walk through login → forgot → reset keeps focus on each new h1 — e8ccf33
 
 ### Phase 3: Protected side: Toast, Dialog, Session Check Failed
 
 #### Automated
 
-- [ ] 3.1 Type checking passes: `npx tsc --noEmit`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Unit tests pass: `npm run test:run`
-- [ ] 3.4 E2E specs pass: `npm run test:e2e`
-- [ ] 3.5 No protected file imports from `app/login`: `grep -rn "app/login" "app/(protected)"`
+- [x] 3.1 Type checking passes: `npx tsc --noEmit`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Unit tests pass: `npm run test:run`
+- [x] 3.4 E2E specs pass: `npm run test:e2e` — deferred to CI per user instruction
+- [x] 3.5 No protected file imports from `app/login`: `grep -rn "app/login" "app/(protected)"`
 
 #### Manual
 
-- [ ] 3.6 Password Updated toast shows top-right on desktop and inset on mobile, auto-dismisses and closes via the button
-- [ ] 3.7 Account dialog is a bottom sheet on mobile and a centered dialog on desktop; Esc closes it; Tab stays inside; Log Out Failed alert shows
-- [ ] 3.8 Session expiry dialog still extends/dismisses and looks consistent
-- [ ] 3.9 Session Check Failed matches the design and uses the same background as other auth screens
+- [x] 3.6 Password Updated toast shows top-right on desktop and inset on mobile, auto-dismisses and closes via the button
+- [x] 3.7 Account dialog is a bottom sheet on mobile and a centered dialog on desktop; Esc closes it; Tab stays inside; Log Out Failed alert shows
+- [x] 3.8 Session expiry dialog still extends/dismisses and looks consistent
+- [x] 3.9 Session Check Failed matches the design and uses the same background as other auth screens
 
 ### Phase 4: Cleanup and verification
 

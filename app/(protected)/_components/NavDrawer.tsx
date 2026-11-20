@@ -11,7 +11,7 @@ import { NAV_MESSAGES } from "@/lib/navigation/messages";
 
 import { AccountRow } from "./AccountRow";
 import { AddApplicationLink } from "./AddApplicationLink";
-import { useDialogKeyboardNavigation } from "./useDialogKeyboardNavigation";
+import { useDialogKeyboardNavigation } from "@/lib/hooks/use-dialog-keyboard-navigation";
 import { useNavDrawer } from "./useNavDrawer";
 
 export const NAV_DRAWER_ID = "main-nav-drawer";

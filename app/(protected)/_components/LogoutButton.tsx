@@ -10,7 +10,7 @@ const BASE_CLASS =
   "cursor-pointer border border-danger-text bg-white font-semibold text-danger-text focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
 
 const VARIANT_CLASS = {
-  sheet: `${BASE_CLASS} min-h-11 rounded-[10px] px-3.5 py-2 text-[14px] focus-visible:ring-azure`,
+  sheet: `${BASE_CLASS} order-first min-h-11 w-full rounded-[10px] bg-transparent px-3.5 py-2 text-[14px] text-danger-text focus-visible:ring-azure md:order-none md:w-auto md:flex-none`,
   inline: `${BASE_CLASS} inline-flex min-h-8 items-center justify-center rounded-lg px-3 py-1 text-xs focus-visible:ring-sky`,
 } as const;
 
