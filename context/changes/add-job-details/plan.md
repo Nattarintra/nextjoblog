@@ -441,23 +441,23 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 5: Form wiring
 
 #### Automated
-- [x] 5.1 Warning appear/disappear/clear/never-blocks tests pass
-- [x] 5.2 Retained-input and payload tests pass; existing form tests pass
-- [x] 5.3 Typecheck, lint, coverage pass
+- [x] 5.1 Warning appear/disappear/clear/never-blocks tests pass — 81d643f
+- [x] 5.2 Retained-input and payload tests pass; existing form tests pass — 81d643f
+- [x] 5.3 Typecheck, lint, coverage pass — 81d643f
 
 #### Manual
-- [x] 5.4 Form matches design (desktop + mobile)
-- [x] 5.5 Keyboard-only and screen-reader spot check
+- [x] 5.4 Form matches design (desktop + mobile) — 81d643f
+- [x] 5.5 Keyboard-only and screen-reader spot check — 81d643f
 
 ### Phase 6: Detail page
 
 #### Automated
-- [ ] 6.1 `detail-view` unit tests pass
-- [ ] 6.2 Detail page, not-found, unsafe-URL, load-error tests pass; guard test passes
-- [ ] 6.3 `PostingLink` extraction keeps `ApplicationRow` tests green; typecheck, lint, coverage pass
+- [x] 6.1 `detail-view` unit tests pass
+- [x] 6.2 Detail page, not-found, unsafe-URL, load-error tests pass; guard test passes
+- [x] 6.3 `PostingLink` extraction keeps `ApplicationRow` tests green; typecheck, lint, coverage pass
 
 #### Manual
-- [ ] 6.4 Detail page matches design; not-found for random and foreign id
+- [x] 6.4 Detail page matches design; not-found for random and foreign id
 
 ### Phase 7: SQL, E2E, a11y, docs and evidence
 

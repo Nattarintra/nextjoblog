@@ -66,5 +66,8 @@ export const APPLICATION_PAGE_MESSAGES = {
   tagRemovedAnnouncement: (tag: string) => `${tag} removed`,
   notProvided: "Not provided",
   detailTitle: "Application details",
+  detailMetadataTitle: "Application — NextJobLog",
+  detailTechnologyLabel: "Technologies",
+  detailLoadFailed: "Couldn't load this application. Refresh the page to try again.",
   postingLinkLabel: (title: string, company: string) => `Open job posting for ${title} at ${company}`,
 } as const;
