@@ -1,10 +1,10 @@
 ---
 change_id: add-job-details
 title: Add job details (optional fields)
-status: implemented
+status: archived
 created: 2026-11-20
 updated: 2026-11-22
-archived_at: null
+archived_at: 2026-11-22T23:37:57Z
 ---
 
 ## Notes
