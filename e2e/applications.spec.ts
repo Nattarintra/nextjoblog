@@ -25,7 +25,7 @@ async function saveApplication(page: Page) {
 
 async function fillOptionalDetails(page: Page) {
   await page.getByRole("button", { name: /closing date/i }).click();
-  await page.getByRole("button", { name: "20", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: /20th/ }).click();
   await fieldInput(page, "salary_info").fill("50000 SEK/month");
   await page.getByRole("radio", { name: "Remote" }).click();
   await page.getByRole("radio", { name: "Fixed-term" }).click();
@@ -126,7 +126,7 @@ test("closing-date warning is live and does not block saving", async ({ browser 
   await openNewApplicationForm(page);
   await fillApplicationForm(page, input);
   await page.getByRole("button", { name: /closing date/i }).click();
-  await page.getByRole("button", { name: "20", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: /20th/ }).click();
   await expect(page.getByText(APPLICATION_PAGE_MESSAGES.closingBeforeApplied)).toBeVisible();
   await saveApplication(page);
   await expect(page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
