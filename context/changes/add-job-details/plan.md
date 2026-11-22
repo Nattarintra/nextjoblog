@@ -423,31 +423,31 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 3: Service, repository, port, Server Action
 
 #### Automated
-- [x] 3.1 Service tests pass (optional values, empty → null)
-- [x] 3.2 Repository tests pass (allow-list, idempotency with optional fields, `get`)
-- [x] 3.3 Action redirect test passes
-- [x] 3.4 Static no-SQL test, coverage, typecheck, lint pass
+- [x] 3.1 Service tests pass (optional values, empty → null) — fca1334
+- [x] 3.2 Repository tests pass (allow-list, idempotency with optional fields, `get`) — fca1334
+- [x] 3.3 Action redirect test passes — fca1334
+- [x] 3.4 Static no-SQL test, coverage, typecheck, lint pass — fca1334
 
 ### Phase 4: `components/ui/` additions
 
 #### Automated
-- [x] 4.1 `Chip`, `ChoiceGroup`, `TagInput` tests pass
-- [x] 4.2 `FormField` warning/group, `DatePicker` clear, `DefinitionList` tests pass
-- [x] 4.3 Existing UI tests, typecheck, lint, coverage pass
+- [x] 4.1 `Chip`, `ChoiceGroup`, `TagInput` tests pass — dece5e2
+- [x] 4.2 `FormField` warning/group, `DatePicker` clear, `DefinitionList` tests pass — dece5e2
+- [x] 4.3 Existing UI tests, typecheck, lint, coverage pass — dece5e2
 
 #### Manual
-- [x] 4.4 Pills, chips and warning visually match the design (1280px and 375px)
+- [x] 4.4 Pills, chips and warning visually match the design (1280px and 375px) — dece5e2
 
 ### Phase 5: Form wiring
 
 #### Automated
-- [ ] 5.1 Warning appear/disappear/clear/never-blocks tests pass
-- [ ] 5.2 Retained-input and payload tests pass; existing form tests pass
-- [ ] 5.3 Typecheck, lint, coverage pass
+- [x] 5.1 Warning appear/disappear/clear/never-blocks tests pass
+- [x] 5.2 Retained-input and payload tests pass; existing form tests pass
+- [x] 5.3 Typecheck, lint, coverage pass
 
 #### Manual
-- [ ] 5.4 Form matches design (desktop + mobile)
-- [ ] 5.5 Keyboard-only and screen-reader spot check
+- [x] 5.4 Form matches design (desktop + mobile)
+- [x] 5.5 Keyboard-only and screen-reader spot check
 
 ### Phase 6: Detail page
 
