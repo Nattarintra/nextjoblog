@@ -23,13 +23,17 @@ async function saveApplication(page: Page) {
   await page.getByRole("button", { name: APPLICATION_MESSAGES.save, exact: true }).click();
 }
 
+async function choosePill(page: Page, label: string) {
+  await page.getByRole("radio", { name: label, exact: true }).locator("xpath=..").click();
+}
+
 async function fillOptionalDetails(page: Page) {
   await page.getByRole("button", { name: /closing date/i }).click();
   await page.getByRole("dialog").getByRole("button", { name: /20th/ }).click();
   await fieldInput(page, "salary_info").fill("50000 SEK/month");
-  await page.getByRole("radio", { name: "Remote" }).click();
-  await page.getByRole("radio", { name: "Fixed-term" }).click();
-  await page.getByRole("radio", { name: "Frontend" }).click();
+  await choosePill(page, "Remote");
+  await choosePill(page, "Fixed-term");
+  await choosePill(page, "Frontend");
   const technologies = fieldInput(page, "tech_stack");
   await technologies.fill("React");
   await technologies.press("Enter");
