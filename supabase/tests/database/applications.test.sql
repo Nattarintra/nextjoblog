@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(16);
 
 -- Two users; the profile trigger creates their profiles.
 insert into auth.users (id, instance_id, aud, role, email)
@@ -22,6 +22,20 @@ select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaa
 insert into public.applications (id, user_id, title, company, applied_date, location, posting_url)
 values ('11111111-1111-1111-1111-111111111111', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
         'Engineer', 'Acme', '2026-11-19', 'Stockholm', 'https://example.com/job');
+
+update public.applications
+set closing_date = '2026-12-01', work_format = 'remote', contract_type = 'contract',
+    discipline = 'frontend', tech_stack = array['React', 'TypeScript'], salary_info = '50000 SEK/month'
+where id = '11111111-1111-1111-1111-111111111111';
+
+select is((select closing_date::text from public.applications where id = '11111111-1111-1111-1111-111111111111'), '2026-12-01', 'closing date round-trips');
+select is((select work_format::text || '/' || contract_type::text || '/' || discipline::text from public.applications where id = '11111111-1111-1111-1111-111111111111'), 'remote/contract/frontend', 'choice fields round-trip');
+select is((select tech_stack::text from public.applications where id = '11111111-1111-1111-1111-111111111111'), '{React,TypeScript}', 'technology tags round-trip as an array');
+select is((select salary_info from public.applications where id = '11111111-1111-1111-1111-111111111111'), '50000 SEK/month', 'salary info round-trips');
+
+insert into public.applications (id, user_id, title, company, applied_date, location, posting_url)
+values ('33333333-3333-3333-3333-333333333333', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Defaults', 'Acme', '2026-11-19', 'Stockholm', 'https://example.com/defaults');
+select is((select tech_stack::text from public.applications where id = '33333333-3333-3333-3333-333333333333'), '{}', 'technology tags default to an empty array');
 
 select is(
   (select status::text from public.applications where id = '11111111-1111-1111-1111-111111111111'),
@@ -81,6 +95,11 @@ select is(
 );
 
 -- Another user cannot read the history.
+select set_config('request.jwt.claims', '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}', true);
+select is((select count(*)::integer from public.applications where id = '11111111-1111-1111-1111-111111111111'), 0, 'another user cannot select optional application data');
+update public.applications set salary_info = 'exfiltrated' where id = '11111111-1111-1111-1111-111111111111';
+select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}', true);
+select is((select salary_info from public.applications where id = '11111111-1111-1111-1111-111111111111'), '50000 SEK/month', 'another user cannot update optional application data');
 select set_config('request.jwt.claims', '{"sub":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb","role":"authenticated"}', true);
 select is(
   (select count(*)::integer from public.status_history),

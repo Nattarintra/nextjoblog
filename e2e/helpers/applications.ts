@@ -2,9 +2,10 @@ import { expect, type Page } from "@playwright/test";
 
 import { FIELD_LABELS } from "@/lib/applications/messages";
 import { NEW_APPLICATION_PATH } from "@/lib/applications/paths";
-import type { RequiredFieldName } from "@/lib/applications/types";
+import type { ApplicationFormValues, FieldName, RequiredFieldName } from "@/lib/applications/types";
 
 export type ApplicationInput = Record<Exclude<RequiredFieldName, "applied_date">, string>;
+export type OptionalApplicationInput = Pick<ApplicationFormValues, "closing_date" | "salary_info" | "work_format" | "contract_type" | "discipline" | "tech_stack">;
 
 export function buildApplicationInput(label: string): ApplicationInput {
   const unique = `${label}-${Date.now()}`;
@@ -17,7 +18,7 @@ export function buildApplicationInput(label: string): ApplicationInput {
 }
 
 /** Labels render with a required marker, so match on the label prefix. */
-export function fieldInput(page: Page, field: RequiredFieldName) {
+export function fieldInput(page: Page, field: FieldName) {
   return page.getByLabel(new RegExp(`^${FIELD_LABELS[field]}`));
 }
 

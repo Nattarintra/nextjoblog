@@ -452,19 +452,19 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 6: Detail page
 
 #### Automated
-- [x] 6.1 `detail-view` unit tests pass
-- [x] 6.2 Detail page, not-found, unsafe-URL, load-error tests pass; guard test passes
-- [x] 6.3 `PostingLink` extraction keeps `ApplicationRow` tests green; typecheck, lint, coverage pass
+- [x] 6.1 `detail-view` unit tests pass — 78b1aec
+- [x] 6.2 Detail page, not-found, unsafe-URL, load-error tests pass; guard test passes — 78b1aec
+- [x] 6.3 `PostingLink` extraction keeps `ApplicationRow` tests green; typecheck, lint, coverage pass — 78b1aec
 
 #### Manual
-- [x] 6.4 Detail page matches design; not-found for random and foreign id
+- [x] 6.4 Detail page matches design; not-found for random and foreign id — 78b1aec
 
 ### Phase 7: SQL, E2E, a11y, docs and evidence
 
 #### Automated
 - [ ] 7.1 `supabase test db` passes (CI)
 - [ ] 7.2 Playwright + axe green (CI, record run ID)
-- [ ] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%)
+- [x] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%)
 
 #### Manual
 - [ ] 7.4 All story ACs walked through on desktop and mobile
