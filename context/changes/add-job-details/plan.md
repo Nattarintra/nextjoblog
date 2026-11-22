@@ -431,12 +431,12 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 4: `components/ui/` additions
 
 #### Automated
-- [ ] 4.1 `Chip`, `ChoiceGroup`, `TagInput` tests pass
-- [ ] 4.2 `FormField` warning/group, `DatePicker` clear, `DefinitionList` tests pass
-- [ ] 4.3 Existing UI tests, typecheck, lint, coverage pass
+- [x] 4.1 `Chip`, `ChoiceGroup`, `TagInput` tests pass
+- [x] 4.2 `FormField` warning/group, `DatePicker` clear, `DefinitionList` tests pass
+- [x] 4.3 Existing UI tests, typecheck, lint, coverage pass
 
 #### Manual
-- [ ] 4.4 Pills, chips and warning visually match the design (1280px and 375px)
+- [x] 4.4 Pills, chips and warning visually match the design (1280px and 375px)
 
 ### Phase 5: Form wiring
 

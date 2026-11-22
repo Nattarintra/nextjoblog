@@ -3,7 +3,7 @@ change_id: add-job-details
 title: Add job details (optional fields)
 status: implementing
 created: 2026-11-20
-updated: 2026-11-20
+updated: 2026-11-22
 archived_at: null
 ---
 

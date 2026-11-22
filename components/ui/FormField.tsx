@@ -33,30 +33,43 @@ type FormFieldProps = {
   invalid?: boolean;
   help?: string;
   error?: string;
+  warning?: string;
+  as?: "group";
   /** Lets a field take the full row of a two-column grid. */
   span?: "full";
   children: ReactNode;
 };
 
-export function FormField({ name, label, id: explicitId, required = false, invalid = false, help, error, span, children }: FormFieldProps) {
+export function FormField({ name, label, id: explicitId, required = false, invalid = false, help, error, warning, as, span, children }: FormFieldProps) {
   const id = explicitId ?? fieldId(name);
   const labelId = `${id}-label`;
   const helpId = `${id}-help`;
   const errorId = `${id}-error`;
-  const describedBy = [help ? helpId : undefined, error ? errorId : undefined].filter(Boolean).join(" ") || undefined;
+  const warningId = `${id}-warning`;
+  const describedBy = [help ? helpId : undefined, error ? errorId : undefined, warning ? warningId : undefined].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className={`mb-4 flex flex-col gap-1.5 ${span === "full" ? "md:col-span-2" : ""}`}>
-      <label
-        id={labelId}
-        htmlFor={id}
-        className={`${LABEL_CLASS} ${required ? "after:ml-1.5 after:text-(--surface-required) after:content-['*']" : ""}`}
-      >
-        {label}
-      </label>
-      <FormFieldContext.Provider value={{ id, name, labelId, required, invalid: invalid || Boolean(error), describedBy }}>
-        {children}
-      </FormFieldContext.Provider>
+      {as === "group" ? (
+        <div role="group" aria-labelledby={labelId}>
+          <FormFieldContext.Provider value={{ id, name, labelId, required, invalid: invalid || Boolean(error), describedBy }}>
+            {children}
+          </FormFieldContext.Provider>
+        </div>
+      ) : (
+        <>
+          <label
+            id={labelId}
+            htmlFor={id}
+            className={`${LABEL_CLASS} ${required ? "after:ml-1.5 after:text-(--surface-required) after:content-['*']" : ""}`}
+          >
+            {label}
+          </label>
+          <FormFieldContext.Provider value={{ id, name, labelId, required, invalid: invalid || Boolean(error), describedBy }}>
+            {children}
+          </FormFieldContext.Provider>
+        </>
+      )}
       {help && (
         <span id={helpId} className="text-[13.5px] text-(--surface-help)">
           {help}
@@ -68,6 +81,14 @@ export function FormField({ name, label, id: explicitId, required = false, inval
             !
           </span>
           {error}
+        </p>
+      )}
+      {warning && (
+        <p id={warningId} role="status" className="flex items-start gap-[7px] text-[13.5px] font-medium text-warning-text">
+          <span aria-hidden="true" className="mt-0.5 inline-flex size-4 flex-none items-center justify-center rounded-full bg-warning font-mono text-[11px] font-semibold text-on-dark">
+            !
+          </span>
+          {warning}
         </p>
       )}
     </div>
