@@ -1,10 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
-import type { ApplicationReader, ApplicationWriter } from "@/lib/applications/ports";
+import type {
+  ApplicationDetailReader,
+  ApplicationReader,
+  ApplicationWriter,
+} from "@/lib/applications/ports";
 import type { ProfileTimeZoneReader } from "@/lib/applications/time-zone";
+import { isUuid } from "@/lib/applications/uuid";
 import {
   FIELD_NAMES,
+  OPTIONAL_FIELD_NAMES,
+  type ApplicationDetail,
   type ApplicationSummary,
   type InsertOutcome,
   type NewApplicationRecord,
@@ -16,6 +23,8 @@ const UNIQUE_VIOLATION_CODE = "23505";
 
 const CONTENT_COLUMNS = FIELD_NAMES.join(", ");
 const LIST_COLUMNS = ["id", CONTENT_COLUMNS, "status"].join(", ");
+const IDEMPOTENCY_COLUMNS = [...FIELD_NAMES, ...OPTIONAL_FIELD_NAMES] as const;
+const DETAIL_COLUMNS = ["id", ...IDEMPOTENCY_COLUMNS, "status"].join(", ");
 
 /** Carries only the provider error code, so messages can never leak to callers or logs. */
 export class ApplicationRepositoryError extends Error {
@@ -25,7 +34,7 @@ export class ApplicationRepositoryError extends Error {
   }
 }
 
-type StoredContent = Record<(typeof FIELD_NAMES)[number], string>;
+type StoredContent = Pick<ApplicationDetail, (typeof IDEMPOTENCY_COLUMNS)[number]>;
 
 /** Explicit allow-list of insertable columns (mass-assignment guard). */
 function toInsertRow(record: NewApplicationRecord) {
@@ -38,11 +47,27 @@ function toInsertRow(record: NewApplicationRecord) {
     location: record.location,
     posting_url: record.posting_url,
     status: record.status,
+    closing_date: record.closing_date,
+    salary_info: record.salary_info,
+    work_format: record.work_format,
+    contract_type: record.contract_type,
+    discipline: record.discipline,
+    tech_stack: record.tech_stack,
   };
 }
 
 function hasSameContent(stored: StoredContent, record: NewApplicationRecord): boolean {
-  return FIELD_NAMES.every((field) => stored[field] === record[field]);
+  return IDEMPOTENCY_COLUMNS.every((field) => sameValue(stored[field], record[field]));
+}
+
+function sameValue(left: unknown, right: unknown): boolean {
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left)
+      && Array.isArray(right)
+      && left.length === right.length
+      && left.every((value, index) => value === right[index]);
+  }
+  return left === right;
 }
 
 async function classifyExistingRow(
@@ -51,7 +76,7 @@ async function classifyExistingRow(
 ): Promise<InsertOutcome> {
   const { data, error } = await client
     .from(APPLICATIONS_TABLE)
-    .select(CONTENT_COLUMNS)
+    .select(IDEMPOTENCY_COLUMNS.join(", "))
     .eq("id", record.id)
     .eq("user_id", record.user_id)
     .maybeSingle<StoredContent>();
@@ -82,6 +107,22 @@ export function createApplicationReader(client: SupabaseClient): ApplicationRead
         .returns<ApplicationSummary[]>();
       if (error) throw new ApplicationRepositoryError(error.code);
       return data ?? [];
+    },
+  };
+}
+
+export function createApplicationDetailReader(client: SupabaseClient): ApplicationDetailReader {
+  return {
+    async get(id) {
+      if (!isUuid(id)) return null;
+
+      const { data, error } = await client
+        .from(APPLICATIONS_TABLE)
+        .select(DETAIL_COLUMNS)
+        .eq("id", id)
+        .maybeSingle<ApplicationDetail>();
+      if (error) throw new ApplicationRepositoryError(error.code);
+      return data ?? null;
     },
   };
 }

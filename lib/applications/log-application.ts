@@ -9,6 +9,10 @@ import type {
 import { normalizeApplicationValues, validateApplicationInput } from "@/lib/applications/validation";
 import { describeError } from "@/lib/logging/error-details";
 
+function emptyToNull(value: string): string | null {
+  return value === "" ? null : value;
+}
+
 export interface LogApplicationDependencies {
   writer: ApplicationWriter;
   newId: () => string;
@@ -37,6 +41,12 @@ function buildRecord(
     location: values.location,
     posting_url: values.posting_url,
     status: INITIAL_APPLICATION_STATUS,
+    closing_date: emptyToNull(values.closing_date),
+    salary_info: emptyToNull(values.salary_info),
+    work_format: emptyToNull(values.work_format),
+    contract_type: emptyToNull(values.contract_type),
+    discipline: emptyToNull(values.discipline),
+    tech_stack: values.tech_stack,
   };
 }
 

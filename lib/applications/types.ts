@@ -16,20 +16,55 @@ export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 /** Column names of the five required fields, in form order. */
 export const FIELD_NAMES = ["title", "company", "applied_date", "location", "posting_url"] as const;
 
-export type FieldName = (typeof FIELD_NAMES)[number];
+export const OPTIONAL_FIELD_NAMES = [
+  "closing_date",
+  "salary_info",
+  "work_format",
+  "contract_type",
+  "discipline",
+  "tech_stack",
+] as const;
 
-export type ApplicationFormValues = Record<FieldName, string>;
+export const ALL_FIELD_NAMES = [...FIELD_NAMES, ...OPTIONAL_FIELD_NAMES] as const;
+
+export type RequiredFieldName = (typeof FIELD_NAMES)[number];
+export type OptionalFieldName = (typeof OPTIONAL_FIELD_NAMES)[number];
+export type FieldName = (typeof ALL_FIELD_NAMES)[number];
+
+export type RequiredFormValues = Record<RequiredFieldName, string>;
+
+export type JobDetailsValues = {
+  closing_date: string;
+  salary_info: string;
+  work_format: string;
+  contract_type: string;
+  discipline: string;
+  tech_stack: string[];
+};
+
+export type ApplicationFormValues = RequiredFormValues & JobDetailsValues;
+
+export type NullableJobDetails = {
+  closing_date: string | null;
+  salary_info: string | null;
+  work_format: string | null;
+  contract_type: string | null;
+  discipline: string | null;
+  tech_stack: string[];
+};
 
 export type FieldErrors = Partial<Record<FieldName, string>>;
 
-export type NewApplicationRecord = ApplicationFormValues & {
+export type NewApplicationRecord = RequiredFormValues & NullableJobDetails & {
   id: string;
   user_id: string;
   status: ApplicationStatus;
 };
 
 /** What the list screen needs per row; never the full record. */
-export type ApplicationSummary = Pick<NewApplicationRecord, "id" | "status"> & ApplicationFormValues;
+export type ApplicationSummary = Pick<NewApplicationRecord, "id" | "status"> & RequiredFormValues;
+
+export type ApplicationDetail = NewApplicationRecord;
 
 /** Outcome of a single insert attempt. `id_conflict` = id taken by different content or by another user. */
 export type InsertOutcome = "inserted" | "already_exists" | "id_conflict";

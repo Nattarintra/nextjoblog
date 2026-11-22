@@ -1,12 +1,12 @@
 # Applications module
 
-Story 1.1: log a new application with the five required fields (title, company, applied date, location, job posting link). New rows start with status `applied`.
+Story 1.2: optional job details (closing date, salary, work arrangement, contract type, track and required technologies) are saved with an application and shown on `/applications/{id}`. New rows start with status `applied`.
 
 ## Layout
 
 | Layer | Location | Responsibility |
 | --- | --- | --- |
-| Pages | `app/(protected)/applications/` (`page.tsx` list, `new/page.tsx` form) | Call `requireSession()`, load data, compose components. Route-private UI lives in `_components/`. |
+| Pages | `app/(protected)/applications/` (`page.tsx` list, `new/page.tsx` form, `[id]/page.tsx` detail) | Call `requireSession()`, load data, compose components. Route-private UI lives in `_components/`. |
 | Server Action | `app/actions/applications.ts` | Thin adapter: parse `FormData`, call the service, map the result to form state. |
 | Pure domain | `lib/applications/` (`validation`, `url`, `dates`, `status`, `form-data`, `messages`, `limits`) | No I/O. Table-driven unit tests, 90% coverage gate in `vitest.config.mts`. |
 | Service + ports | `lib/applications/log-application.ts`, `ports.ts` | Orchestrates validate then write through an injected writer. |
@@ -16,13 +16,17 @@ Story 1.1: log a new application with the five required fields (title, company, 
 
 Copy lives in `lib/applications/messages.ts`; limits in `limits.ts`; routes in `paths.ts`. Do not inline strings or numbers elsewhere.
 
-## Extending
+## Optional job details
 
-Story 1.2 optional fields: pass `optionalSection` to `ApplicationFormFields`, extend `FieldName`/validation, and add columns to the repository's insert and select lists.
+The add form renders optional fields from the domain tables in `lib/applications/job-details.ts` and `lib/applications/types.ts`. To add a field, update the field-name/value tables, validation rules, and repository allow-list derived from those tables; keep labels, messages and limits in their corresponding `lib/applications/` modules. The form and detail view should continue to map those tables rather than add field-specific branches.
+
+The detail route is `/applications/{id}`. Empty values render as `—` with an accessible “Not provided” label. Shared choice labels are used throughout; the database value `contract` is displayed as **Fixed-term**.
 
 ## Migration
 
 One forward-only migration in `supabase/migrations/` (copied identically to `supabase-test/`): changes the `status` default from `interested` to `applied` and adds the `on_application_created` trigger, which writes the first `status_history` row in the database (security definer, execute revoked from client roles). Existing rows keep their status. Rollback is a new migration restoring the default and dropping the trigger. Covered by `supabase/tests/database/applications.test.sql` (default, trigger, RLS).
+
+There is no migration for Story 1.2: the optional columns already exist and are covered by the database round-trip and RLS tests.
 
 ## Tests
 

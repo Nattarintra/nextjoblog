@@ -102,7 +102,7 @@ describe("ApplicationRow", () => {
 
   it("never renders an unsafe href", () => {
     render(<ul><ApplicationRow application={application({ posting_url: "javascript:alert(1)" })} /></ul>);
-    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByRole("link", { name: /job posting for frontend engineer at spotify/i })).toBeNull();
   });
 });
 

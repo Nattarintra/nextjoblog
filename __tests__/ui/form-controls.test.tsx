@@ -49,6 +49,30 @@ describe("FormField + TextInput", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<Orphan />)).toThrow(/FormField/);
   });
+
+  it("renders warnings as status text without marking the control invalid", () => {
+    render(<Field />);
+    cleanup();
+    render(
+      <FormField name="company" label="Company" warning="Check this date">
+        <TextInput />
+      </FormField>,
+    );
+    const input = screen.getByRole("textbox", { name: "Company" });
+    expect(screen.getByRole("status").textContent).toContain("Check this date");
+    expect(input.getAttribute("aria-invalid")).toBe("false");
+    expect(document.getElementById(input.getAttribute("aria-describedby")!)?.textContent).toContain("Check this date");
+  });
+
+  it("uses the group variant without a label pointing at the fieldset", () => {
+    render(
+      <FormField as="group" name="choice" label="Choice">
+        <fieldset id="field-choice"><legend id="field-choice-label">Choice</legend></fieldset>
+      </FormField>,
+    );
+    expect(screen.getAllByRole("group")[0].getAttribute("aria-labelledby")).toBe("field-choice-label");
+    expect(document.querySelector('label[for="field-choice"]')).toBeNull();
+  });
 });
 
 describe("DatePicker", () => {
@@ -155,5 +179,16 @@ describe("DatePicker", () => {
     );
     const describedBy = screen.getByRole("button", { name: /applied date/i }).getAttribute("aria-describedby")!;
     expect(document.getElementById(describedBy)?.textContent).toContain("Enter a valid date");
+  });
+
+  it("clears a selected date and returns focus to the trigger", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const { container } = renderPicker({ clearable: true, onChange });
+    await user.click(trigger());
+    await user.click(screen.getByRole("button", { name: "Clear date" }));
+    expect(hiddenValue(container, 'input[type="hidden"]')).toBe("");
+    expect(onChange).toHaveBeenCalledWith("");
+    expect(document.activeElement).toBe(trigger());
   });
 });

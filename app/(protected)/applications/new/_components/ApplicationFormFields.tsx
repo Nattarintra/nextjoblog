@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 
 import { Card } from "@/components/ui/Card";
@@ -7,6 +9,9 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { TextInput } from "@/components/ui/TextInput";
 import { APPLICATION_PAGE_MESSAGES, EXAMPLE_POSTING_URL, FIELD_LABELS } from "@/lib/applications/messages";
 import type { ApplicationFormValues, FieldErrors } from "@/lib/applications/types";
+
+import { JobDetailsSection } from "./JobDetailsSection";
+import { useClosingDateWarning } from "./useClosingDateWarning";
 
 type ApplicationFormFieldsProps = {
   values: ApplicationFormValues;
@@ -18,6 +23,18 @@ type ApplicationFormFieldsProps = {
 
 /** Presentational: the five required fields in design order. */
 export function ApplicationFormFields({ values, errors, today, optionalSection }: ApplicationFormFieldsProps) {
+  const { appliedDate, closingDate, setAppliedDate, setClosingDate, showWarning } = useClosingDateWarning(values.applied_date, values.closing_date);
+  const jobDetailsSection = optionalSection ?? (
+    <JobDetailsSection
+      values={values}
+      errors={errors}
+      today={today}
+      closingDate={closingDate}
+      showClosingWarning={showWarning}
+      onClosingDateChange={setClosingDate}
+    />
+  );
+
   return (
     <>
       <SectionLabel>{APPLICATION_PAGE_MESSAGES.requiredSection}</SectionLabel>
@@ -33,14 +50,14 @@ export function ApplicationFormFields({ values, errors, today, optionalSection }
             <TextInput defaultValue={values.location} autoComplete="off" />
           </FormField>
           <FormField name="applied_date" label={FIELD_LABELS.applied_date} required error={errors.applied_date} help={APPLICATION_PAGE_MESSAGES.appliedDateHelp}>
-            <DatePicker today={today} defaultValue={values.applied_date} />
+            <DatePicker today={today} defaultValue={appliedDate} onChange={setAppliedDate} />
           </FormField>
           <FormField name="posting_url" label={FIELD_LABELS.posting_url} required error={errors.posting_url}>
             <TextInput type="url" inputMode="url" placeholder={EXAMPLE_POSTING_URL} defaultValue={values.posting_url} autoComplete="off" />
           </FormField>
         </div>
       </Card>
-      {optionalSection}
+      {jobDetailsSection}
     </>
   );
 }
