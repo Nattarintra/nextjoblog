@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   ApplicationRepositoryError,
+  createApplicationDetailReader,
   createApplicationReader,
   createApplicationWriter,
   createProfileTimeZoneReader,
@@ -50,28 +51,37 @@ const RECORD: NewApplicationRecord = {
   location: "Stockholm",
   posting_url: "https://acme.test/1",
   status: "applied",
+  closing_date: null,
+  salary_info: null,
+  work_format: null,
+  contract_type: null,
+  discipline: null,
+  tech_stack: [],
 };
 
 describe("createApplicationWriter", () => {
-  it("inserts exactly the 8 allow-listed keys and ignores spoofed extras", async () => {
+  it("inserts exactly the allow-listed keys and ignores spoofed extras", async () => {
     const { client, insert } = fakeClient({ insert: {} });
     const spoofed = { ...RECORD, status: "applied", created_at: "2000-01-01", role: "admin" } as NewApplicationRecord;
     expect(await createApplicationWriter(client).insert(spoofed)).toBe("inserted");
     const row = insert.mock.calls[0][0] as object;
     expect(Object.keys(row).sort()).toEqual(
-      ["applied_date", "company", "id", "location", "posting_url", "status", "title", "user_id"],
+      [
+        "applied_date", "closing_date", "company", "contract_type", "discipline", "id", "location",
+        "posting_url", "salary_info", "status", "tech_stack", "title", "user_id", "work_format",
+      ],
     );
   });
 
   it("returns already_exists when the stored row has identical content", async () => {
-    const stored = { title: "Dev", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1" };
+    const stored = { title: "Dev", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1", closing_date: null, salary_info: null, work_format: null, contract_type: null, discipline: null, tech_stack: [] };
     const { client, calls } = fakeClient({ insert: { error: { code: "23505" } }, select: { data: stored } });
     expect(await createApplicationWriter(client).insert(RECORD)).toBe("already_exists");
     expect(calls).toContainEqual(["eq", ["user_id", "user-1"]]);
   });
 
   it("returns id_conflict when the stored content differs", async () => {
-    const stored = { title: "Other", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1" };
+    const stored = { title: "Other", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1", closing_date: null, salary_info: null, work_format: null, contract_type: null, discipline: null, tech_stack: [] };
     const { client } = fakeClient({ insert: { error: { code: "23505" } }, select: { data: stored } });
     expect(await createApplicationWriter(client).insert(RECORD)).toBe("id_conflict");
   });
@@ -89,6 +99,18 @@ describe("createApplicationWriter", () => {
   it("throws when the ownership re-select fails", async () => {
     const { client } = fakeClient({ insert: { error: { code: "23505" } }, select: { error: { code: "XX000" } } });
     await expect(createApplicationWriter(client).insert(RECORD)).rejects.toBeInstanceOf(ApplicationRepositoryError);
+  });
+
+  it("returns id_conflict when optional content differs", async () => {
+    const stored = { title: "Dev", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1", closing_date: null, salary_info: null, work_format: "remote", contract_type: null, discipline: null, tech_stack: [] };
+    const { client } = fakeClient({ insert: { error: { code: "23505" } }, select: { data: stored } });
+    expect(await createApplicationWriter(client).insert(RECORD)).toBe("id_conflict");
+  });
+
+  it("treats identical optional arrays as already_exists", async () => {
+    const stored = { title: "Dev", company: "Acme", applied_date: "2026-11-19", location: "Stockholm", posting_url: "https://acme.test/1", closing_date: null, salary_info: null, work_format: null, contract_type: null, discipline: null, tech_stack: [] };
+    const { client } = fakeClient({ insert: { error: { code: "23505" } }, select: { data: stored } });
+    expect(await createApplicationWriter(client).insert(RECORD)).toBe("already_exists");
   });
 });
 
@@ -120,6 +142,36 @@ describe("createApplicationReader", () => {
   it("throws on a query error", async () => {
     const { client } = fakeClient({ select: { error: { code: "XX000" } } });
     await expect(createApplicationReader(client).list()).rejects.toMatchObject({ code: "XX000" });
+  });
+});
+
+describe("createApplicationDetailReader", () => {
+  const id = "11111111-1111-4111-8111-111111111111";
+
+  it("reads a detail row by a valid UUID", async () => {
+    const detail = { ...RECORD, id };
+    const { client, calls } = fakeClient({ select: { data: detail } });
+    expect(await createApplicationDetailReader(client).get(id)).toEqual(detail);
+    expect(calls).toContainEqual(["eq", ["id", id]]);
+    expect(calls.find(([name]) => name === "select")?.[1][0]).toBe(
+      "id, title, company, applied_date, location, posting_url, closing_date, salary_info, work_format, contract_type, discipline, tech_stack, status",
+    );
+  });
+
+  it("returns null without querying for malformed or missing ids", async () => {
+    const { client, calls } = fakeClient({ select: { data: null } });
+    expect(await createApplicationDetailReader(client).get("not-a-uuid")).toBeNull();
+    expect(calls).toEqual([]);
+  });
+
+  it("returns null when the row is not visible", async () => {
+    const { client } = fakeClient({ select: { data: null } });
+    expect(await createApplicationDetailReader(client).get(id)).toBeNull();
+  });
+
+  it("throws a code-only error when the detail query fails", async () => {
+    const { client } = fakeClient({ select: { error: { code: "XX000" } } });
+    await expect(createApplicationDetailReader(client).get(id)).rejects.toMatchObject({ code: "XX000" });
   });
 });
 

@@ -37,13 +37,14 @@ type DatePickerProps = {
   /** ISO date highlighted as "today"; injected so tests and time zones stay deterministic. */
   today: string;
   onChange?: (isoDate: string) => void;
+  clearable?: boolean;
 };
 
 /**
  * Calendar-only date control (no typing). Posts the ISO date through a hidden
  * input named by the surrounding FormField.
  */
-export function DatePicker({ defaultValue = "", today, onChange }: DatePickerProps) {
+export function DatePicker({ defaultValue = "", today, onChange, clearable = false }: DatePickerProps) {
   const { id, name, labelId, invalid, describedBy } = useFormFieldControl();
   const [value, setValue] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
@@ -78,6 +79,12 @@ export function DatePicker({ defaultValue = "", today, onChange }: DatePickerPro
     const iso = localDateToIso(date);
     setValue(iso);
     onChange?.(iso);
+    close();
+  };
+
+  const clear = () => {
+    setValue("");
+    onChange?.("");
     close();
   };
 
@@ -128,6 +135,13 @@ export function DatePicker({ defaultValue = "", today, onChange }: DatePickerPro
               ),
             }}
           />
+          {clearable && value && (
+            <div className="border-t border-border p-3">
+              <button type="button" className="min-h-11 w-full rounded-[10px] px-3 text-sm font-semibold text-link hover:bg-subtle focus-visible:outline-[3px] focus-visible:outline-azure" onClick={clear}>
+                {label.clear}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { APPLICATION_EVENTS } from "@/lib/applications/log";
+import { emptyJobDetails } from "@/lib/applications/job-details";
 import { logApplication } from "@/lib/applications/log-application";
 import type { ApplicationWriter } from "@/lib/applications/ports";
 import type { ApplicationFormValues, InsertOutcome } from "@/lib/applications/types";
@@ -13,6 +14,7 @@ const VALID_VALUES: ApplicationFormValues = {
   applied_date: "2026-11-19",
   location: "Stockholm",
   posting_url: "https://acme.test/jobs/1",
+  ...emptyJobDetails(),
 };
 
 function setup(outcomes: Array<InsertOutcome | Error> = ["inserted"]) {
@@ -43,8 +45,38 @@ describe("logApplication", () => {
       location: "Stockholm",
       posting_url: "https://acme.test/jobs/1",
       status: "applied",
+      closing_date: null,
+      salary_info: null,
+      work_format: null,
+      contract_type: null,
+      discipline: null,
+      tech_stack: [],
     });
     expect(newId).not.toHaveBeenCalled();
+  });
+
+  it("persists normalized optional values and keeps empty optionals nullable", async () => {
+    const { deps, insert } = setup();
+    const values: ApplicationFormValues = {
+      ...VALID_VALUES,
+      closing_date: " 2026-12-01 ",
+      salary_info: " 45,000 SEK ",
+      work_format: "hybrid",
+      contract_type: "contract",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    };
+
+    await logApplication(deps, { userId: USER_ID, clientId: CLIENT_ID, values });
+
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      closing_date: "2026-12-01",
+      salary_info: "45,000 SEK",
+      work_format: "hybrid",
+      contract_type: "contract",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    }));
   });
 
   it("generates an id when the client id is missing", async () => {
@@ -56,7 +88,7 @@ describe("logApplication", () => {
 
   it("returns every field error without calling the writer when input is invalid", async () => {
     const { deps, insert } = setup();
-    const values = { title: "", company: " ", applied_date: "", location: "", posting_url: "linkedin job" };
+    const values = { ...emptyJobDetails(), title: "", company: " ", applied_date: "", location: "", posting_url: "linkedin job" };
     const result = await logApplication(deps, { userId: USER_ID, clientId: CLIENT_ID, values });
     expect(result.status).toBe("invalid");
     if (result.status === "invalid") {

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { APPLICATION_EVENTS, logApplicationEvent } from "@/lib/applications/log";
 import { logApplication } from "@/lib/applications/log-application";
 import { readApplicationFormData } from "@/lib/applications/form-data";
-import { APPLICATIONS_PATH } from "@/lib/applications/paths";
+import { applicationDetailPath } from "@/lib/applications/paths";
 import { createApplicationWriter } from "@/lib/applications/repository";
 import type { ApplicationFormState } from "@/lib/applications/types";
 import { requireSession } from "@/lib/auth/require-session";
@@ -37,6 +37,6 @@ export async function logApplicationAction(
   );
 
   // redirect() throws, so it stays outside any try/catch.
-  if (result.status === "created") redirect(APPLICATIONS_PATH);
+  if (result.status === "created") redirect(applicationDetailPath(result.id));
   return result;
 }

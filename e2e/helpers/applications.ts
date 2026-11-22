@@ -2,9 +2,10 @@ import { expect, type Page } from "@playwright/test";
 
 import { FIELD_LABELS } from "@/lib/applications/messages";
 import { NEW_APPLICATION_PATH } from "@/lib/applications/paths";
-import type { FieldName } from "@/lib/applications/types";
+import type { ApplicationFormValues, FieldName, RequiredFieldName } from "@/lib/applications/types";
 
-export type ApplicationInput = Record<Exclude<FieldName, "applied_date">, string>;
+export type ApplicationInput = Record<Exclude<RequiredFieldName, "applied_date">, string>;
+export type OptionalApplicationInput = Pick<ApplicationFormValues, "closing_date" | "salary_info" | "work_format" | "contract_type" | "discipline" | "tech_stack">;
 
 export function buildApplicationInput(label: string): ApplicationInput {
   const unique = `${label}-${Date.now()}`;
@@ -28,6 +29,6 @@ export async function openNewApplicationForm(page: Page) {
 
 export async function fillApplicationForm(page: Page, input: ApplicationInput) {
   for (const [field, value] of Object.entries(input)) {
-    await fieldInput(page, field as FieldName).fill(value);
+    await fieldInput(page, field as RequiredFieldName).fill(value);
   }
 }

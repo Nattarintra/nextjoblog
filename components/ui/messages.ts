@@ -6,6 +6,7 @@ export const UI_MESSAGES = {
     placeholder: "Select a date",
     previousMonth: "Previous month",
     nextMonth: "Next month",
+    clear: "Clear date",
   },
   pending: "Saving…",
   back: "Back",

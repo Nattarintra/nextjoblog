@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['__tests__/**/*.test.{ts,tsx}'],
+    // Keep jsdom + V8 coverage within the CI worker budget; higher parallelism
+    // intermittently starves the form tests and causes 5s user-event timeouts.
+    maxWorkers: 2,
     coverage: {
       enabled: true,
       provider: 'v8',

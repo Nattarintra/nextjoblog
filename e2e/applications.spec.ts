@@ -1,4 +1,3 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 import { APPLICATION_MESSAGES, APPLICATION_PAGE_MESSAGES } from "@/lib/applications/messages";
@@ -12,6 +11,7 @@ import {
   openNewApplicationForm,
 } from "./helpers/applications";
 import { DESKTOP_VIEWPORT, signUpNewUser } from "./helpers/auth-session";
+import { expectNoAxeViolations } from "./helpers/axe";
 
 const APPLIED_STATUS_LABEL = "Applied";
 const LOGGED_OUT_LOGIN_URL = /\/login\?loggedOut=1$/;
@@ -23,18 +23,52 @@ async function saveApplication(page: Page) {
   await page.getByRole("button", { name: APPLICATION_MESSAGES.save, exact: true }).click();
 }
 
-test("logs an application and shows it in the list as Applied", async ({ browser }) => {
+async function choosePill(page: Page, label: string) {
+  await page.getByRole("radio", { name: label, exact: true }).locator("xpath=..").click();
+}
+
+async function chooseCalendarDay(page: Page, field: RegExp, day: RegExp) {
+  await page.getByRole("button", { name: field }).click();
+  await page.getByRole("dialog").getByRole("button", { name: day }).click();
+}
+
+async function fillOptionalDetails(page: Page) {
+  await chooseCalendarDay(page, /applied date/i, /25th/);
+  await chooseCalendarDay(page, /closing date/i, /20th/);
+  await fieldInput(page, "salary_info").fill("50000 SEK/month");
+  await choosePill(page, "Remote");
+  await choosePill(page, "Fixed-term");
+  await choosePill(page, "Frontend");
+  const technologies = fieldInput(page, "tech_stack");
+  await technologies.fill("React");
+  await technologies.press("Enter");
+  await technologies.fill("TypeScript");
+  await technologies.press("Enter");
+}
+
+test("logs an application, redirects to detail, and shows optional details", async ({ browser }) => {
   const { context, page } = await signUpNewUser(browser, "apps-add", DESKTOP_VIEWPORT);
   const input = buildApplicationInput("add");
 
   await openNewApplicationForm(page);
   await fillApplicationForm(page, input);
+  await fillOptionalDetails(page);
   await saveApplication(page);
 
-  await expect(page).toHaveURL(new RegExp(`${APPLICATIONS_PATH}$`));
+  await expect(page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+  await expect(page.getByRole("heading", { name: input.title })).toBeVisible();
+  await expect(page.getByText("50000 SEK/month")).toBeVisible();
+  await expect(page.getByText("Fixed-term")).toBeVisible();
+  await expect(page.getByText("React")).toBeVisible();
+  await expect(page.getByText("TypeScript")).toBeVisible();
+  await expectNoAxeViolations(page);
+  const detailUrl = page.url();
+  await page.goto(APPLICATIONS_PATH);
   const row = page.getByRole("listitem").filter({ hasText: input.title });
   await expect(row).toContainText(input.company);
   await expect(row).toContainText(APPLIED_STATUS_LABEL);
+  await row.getByRole("link", { name: input.title, exact: true }).click();
+  await expect(page).toHaveURL(detailUrl);
   await context.close();
 });
 
@@ -44,12 +78,15 @@ test("another user never sees the application", async ({ browser }) => {
   await openNewApplicationForm(owner.page);
   await fillApplicationForm(owner.page, input);
   await saveApplication(owner.page);
-  await expect(owner.page.getByText(input.title)).toBeVisible();
+  await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+  const detailUrl = owner.page.url();
 
   const other = await signUpNewUser(browser, "apps-other", DESKTOP_VIEWPORT);
   await other.page.goto(APPLICATIONS_PATH);
   await expect(other.page.getByText(APPLICATION_PAGE_MESSAGES.emptyTitle)).toBeVisible();
   await expect(other.page.getByText(input.title)).toHaveCount(0);
+  await other.page.goto(detailUrl);
+  await expect(other.page.getByRole("heading", { name: /can't find this application/i })).toBeVisible();
 
   await owner.context.close();
   await other.context.close();
@@ -87,8 +124,21 @@ test("keeps the input and succeeds on Retry after a failed save", async ({ brows
   await page.unroute("**/*");
   await page.getByRole("button", { name: APPLICATION_MESSAGES.retry, exact: true }).click();
 
-  await expect(page).toHaveURL(new RegExp(`${APPLICATIONS_PATH}$`));
-  await expect(page.getByRole("listitem").filter({ hasText: input.title })).toHaveCount(1);
+  await expect(page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+  await expect(page.getByRole("heading", { name: input.title })).toBeVisible();
+  await context.close();
+});
+
+test("closing-date warning is live and does not block saving", async ({ browser }) => {
+  const { context, page } = await signUpNewUser(browser, "apps-closing-warning", DESKTOP_VIEWPORT);
+  const input = buildApplicationInput("closing-warning");
+  await openNewApplicationForm(page);
+  await fillApplicationForm(page, input);
+  await chooseCalendarDay(page, /applied date/i, /25th/);
+  await chooseCalendarDay(page, /closing date/i, /20th/);
+  await expect(page.getByText(APPLICATION_PAGE_MESSAGES.closingBeforeApplied)).toBeVisible();
+  await saveApplication(page);
+  await expect(page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
   await context.close();
 });
 
@@ -99,8 +149,7 @@ test("form in its error state has no axe violations", async ({ browser }) => {
   await saveApplication(page);
   await expect(page.getByRole("alert").first()).toBeVisible();
 
-  const results = await new AxeBuilder({ page }).analyze();
-  expect(results.violations).toEqual([]);
+  await expectNoAxeViolations(page);
   await context.close();
 });
 

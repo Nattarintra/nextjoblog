@@ -5,6 +5,7 @@ export const APPLICATION_EVENTS = {
   idConflict: "applications.log.id_conflict_after_retry",
   missingUserId: "applications.log.missing_user_id",
   listFailed: "applications.log.list_failed",
+  detailFailed: "applications.log.detail_failed",
 } as const;
 
 export type ApplicationLogger = (event: string, details?: ErrorLogDetails) => void;
