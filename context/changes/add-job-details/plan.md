@@ -397,6 +397,7 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 
 - Legacy-column cleanup migration and Edit screen are tracked as separate changes (research §10).
 - If the `Alert`-based warning proves too heavy visually, `FormField.warning` styling can change without touching callers.
+- `e2e/logout.spec.ts` includes a supporting back-forward-cache reload after the feature's detail-route navigation changes; it keeps the protected-route logout regression covered and is not additional product scope.
 
 ## References
 
@@ -462,9 +463,9 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 7: SQL, E2E, a11y, docs and evidence
 
 #### Automated
-- [x] 7.1 `supabase test db` passes (CI)
-- [x] 7.2 Playwright + axe green (CI, record run ID)
-- [x] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%) — 123fa97
+- [x] 7.1 `supabase test db` passes (CI) — [GitHub Actions run 45077821138](https://github.com/Nattarintra/nextjoblog/actions/runs/45077821138)
+- [x] 7.2 Playwright + axe green (CI) — [GitHub Actions run 45077821138](https://github.com/Nattarintra/nextjoblog/actions/runs/45077821138)
+- [x] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%) — 123fa97; local coverage: 96.09% statements, 92.75% branches, 96.46% functions, 96.54% lines; `lib/applications/**`: 99.23% statements, 97.48% branches, 98.03% functions, 99.11% lines
 
 #### Manual
 - [x] 7.4 All story ACs walked through on desktop and mobile

@@ -27,9 +27,14 @@ async function choosePill(page: Page, label: string) {
   await page.getByRole("radio", { name: label, exact: true }).locator("xpath=..").click();
 }
 
+async function chooseCalendarDay(page: Page, field: RegExp, day: RegExp) {
+  await page.getByRole("button", { name: field }).click();
+  await page.getByRole("dialog").getByRole("button", { name: day }).click();
+}
+
 async function fillOptionalDetails(page: Page) {
-  await page.getByRole("button", { name: /closing date/i }).click();
-  await page.getByRole("dialog").getByRole("button", { name: /20th/ }).click();
+  await chooseCalendarDay(page, /applied date/i, /25th/);
+  await chooseCalendarDay(page, /closing date/i, /20th/);
   await fieldInput(page, "salary_info").fill("50000 SEK/month");
   await choosePill(page, "Remote");
   await choosePill(page, "Fixed-term");
@@ -129,8 +134,8 @@ test("closing-date warning is live and does not block saving", async ({ browser 
   const input = buildApplicationInput("closing-warning");
   await openNewApplicationForm(page);
   await fillApplicationForm(page, input);
-  await page.getByRole("button", { name: /closing date/i }).click();
-  await page.getByRole("dialog").getByRole("button", { name: /20th/ }).click();
+  await chooseCalendarDay(page, /applied date/i, /25th/);
+  await chooseCalendarDay(page, /closing date/i, /20th/);
   await expect(page.getByText(APPLICATION_PAGE_MESSAGES.closingBeforeApplied)).toBeVisible();
   await saveApplication(page);
   await expect(page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
