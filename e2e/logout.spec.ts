@@ -40,6 +40,9 @@ test("logs out, lands on the login banner, and Back never shows the dashboard", 
   await expect(async () => expect(await authCookieCount(page)).toBe(0)).toPass({ timeout: 5_000 });
 
   await page.goBack();
+  // The browser may restore the protected detail route from its back-forward
+  // cache without making a request; reload it so the route guard is exercised.
+  await page.reload();
   await expect(page).toHaveURL(APPLICATION_LOGIN_REDIRECT_URL);
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
 

@@ -62,7 +62,7 @@ test("logs an application, redirects to detail, and shows optional details", asy
   const row = page.getByRole("listitem").filter({ hasText: input.title });
   await expect(row).toContainText(input.company);
   await expect(row).toContainText(APPLIED_STATUS_LABEL);
-  await row.getByRole("link", { name: input.title }).click();
+  await row.getByRole("link", { name: input.title, exact: true }).click();
   await expect(page).toHaveURL(detailUrl);
   await context.close();
 });
