@@ -462,10 +462,10 @@ No schema change and no data migration; existing rows have `null`/`{}` optional 
 ### Phase 7: SQL, E2E, a11y, docs and evidence
 
 #### Automated
-- [ ] 7.1 `supabase test db` passes (CI)
-- [ ] 7.2 Playwright + axe green (CI, record run ID)
-- [x] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%)
+- [x] 7.1 `supabase test db` passes (CI)
+- [x] 7.2 Playwright + axe green (CI, record run ID)
+- [x] 7.3 Lint, typecheck, coverage gates (global ≥ 80%, `lib/applications/**` ≥ 90%) — 123fa97
 
 #### Manual
-- [ ] 7.4 All story ACs walked through on desktop and mobile
-- [ ] 7.5 `docs/applications.md` updated; `change.md` status updated
+- [x] 7.4 All story ACs walked through on desktop and mobile
+- [x] 7.5 `docs/applications.md` updated; `change.md` status updated
