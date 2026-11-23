@@ -3,6 +3,9 @@
 import { useEffect } from "react";
 
 import { Toast } from "@/components/ui/Toast";
+import { SESSION_EXPIRY_MESSAGES } from "@/lib/auth/messages";
+
+import { formatSessionDate } from "./session-date-formatting";
 
 type SessionExtensionToastProps = {
   extendedUntil: number;
@@ -15,6 +18,6 @@ export function SessionExtensionToast({ extendedUntil, onDismiss }: SessionExten
     return () => window.clearTimeout(timeout);
   }, [onDismiss]);
 
-  const date = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(extendedUntil);
-  return <Toast title="Login extended" body={`You're all set. We'll remind you again two days before ${date}.`} dismissLabel="Dismiss login extension message" onDismiss={onDismiss} />;
+  const date = formatSessionDate(extendedUntil);
+  return <Toast title={SESSION_EXPIRY_MESSAGES.toastTitle} body={SESSION_EXPIRY_MESSAGES.toastBody(date)} dismissLabel={SESSION_EXPIRY_MESSAGES.toastDismiss} onDismiss={onDismiss} />;
 }

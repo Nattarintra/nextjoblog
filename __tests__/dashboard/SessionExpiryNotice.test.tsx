@@ -121,7 +121,7 @@ describe("SessionExpiryNotice", () => {
     const sessionExpiresAt = Date.now() + DAY_MS;
     renderAndFlush(sessionExpiresAt);
 
-    fireEvent.click(screen.getByRole("button", { name: "No" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.cookie).toContain(`${COOKIE_NAME}=${sessionExpiresAt}`);
@@ -136,7 +136,7 @@ describe("SessionExpiryNotice", () => {
     const nextExpiry = firstExpiry + DAY_MS;
     renderAndFlush(firstExpiry);
 
-    fireEvent.click(screen.getByRole("button", { name: "No" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
     cleanup();
     renderAndFlush(nextExpiry);
 

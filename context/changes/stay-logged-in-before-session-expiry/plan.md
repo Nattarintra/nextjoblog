@@ -409,26 +409,26 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [x] 3.1 Timing tests cover initial check, threshold timer, expiry boundary, visibility, and cleanup
-- [x] 3.2 Cross-tab tests cover BroadcastChannel, storage fallback, cycle filtering, cookie state, and stale reconciliation
-- [x] 3.3 Shell tests cover modal arbitration and server-confirmed in-memory toast state
+- [x] 3.1 Timing tests cover initial check, threshold timer, expiry boundary, visibility, and cleanup — 3925a39
+- [x] 3.2 Cross-tab tests cover BroadcastChannel, storage fallback, cycle filtering, cookie state, and stale reconciliation — 3925a39
+- [x] 3.3 Shell tests cover modal arbitration and server-confirmed in-memory toast state — 3925a39
 
 #### Manual
 
-- [x] 3.4 Two-tab and background/foreground behavior matches the current expiry cycle
+- [x] 3.4 Two-tab and background/foreground behavior matches the current expiry cycle — 3925a39
 
 ### Phase 4: Accessible Designed UI
 
 #### Automated
 
-- [ ] 4.1 Dialog tests cover ARIA, initial focus, focus restoration, Escape, backdrop, and busy behavior
-- [ ] 4.2 Prompt tests cover local dates, action labels, failure alert, unchanged date, retry, and success toast
-- [ ] 4.3 Responsive accessibility assertions pass at desktop and 390px mobile widths
+- [x] 4.1 Dialog tests cover ARIA, initial focus, focus restoration, Escape, backdrop, and busy behavior
+- [x] 4.2 Prompt tests cover local dates, action labels, failure alert, unchanged date, retry, and success toast
+- [x] 4.3 Responsive accessibility assertions pass at desktop and 390px mobile widths
 
 #### Manual
 
-- [ ] 4.4 Prompt, toast, failure, and expired-login screens match the supplied design at desktop and mobile widths
-- [ ] 4.5 Keyboard-only and screen-reader interaction is usable across all dialog states
+- [x] 4.4 Prompt, toast, failure, and expired-login screens match the supplied design at desktop and mobile widths
+- [x] 4.5 Keyboard-only and screen-reader interaction is usable across all dialog states
 
 ### Phase 5: Verification, E2E, and Documentation
 

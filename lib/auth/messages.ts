@@ -140,6 +140,24 @@ export const LOGIN_MESSAGES = {
   },
 } as const;
 
+export const SESSION_EXPIRY_MESSAGES = {
+  heading: "Stay logged in?",
+  currentDateLabel: "Now",
+  currentDateDescription: "Current end of your login",
+  nextDateLabel: "IF YES",
+  nextDateDescription: (date: string) => `30 more days, counted from ${date}`,
+  unchangedDateLabel: "Still",
+  unchangedDateDescription: "Current end of your login, unchanged",
+  yes: "Yes, stay logged in",
+  pendingYes: "Staying logged in…",
+  notNow: "Not now",
+  retry: "Try Again",
+  failure: "We couldn't extend your login. Nothing changed. Check your connection and try again.",
+  toastTitle: "You'll stay logged in",
+  toastBody: (date: string) => `Your login now ends on ${date}. We'll ask again 2 days before.`,
+  toastDismiss: "Dismiss login extension message",
+} as const;
+
 export const SIGNUP_MESSAGES = {
   heading: "Create Your NextJobLog Account",
   subtitle: "Your application data is encrypted and visible only to you.",

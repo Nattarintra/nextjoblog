@@ -188,12 +188,12 @@ test.describe("application-managed session extension cycles", () => {
     expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBeGreaterThan(0);
 
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
     await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_000 - Date.now()));
     await expect(dialog).toBeVisible();
     await expectResponsiveScreen(page, testInfo, "session-expiry-dialog");
-    await page.getByRole("button", { name: "Yes" }).click();
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
     // The first extension moves the app-managed expiry to 60 seconds from
@@ -205,7 +205,7 @@ test.describe("application-managed session extension cycles", () => {
 
     await page.waitForTimeout(Math.max(0, sessionStartedAt + 58_000 - Date.now()));
     await expect(dialog).toBeVisible();
-    await page.getByRole("button", { name: "Yes" }).click();
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
     await page.reload();
@@ -258,7 +258,7 @@ test.describe("real session expiry (short timebox)", () => {
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
     const noticeAt = sessionStartedAt + 28_000;
     const expiresAt = sessionStartedAt + 30_000;
-    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
     await expect(dialog).toBeHidden();
     await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
