@@ -142,6 +142,8 @@ export const LOGIN_MESSAGES = {
 
 export const SESSION_EXPIRY_MESSAGES = {
   heading: "Stay logged in?",
+  description:
+    "Your login on this device ends in 2 days. Stay logged in to keep using NextJobLog without entering your password again.",
   currentDateLabel: "Now",
   currentDateDescription: "Current end of your login",
   nextDateLabel: "IF YES",

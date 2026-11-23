@@ -16,6 +16,9 @@ import { expectResponsiveScreen } from "./helpers/axe";
 const SHORT_SESSION_LIFETIME_MS = 30_000;
 const SHORT_NOTICE_WINDOW_MS = 2_000;
 
+const isServerAction = (request: { method(): string; headers(): Record<string, string> }) =>
+  request.method() === "POST" && "next-action" in request.headers();
+
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
 // mirrors e2e/login.spec.ts's reasoning for forcing single-worker, in-order mode,
@@ -282,6 +285,29 @@ test.describe("real session expiry (short timebox)", () => {
     await expect(dialog).toBeVisible();
     await expectResponsiveScreen(page, testInfo, "session-expiry-dialog-real-expiry");
 
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(secondDialog).toBeVisible();
+
+    // Two pages submit the same signed cycle token concurrently. Exactly one
+    // CAS write may win; the other page must reconcile as stale.
+    await Promise.all([
+      page.getByRole("button", { name: "Yes, stay logged in" }).click(),
+      secondPage.getByRole("button", { name: "Yes, stay logged in" }).click(),
+    ]);
+    await expect(dialog).toBeHidden();
+    await expect(secondDialog).toBeHidden();
+    const { data: concurrentRows, error: concurrentReadError } = await supabaseAdmin
+      .from("session_extensions")
+      .select("extended_until")
+      .eq("user_id", signedInSession.user.id);
+    expect(concurrentReadError).toBeNull();
+    if (!concurrentRows) throw new Error("Expected a session extension row after concurrent submission");
+    expect(concurrentRows).toHaveLength(1);
+    expect(Date.parse(concurrentRows[0].extended_until)).toBeGreaterThan(expiresAt);
+    await secondPage.close();
+
     // Wait past the full 30s timebox, then force a new request through
     // proxy.ts — that's what actually re-checks expiry and clears cookies.
     await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
@@ -303,5 +329,60 @@ test.describe("real session expiry (short timebox)", () => {
       );
       expect(remainingLiveAuthCookies).toHaveLength(0);
     }).toPass({ timeout: 5_000 });
+    await expect(page).toHaveURL(/\/login\?reason=session_expired&next=%2Fdashboard$/);
+    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
+  });
+
+  test("closes the matching prompt in another tab when one tab dismisses it", async ({ page }) => {
+    test.setTimeout(75_000);
+
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(`expiry-cross-tab+${Date.now()}@example.com`);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(dialog).toBeVisible();
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(secondDialog).toBeVisible();
+
+    await secondPage.getByRole("button", { name: "Not now" }).click();
+    await expect(secondDialog).toBeHidden();
+    await expect(dialog).toBeHidden();
+    await secondPage.close();
+  });
+
+  test("keeps the prompt open on a failed extension and retries successfully", async ({ page }) => {
+    test.setTimeout(75_000);
+
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(`expiry-retry+${Date.now()}@example.com`);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(dialog).toBeVisible();
+    await page.route("**/*", (route) => (isServerAction(route.request()) ? route.abort("connectionfailed") : route.continue()));
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
+    await expect(page.getByRole("alert")).toContainText("Nothing changed");
+    await expect(page.getByText("Current end of your login, unchanged")).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeVisible();
+
+    await page.unroute("**/*");
+    await page.getByRole("button", { name: "Try Again" }).click();
+    await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeHidden();
+    await expect(page.getByRole("status")).toContainText("You'll stay logged in");
   });
 });
