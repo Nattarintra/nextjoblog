@@ -48,7 +48,7 @@ describe("SessionExpiryNoticeDialog", () => {
   it("dismisses and refreshes after a successful extension", () => {
     const onDismiss = vi.fn();
     useActionStateMock.mockReturnValue([
-      { ok: true, extendedUntil: Date.now() + 30_000 },
+      { ok: true, extendedUntil: Date.now() + 30_000, cycleToken: "next-cycle-token" },
       extendActionMock,
       false,
     ]);

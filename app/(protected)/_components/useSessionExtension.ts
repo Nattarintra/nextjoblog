@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { extendSession, type ExtendSessionState } from "@/app/actions/session";
 import { OFFLINE_ERROR_MESSAGE } from "@/lib/auth/messages";
 
-type SuccessfulExtensionState = { ok: true; extendedUntil: number };
-type UseSessionExtensionOptions = { cycleToken: string; onSuccess: (extendedUntil: number) => void; onStale?: () => void };
+type SuccessfulExtensionState = { ok: true; extendedUntil: number; cycleToken: string };
+type UseSessionExtensionOptions = { cycleToken: string; onSuccess: (extendedUntil: number, cycleToken: string) => void; onStale?: () => void };
 
 function isSuccessfulExtension(state: ExtendSessionState): state is SuccessfulExtensionState {
   return state !== undefined && "ok" in state;
@@ -24,7 +24,7 @@ export function useSessionExtension({ cycleToken, onSuccess, onStale }: UseSessi
   const [clientError, setClientError] = useState<string | null>(null);
   useEffect(() => {
     if (!isSuccessfulExtension(state)) return;
-    onSuccess(state.extendedUntil); router.refresh();
+    onSuccess(state.extendedUntil, state.cycleToken); router.refresh();
     // A stale action is reconciled separately so it never looks like a retryable error.
   }, [onSuccess, router, state]);
   useEffect(() => {

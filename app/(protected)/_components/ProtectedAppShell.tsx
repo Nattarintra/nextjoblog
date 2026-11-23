@@ -31,7 +31,14 @@ type ProtectedAppShellProps = {
 export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, sessionCycleToken, children }: ProtectedAppShellProps) {
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [extendedUntil, setExtendedUntil] = useState<number | null>(null);
+  const [activeSessionExpiresAt, setActiveSessionExpiresAt] = useState(sessionExpiresAt);
+  const [activeSessionCycleToken, setActiveSessionCycleToken] = useState(sessionCycleToken);
   const dismissExtensionToast = useCallback(() => setExtendedUntil(null), []);
+  const handleExtension = useCallback((nextExpiresAt: number, nextCycleToken: string) => {
+    setActiveSessionExpiresAt(nextExpiresAt);
+    setActiveSessionCycleToken(nextCycleToken);
+    setExtendedUntil(nextExpiresAt);
+  }, []);
   const logoutControl = useLogout();
   const { drawerOpen, accountOpen, openDrawer, closeDrawer, setAccountOpen } = useShellModals(noticeOpen);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -44,7 +51,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
   useBodyScrollLock(scrollLocked);
 
   return (
-    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]" data-session-expires-at={sessionExpiresAt}>
+    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]" data-session-expires-at={activeSessionExpiresAt}>
       <SideNav
         email={email}
         logoutControl={logoutControl}
@@ -71,12 +78,12 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
       {drawerOpen && <NavDrawer email={email} onClose={closeDrawer} onOpenAccount={() => setAccountOpen(true)} />}
       {accountOpen && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setAccountOpen(false)} />}
       <SessionExpiryNotice
-        sessionExpiresAt={sessionExpiresAt}
+        sessionExpiresAt={activeSessionExpiresAt}
         noticeWindowMs={noticeWindowMs}
-        sessionCycleToken={sessionCycleToken}
+        sessionCycleToken={activeSessionCycleToken}
         disabled={drawerOpen || accountOpen}
         onShowChange={setNoticeOpen}
-        onExtended={setExtendedUntil}
+        onExtended={handleExtension}
       />
     </div>
   );

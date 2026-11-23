@@ -12,7 +12,7 @@ type SessionExpiryNoticeProps = {
   disabled?: boolean;
   onShowChange?: (show: boolean) => void;
   sessionCycleToken?: string;
-  onExtended?: (extendedUntil: number) => void;
+  onExtended?: (extendedUntil: number, cycleToken: string) => void;
 };
 
 export function SessionExpiryNotice({
@@ -30,5 +30,5 @@ export function SessionExpiryNotice({
     onShowChange?.(visible);
   }, [onShowChange, visible]);
 
-  return visible ? <SessionExpiryNoticeDialog sessionExpiresAt={sessionExpiresAt} sessionCycleToken={sessionCycleToken} onDismiss={dismiss} onSuccess={(extendedUntil) => { publish("extended"); onExtended?.(extendedUntil); }} onStale={() => publish("stale")} /> : null;
+  return visible ? <SessionExpiryNoticeDialog sessionExpiresAt={sessionExpiresAt} sessionCycleToken={sessionCycleToken} onDismiss={dismiss} onSuccess={(extendedUntil, cycleToken) => { publish("extended"); onExtended?.(extendedUntil, cycleToken); }} onStale={() => publish("stale")} /> : null;
 }

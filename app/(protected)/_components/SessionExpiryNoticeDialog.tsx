@@ -18,7 +18,7 @@ type SessionExpiryNoticeDialogProps = {
   onDismiss: () => void;
   sessionExpiresAt?: number;
   sessionCycleToken?: string;
-  onSuccess?: (extendedUntil: number) => void;
+  onSuccess?: (extendedUntil: number, cycleToken: string) => void;
   onStale?: () => void;
 };
 

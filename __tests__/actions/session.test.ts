@@ -111,7 +111,8 @@ describe("extendSession", () => {
 
     const result = await extendSession(undefined, cycleFormData());
 
-    expect(result).toEqual({ ok: true, extendedUntil: Date.parse("2050-01-01T00:00:00.000Z") });
+    expect(result).toMatchObject({ ok: true, extendedUntil: Date.parse("2050-01-01T00:00:00.000Z") });
+    expect((result as { cycleToken: string }).cycleToken).toEqual(expect.any(String));
     expect(rpcMock).toHaveBeenCalled();
   });
 
@@ -146,10 +147,11 @@ describe("extendSession", () => {
 
     const result = await extendSession(undefined, cycleFormData({ extended_until: new Date(existingExpiry).toISOString() }));
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: true,
       extendedUntil: Date.parse("2050-01-01T00:00:00.000Z"),
     });
+    expect((result as { cycleToken: string }).cycleToken).toEqual(expect.any(String));
   });
 
   it("rejects an already-expired effective session without upserting", async () => {

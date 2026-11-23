@@ -13,11 +13,11 @@ import {
 } from "@/lib/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { describeAuthError } from "@/lib/auth/error-details";
-import { verifySessionCycleToken } from "@/lib/session/cycle-token";
+import { createSessionCycleToken, verifySessionCycleToken } from "@/lib/session/cycle-token";
 
 export type ExtendSessionState =
   | undefined
-  | { ok: true; extendedUntil: number }
+  | { ok: true; extendedUntil: number; cycleToken: string }
   | { error: "stale" | "unknown"; message: string };
 
 function createFailureState(error: unknown): ExtendSessionState {
@@ -77,7 +77,14 @@ export async function extendSession(
       return { error: "stale", message: SESSION_EXTENSION_MESSAGES.stale };
     }
 
-    return { ok: true, extendedUntil: extensionResult.extendedUntil };
+    return {
+      ok: true,
+      extendedUntil: extensionResult.extendedUntil,
+      cycleToken: createSessionCycleToken({
+        sessionId: claims.session_id,
+        effectiveExpiresAt: extensionResult.extendedUntil,
+      }),
+    };
   } catch (error) {
     return createFailureState(error);
   }
