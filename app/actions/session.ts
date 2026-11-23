@@ -9,7 +9,6 @@ import { SESSION_EXTENSION_ERROR_CODES } from "@/lib/session/errors";
 import { createSupabaseSessionExtensionStore } from "@/lib/session/extension-store";
 import {
   computeEffectiveSessionExpiresAt,
-  computeNextSessionExpiry,
   getSessionLifetimeMs,
 } from "@/lib/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -58,15 +57,17 @@ export async function extendSession(
       throw new Error(SESSION_EXTENSION_ERROR_CODES.expired);
     }
 
-    const extendedUntil = computeNextSessionExpiry(currentEffectiveExpiry);
-
-    await store.upsert({
+    const extensionResult = await store.compareAndSet({
       sessionId: claims.session_id,
-      userId: claims.sub,
-      extendedUntil,
+      expectedEffectiveExpiresAt: currentEffectiveExpiry,
+      expectedExtendedUntil: extension,
     });
 
-    return { ok: true, extendedUntil };
+    if (extensionResult.status === "conflict") {
+      throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcFailed);
+    }
+
+    return { ok: true, extendedUntil: extensionResult.extendedUntil };
   } catch (error) {
     return createFailureState(error);
   }

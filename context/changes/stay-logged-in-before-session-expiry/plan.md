@@ -385,13 +385,13 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [ ] 1.1 Migration and mirrored test migration define the atomic session-extension RPC and grants
-- [ ] 1.2 pgTAP covers first extension, matching update, stale conflict, ownership, and cross-user rejection
-- [ ] 1.3 Store tests cover RPC success, conflict, malformed output, and transport failure
+- [x] 1.1 Migration and mirrored test migration define the atomic session-extension RPC and grants
+- [x] 1.2 pgTAP covers first extension, matching update, stale conflict, ownership, and cross-user rejection
+- [x] 1.3 Store tests cover RPC success, conflict, malformed output, and transport failure
 
 #### Manual
 
-- [ ] 1.4 Security review confirms fixed search path, minimal grants, and authenticated ownership checks
+- [x] 1.4 Security review confirms fixed search path, minimal grants, and authenticated ownership checks
 
 ### Phase 2: Server Contract and Expiry Redirect
 

@@ -1,7 +1,7 @@
 ---
 change_id: stay-logged-in-before-session-expiry
 title: Extend a login before it expires
-status: plan_reviewed
+status: implementing
 created: 2026-11-23
 updated: 2026-11-23
 archived_at: null

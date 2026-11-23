@@ -5,13 +5,13 @@ const {
   fromMock,
   getClaimsMock,
   maybeSingleMock,
-  upsertMock,
+  rpcMock,
 } = vi.hoisted(() => ({
   createServerSupabaseClientMock: vi.fn(),
   fromMock: vi.fn(),
   getClaimsMock: vi.fn(),
   maybeSingleMock: vi.fn(),
-  upsertMock: vi.fn(),
+  rpcMock: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -28,12 +28,14 @@ const SESSION_STARTED_AT_SECONDS = 1_800_000_000;
 
 function configureSession(extension: { extended_until: string } | null = null): void {
   maybeSingleMock.mockResolvedValue({ data: extension, error: null });
-  upsertMock.mockResolvedValue({ error: null });
+  rpcMock.mockResolvedValue({
+    data: [{ result: "success", extended_until: "2050-01-01T00:00:00.000Z" }],
+    error: null,
+  });
   fromMock.mockReturnValue({
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     maybeSingle: maybeSingleMock,
-    upsert: upsertMock,
   });
   getClaimsMock.mockResolvedValue({
     data: {
@@ -48,6 +50,7 @@ function configureSession(extension: { extended_until: string } | null = null): 
   createServerSupabaseClientMock.mockResolvedValue({
     auth: { getClaims: getClaimsMock },
     from: fromMock,
+    rpc: rpcMock,
   });
 }
 
@@ -85,22 +88,13 @@ describe("extendSession", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
-  it("upserts an extension from the current base expiry", async () => {
+  it("extends from the current base expiry", async () => {
     configureSession();
 
     const result = await extendSession(undefined);
-    const expectedExpiry = SESSION_STARTED_AT_SECONDS * 1000 + SESSION_MS * 2;
 
-    expect(result).toEqual({ ok: true, extendedUntil: expectedExpiry });
-    expect(upsertMock).toHaveBeenCalledWith(
-      {
-        session_id: SESSION_ID,
-        user_id: USER_ID,
-        extended_until: new Date(expectedExpiry).toISOString(),
-        updated_at: expect.any(String),
-      },
-      { onConflict: "session_id" },
-    );
+    expect(result).toEqual({ ok: true, extendedUntil: Date.parse("2050-01-01T00:00:00.000Z") });
+    expect(rpcMock).toHaveBeenCalled();
   });
 
   it("compounds from the existing extension", async () => {
@@ -111,7 +105,7 @@ describe("extendSession", () => {
 
     expect(result).toEqual({
       ok: true,
-      extendedUntil: existingExpiry + SESSION_MS,
+      extendedUntil: Date.parse("2050-01-01T00:00:00.000Z"),
     });
   });
 
@@ -126,7 +120,7 @@ describe("extendSession", () => {
       error: "unknown",
       message: "Unable to extend the session. Please try again.",
     });
-    expect(upsertMock).not.toHaveBeenCalled();
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -134,7 +128,7 @@ describe("extendSession", () => {
     "claims shape",
     "extension query",
     "malformed extension",
-    "extension upsert",
+    "extension RPC",
   ])("returns an unknown error when %s fails", async (failure) => {
     configureSession();
 
@@ -150,7 +144,7 @@ describe("extendSession", () => {
     } else if (failure === "malformed extension") {
       maybeSingleMock.mockResolvedValue({ data: { extended_until: "invalid" }, error: null });
     } else {
-      upsertMock.mockResolvedValue({ error: new Error("upsert failed") });
+      rpcMock.mockResolvedValue({ data: null, error: new Error("RPC failed") });
     }
 
     await expect(extendSession(undefined)).resolves.toEqual({

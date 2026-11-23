@@ -6,13 +6,22 @@ type SessionExtensionRecord = {
   extended_until: string;
 };
 
+type SessionExtensionRpcRecord = {
+  result: "success" | "conflict";
+  extended_until: string | null;
+};
+
+export type SessionExtensionCompareAndSetResult =
+  | { status: "success"; extendedUntil: number }
+  | { status: "conflict" };
+
 export interface SessionExtensionStore {
   findBySessionId(sessionId: string): Promise<number | undefined>;
-  upsert(extension: {
+  compareAndSet(extension: {
     sessionId: string;
-    userId: string;
-    extendedUntil: number;
-  }): Promise<void>;
+    expectedEffectiveExpiresAt: number;
+    expectedExtendedUntil?: number;
+  }): Promise<SessionExtensionCompareAndSetResult>;
 }
 
 export function createSupabaseSessionExtensionStore(
@@ -45,21 +54,45 @@ export function createSupabaseSessionExtensionStore(
       return extendedUntil;
     },
 
-    async upsert({ sessionId, userId, extendedUntil }) {
-      const now = new Date().toISOString();
-      const { error } = await supabase.from("session_extensions").upsert(
-        {
-          session_id: sessionId,
-          user_id: userId,
-          extended_until: new Date(extendedUntil).toISOString(),
-          updated_at: now,
-        },
-        { onConflict: "session_id" },
-      );
+    async compareAndSet({
+      sessionId,
+      expectedEffectiveExpiresAt,
+      expectedExtendedUntil,
+    }) {
+      const { data, error } = await supabase.rpc("extend_session_if_current", {
+        p_session_id: sessionId,
+        p_expected_extended_until:
+          expectedExtendedUntil === undefined
+            ? null
+            : new Date(expectedExtendedUntil).toISOString(),
+        p_expected_effective_expires_at: new Date(
+          expectedEffectiveExpiresAt,
+        ).toISOString(),
+      });
 
       if (error) {
-        throw error;
+        throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcFailed);
       }
+
+      if (!Array.isArray(data) || data.length !== 1) {
+        throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcMalformed);
+      }
+
+      const result = data[0] as Partial<SessionExtensionRpcRecord>;
+      if (result.result === "conflict" && result.extended_until === null) {
+        return { status: "conflict" };
+      }
+
+      if (result.result !== "success" || typeof result.extended_until !== "string") {
+        throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcMalformed);
+      }
+
+      const extendedUntil = Date.parse(result.extended_until);
+      if (!Number.isFinite(extendedUntil)) {
+        throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcMalformed);
+      }
+
+      return { status: "success", extendedUntil };
     },
   };
 }
