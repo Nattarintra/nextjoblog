@@ -301,14 +301,26 @@ test.describe("real session expiry (short timebox)", () => {
     ]);
     await expect(dialog).toBeHidden();
     await expect(secondDialog).toBeHidden();
-    const { data: concurrentRows, error: concurrentReadError } = await supabaseAdmin
+    // Either tab can close the other's dialog via the cross-tab broadcast, so
+    // the dialogs hiding doesn't prove the write is visible yet; poll for it.
+    await expect
+      .poll(
+        async () => {
+          const { data, error } = await supabaseAdmin
+            .from("session_extensions")
+            .select("extended_until")
+            .eq("user_id", signedInSession.user.id);
+          if (error) throw error;
+          return data?.length ?? 0;
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(1);
+    const { data: concurrentRows } = await supabaseAdmin
       .from("session_extensions")
       .select("extended_until")
       .eq("user_id", signedInSession.user.id);
-    expect(concurrentReadError).toBeNull();
-    if (!concurrentRows) throw new Error("Expected a session extension row after concurrent submission");
-    expect(concurrentRows).toHaveLength(1);
-    expect(Date.parse(concurrentRows[0].extended_until)).toBeGreaterThan(expiresAt);
+    expect(Date.parse(concurrentRows![0].extended_until)).toBeGreaterThan(expiresAt);
     await secondPage.close();
 
     // Wait past the full 30s timebox, then force a new request through
@@ -379,7 +391,7 @@ test.describe("real session expiry (short timebox)", () => {
     await expect(dialog).toBeVisible();
     await page.route("**/*", (route) => (isServerAction(route.request()) ? route.abort("connectionfailed") : route.continue()));
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
-    await expect(page.getByRole("alert")).toContainText("Nothing changed");
+    await expect(dialog.getByRole("alert")).toContainText("Nothing changed");
     await expect(page.getByText("Current end of your login, unchanged")).toBeVisible();
     await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeVisible();
 
