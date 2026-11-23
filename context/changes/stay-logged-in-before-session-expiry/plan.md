@@ -421,25 +421,25 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [x] 4.1 Dialog tests cover ARIA, initial focus, focus restoration, Escape, backdrop, and busy behavior
-- [x] 4.2 Prompt tests cover local dates, action labels, failure alert, unchanged date, retry, and success toast
-- [x] 4.3 Responsive accessibility assertions pass at desktop and 390px mobile widths
+- [x] 4.1 Dialog tests cover ARIA, initial focus, focus restoration, Escape, backdrop, and busy behavior — 955c4e6
+- [x] 4.2 Prompt tests cover local dates, action labels, failure alert, unchanged date, retry, and success toast — 955c4e6
+- [x] 4.3 Responsive accessibility assertions pass at desktop and 390px mobile widths — 955c4e6
 
 #### Manual
 
-- [x] 4.4 Prompt, toast, failure, and expired-login screens match the supplied design at desktop and mobile widths
-- [x] 4.5 Keyboard-only and screen-reader interaction is usable across all dialog states
+- [x] 4.4 Prompt, toast, failure, and expired-login screens match the supplied design at desktop and mobile widths — 955c4e6
+- [x] 4.5 Keyboard-only and screen-reader interaction is usable across all dialog states — 955c4e6
 
 ### Phase 5: Verification, E2E, and Documentation
 
 #### Automated
 
-- [ ] 5.1 `npm run test:run` passes
-- [ ] 5.2 `npm run test:coverage` passes all existing thresholds
-- [ ] 5.3 `npm run lint` and `npm run typecheck` pass without weakening thresholds
-- [ ] 5.4 Primary Supabase reset and pgTAP database tests pass, and the mirrored migration remains byte-equivalent
+- [x] 5.1 `npm run test:run` passes
+- [x] 5.2 `npm run test:coverage` passes all existing thresholds
+- [x] 5.3 `npm run lint` and `npm run typecheck` pass without weakening thresholds
+- [x] 5.4 Primary Supabase reset and pgTAP database tests pass, and the mirrored migration remains byte-equivalent
 - [ ] 5.5 Ubuntu CI Playwright covers real RPC, concurrency, cross-tab, cycles, RLS, and expired deep links
-- [ ] 5.6 Schema and CI documentation match the implemented migration and test contract
+- [x] 5.6 Schema and CI documentation match the implemented migration and test contract
 
 #### Manual
 
