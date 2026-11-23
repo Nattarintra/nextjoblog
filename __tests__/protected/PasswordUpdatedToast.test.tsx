@@ -60,6 +60,9 @@ describe("PasswordUpdatedToast", () => {
 
   it("shows when the protected server shell observes the action cookie", () => {
     render(<PasswordUpdatedToast serverFlag />);
+
+    expect(screen.getByRole("status").textContent).toContain("Password updated");
+
     act(() => vi.advanceTimersByTime(0));
 
     expect(screen.getByRole("status").textContent).toContain("Password updated");

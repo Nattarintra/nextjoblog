@@ -17,11 +17,15 @@ type PasswordUpdatedToastProps = {
 };
 
 export function PasswordUpdatedToast({ serverFlag = false }: PasswordUpdatedToastProps) {
-  const [visible, setVisible] = useState(false);
+  // The protected layout has already observed the one-time cookie on the
+  // server. Starting from that value makes the success state survive a
+  // Server Action redirect even if the browser delays running effects during
+  // hydration or a production navigation is interrupted briefly.
+  const [visible, setVisible] = useState(serverFlag);
 
   useEffect(() => {
     const toastCookie = `${PASSWORD_UPDATED_TOAST_FLAG}=${PASSWORD_UPDATED_TOAST_FLAG_VALUE}`;
-    const hasCookie = document.cookie.split("; ").some((cookie) => cookie === toastCookie);
+    const hasCookie = document.cookie.split(";").some((cookie) => cookie.trim() === toastCookie);
     if (!serverFlag && !hasCookie) return;
 
     // Clear the one-time cookie only when the toast is actually shown, so React
