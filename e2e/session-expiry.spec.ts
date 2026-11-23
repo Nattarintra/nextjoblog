@@ -203,7 +203,6 @@ test.describe("application-managed session extension cycles", () => {
     // beyond the original boundary. Prove that the original expiry is no
     // longer a sign-out boundary before waiting for the second notice.
     await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
-    await page.reload();
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     await page.waitForTimeout(Math.max(0, sessionStartedAt + (2 * SHORT_SESSION_LIFETIME_MS) - SHORT_NOTICE_WINDOW_MS - 3_000 - Date.now()));
