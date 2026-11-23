@@ -13,6 +13,9 @@ import {
 import { supabaseAdmin } from "./helpers/supabase-admin";
 import { expectResponsiveScreen } from "./helpers/axe";
 
+const SHORT_SESSION_LIFETIME_MS = 30_000;
+const SHORT_NOTICE_WINDOW_MS = 2_000;
+
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
 // mirrors e2e/login.spec.ts's reasoning for forcing single-worker, in-order mode,
@@ -190,21 +193,21 @@ test.describe("application-managed session extension cycles", () => {
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_000 - Date.now()));
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS - Date.now()));
     await expect(dialog).toBeVisible();
     await expectResponsiveScreen(page, testInfo, "session-expiry-dialog");
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
-    // The first extension moves the app-managed expiry to 60 seconds from
-    // session start. Prove that the original 30-second expiry is no longer a
-    // sign-out boundary before waiting for the second notice.
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 30_500 - Date.now()));
+    // The first extension moves the app-managed expiry one session lifetime
+    // beyond the original boundary. Prove that the original expiry is no
+    // longer a sign-out boundary before waiting for the second notice.
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
     await page.reload();
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 58_000 - Date.now()));
-    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + (2 * SHORT_SESSION_LIFETIME_MS) - SHORT_NOTICE_WINDOW_MS - 3_000 - Date.now()));
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
