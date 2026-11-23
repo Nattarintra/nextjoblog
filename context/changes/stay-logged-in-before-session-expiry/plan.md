@@ -438,11 +438,11 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 - [x] 5.2 `npm run test:coverage` passes all existing thresholds — a1fb1ae
 - [x] 5.3 `npm run lint` and `npm run typecheck` pass without weakening thresholds — a1fb1ae
 - [x] 5.4 Primary Supabase reset and pgTAP database tests pass, and the mirrored migration remains byte-equivalent — a1fb1ae
-- [x] 5.5 Ubuntu CI Playwright covers real RPC, concurrency, cross-tab, cycles, RLS, and expired deep links
+- [x] 5.5 Ubuntu CI Playwright covers real RPC, concurrency, cross-tab, cycles, RLS, and expired deep links — bf427f9
 - [x] 5.6 Schema and CI documentation match the implemented migration and test contract — a1fb1ae
 
 #### Manual
 
-- [x] 5.7 Final screens match the design at 1280px and 390px widths
-- [x] 5.8 Production-like dates use the user's local timezone and never display a client-calculated success date
-- [x] 5.9 Two-tab, expiry-boundary, concurrency, and protected-data checks pass
+- [x] 5.7 Final screens match the design at 1280px and 390px widths — bf427f9
+- [x] 5.8 Production-like dates use the user's local timezone and never display a client-calculated success date — bf427f9
+- [x] 5.9 Two-tab, expiry-boundary, concurrency, and protected-data checks pass — bf427f9
