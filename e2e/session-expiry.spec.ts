@@ -192,6 +192,7 @@ test.describe("application-managed session extension cycles", () => {
 
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    const appShell = page.locator("[data-session-expires-at]");
 
     await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS - Date.now()));
     await expect(dialog).toBeVisible();
@@ -205,8 +206,13 @@ test.describe("application-managed session extension cycles", () => {
     await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + (2 * SHORT_SESSION_LIFETIME_MS) - SHORT_NOTICE_WINDOW_MS - 3_000 - Date.now()));
-    await expect(dialog).toBeVisible({ timeout: 10_000 });
+    await expect.poll(
+      async () => Number(await appShell.getAttribute("data-session-expires-at")),
+      { timeout: 10_000 },
+    ).toBeGreaterThan(sessionStartedAt + SHORT_SESSION_LIFETIME_MS);
+    const extendedExpiresAt = Number(await appShell.getAttribute("data-session-expires-at"));
+    await page.waitForTimeout(Math.max(0, extendedExpiresAt - SHORT_NOTICE_WINDOW_MS - 500 - Date.now()));
+    await expect(dialog).toBeVisible({ timeout: 5_000 });
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 

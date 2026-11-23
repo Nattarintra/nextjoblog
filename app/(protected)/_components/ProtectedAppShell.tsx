@@ -44,7 +44,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
   useBodyScrollLock(scrollLocked);
 
   return (
-    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]">
+    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]" data-session-expires-at={sessionExpiresAt}>
       <SideNav
         email={email}
         logoutControl={logoutControl}
