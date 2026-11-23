@@ -278,6 +278,12 @@ test.describe("real session expiry (short timebox)", () => {
     const expiresAt = sessionStartedAt + 30_000;
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
+    // Open the second tab well before the notice window: loading it near expiry
+    // races the 30s session in CI.
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
+
     await expect(dialog).toBeHidden();
     await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
     await expect(dialog).toBeHidden();
@@ -285,9 +291,6 @@ test.describe("real session expiry (short timebox)", () => {
     await expect(dialog).toBeVisible();
     await expectResponsiveScreen(page, testInfo, "session-expiry-dialog-real-expiry");
 
-    const secondPage = await page.context().newPage();
-    await secondPage.goto("/dashboard");
-    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
     await expect(secondDialog).toBeVisible();
 
     // Two pages submit the same signed cycle token concurrently. Exactly one
@@ -344,13 +347,13 @@ test.describe("real session expiry (short timebox)", () => {
 
     const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
     await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_500 - Date.now()));
 
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
     await expect(dialog).toBeVisible();
-    const secondPage = await page.context().newPage();
-    await secondPage.goto("/dashboard");
-    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
     await expect(secondDialog).toBeVisible();
 
     await secondPage.getByRole("button", { name: "Not now" }).click();
