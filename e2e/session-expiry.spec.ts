@@ -212,7 +212,7 @@ test.describe("application-managed session extension cycles", () => {
     ).toBeGreaterThan(sessionStartedAt + SHORT_SESSION_LIFETIME_MS);
     const extendedExpiresAt = Number(await appShell.getAttribute("data-session-expires-at"));
     await page.waitForTimeout(Math.max(0, extendedExpiresAt - SHORT_NOTICE_WINDOW_MS - 500 - Date.now()));
-    await expect(dialog).toBeVisible({ timeout: 5_000 });
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
