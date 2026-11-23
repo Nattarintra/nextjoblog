@@ -13,6 +13,7 @@ import {
   getSessionLifetimeMs,
 } from "@/lib/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { describeAuthError } from "@/lib/auth/error-details";
 
 export type ExtendSessionState =
   | undefined
@@ -20,7 +21,11 @@ export type ExtendSessionState =
   | { error: "unknown"; message: string };
 
 function createFailureState(error: unknown): ExtendSessionState {
-  console.error(SESSION_EXTENSION_MESSAGES.logLabel, error);
+  // Keep the browser response deliberately generic, but leave enough safe
+  // metadata in the server logs to distinguish an auth, RLS, or schema
+  // deployment failure in production. Never log the raw Supabase error: its
+  // message can contain request details or provider text.
+  console.error(SESSION_EXTENSION_MESSAGES.logLabel, describeAuthError(error));
   return { error: "unknown", message: SESSION_EXTENSION_MESSAGES.failure };
 }
 
