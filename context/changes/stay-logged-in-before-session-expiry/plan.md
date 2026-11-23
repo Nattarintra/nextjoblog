@@ -434,12 +434,12 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [x] 5.1 `npm run test:run` passes
-- [x] 5.2 `npm run test:coverage` passes all existing thresholds
-- [x] 5.3 `npm run lint` and `npm run typecheck` pass without weakening thresholds
-- [x] 5.4 Primary Supabase reset and pgTAP database tests pass, and the mirrored migration remains byte-equivalent
+- [x] 5.1 `npm run test:run` passes — a1fb1ae
+- [x] 5.2 `npm run test:coverage` passes all existing thresholds — a1fb1ae
+- [x] 5.3 `npm run lint` and `npm run typecheck` pass without weakening thresholds — a1fb1ae
+- [x] 5.4 Primary Supabase reset and pgTAP database tests pass, and the mirrored migration remains byte-equivalent — a1fb1ae
 - [ ] 5.5 Ubuntu CI Playwright covers real RPC, concurrency, cross-tab, cycles, RLS, and expired deep links
-- [x] 5.6 Schema and CI documentation match the implemented migration and test contract
+- [x] 5.6 Schema and CI documentation match the implemented migration and test contract — a1fb1ae
 
 #### Manual
 
