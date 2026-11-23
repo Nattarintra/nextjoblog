@@ -397,25 +397,25 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [x] 2.1 Action tests cover signed-token verification, server-returned expiry, stale conflict, and safe failures
-- [x] 2.2 Login redirect tests cover reason parameter, safe next preservation, external next rejection, and ordinary redirects
-- [x] 2.3 Type checking and linting pass for token, action, and login contracts
+- [x] 2.1 Action tests cover signed-token verification, server-returned expiry, stale conflict, and safe failures — eb8afc7
+- [x] 2.2 Login redirect tests cover reason parameter, safe next preservation, external next rejection, and ordinary redirects — eb8afc7
+- [x] 2.3 Type checking and linting pass for token, action, and login contracts — eb8afc7
 
 #### Manual
 
-- [x] 2.4 Expired-login screen matches the design and leaves the email field empty
+- [x] 2.4 Expired-login screen matches the design and leaves the email field empty — eb8afc7
 
 ### Phase 3: Protected-Shell Lifecycle and Cross-Tab State
 
 #### Automated
 
-- [ ] 3.1 Timing tests cover initial check, threshold timer, expiry boundary, visibility, and cleanup
-- [ ] 3.2 Cross-tab tests cover BroadcastChannel, storage fallback, cycle filtering, cookie state, and stale reconciliation
-- [ ] 3.3 Shell tests cover modal arbitration and server-confirmed in-memory toast state
+- [x] 3.1 Timing tests cover initial check, threshold timer, expiry boundary, visibility, and cleanup
+- [x] 3.2 Cross-tab tests cover BroadcastChannel, storage fallback, cycle filtering, cookie state, and stale reconciliation
+- [x] 3.3 Shell tests cover modal arbitration and server-confirmed in-memory toast state
 
 #### Manual
 
-- [ ] 3.4 Two-tab and background/foreground behavior matches the current expiry cycle
+- [x] 3.4 Two-tab and background/foreground behavior matches the current expiry cycle
 
 ### Phase 4: Accessible Designed UI
 

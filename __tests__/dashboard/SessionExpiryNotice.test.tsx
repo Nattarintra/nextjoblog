@@ -142,4 +142,23 @@ describe("SessionExpiryNotice", () => {
 
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
+
+  it("rechecks when the document becomes visible", () => {
+    const sessionExpiresAt = Date.now() + 2_000;
+    render(<SessionExpiryNotice sessionExpiresAt={sessionExpiresAt} noticeWindowMs={1_000} />);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    act(() => vi.advanceTimersByTime(1_000));
+    fireEvent(document, new Event("visibilitychange"));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("closes from a matching storage answer and ignores another cycle", () => {
+    const sessionExpiresAt = Date.now() + 1_000;
+    renderAndFlush(sessionExpiresAt);
+    fireEvent(window, new StorageEvent("storage", { key: `nextjoblog:session-expiry:${sessionExpiresAt}:answer`, newValue: JSON.stringify({ cycle: sessionExpiresAt + 1, outcome: "dismissed" }) }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    fireEvent(window, new StorageEvent("storage", { key: `nextjoblog:session-expiry:${sessionExpiresAt}:answer`, newValue: JSON.stringify({ cycle: sessionExpiresAt, outcome: "extended" }) }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
 });

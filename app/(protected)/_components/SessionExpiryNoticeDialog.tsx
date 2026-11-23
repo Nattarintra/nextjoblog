@@ -13,10 +13,14 @@ const PENDING_YES_LABEL = "Yes…";
 
 type SessionExpiryNoticeDialogProps = {
   onDismiss: () => void;
+  sessionExpiresAt?: number;
+  sessionCycleToken?: string;
+  onSuccess?: (extendedUntil: number) => void;
+  onStale?: () => void;
 };
 
-export function SessionExpiryNoticeDialog({ onDismiss }: SessionExpiryNoticeDialogProps) {
-  const { errorMessage, extend, isPending } = useSessionExtension({ onSuccess: onDismiss });
+export function SessionExpiryNoticeDialog({ onDismiss, sessionCycleToken = "", onSuccess, onStale }: SessionExpiryNoticeDialogProps) {
+  const { errorMessage, extend, isPending } = useSessionExtension({ cycleToken: sessionCycleToken, onSuccess: onSuccess ?? (() => onDismiss()), onStale });
   const noButtonRef = useRef<HTMLButtonElement>(null);
   const yesButtonRef = useRef<HTMLButtonElement>(null);
 

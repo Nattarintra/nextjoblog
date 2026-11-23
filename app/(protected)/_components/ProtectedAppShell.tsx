@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { AccountSheet } from "./AccountSheet";
 import { NavDrawer } from "./NavDrawer";
 import { PasswordUpdatedToast } from "./PasswordUpdatedToast";
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
+import { SessionExtensionToast } from "./SessionExtensionToast";
 import { SideNav } from "./SideNav";
 import { SiteHeader } from "./SiteHeader";
 import { useBodyScrollLock } from "./useBodyScrollLock";
@@ -28,8 +29,9 @@ type ProtectedAppShellProps = {
 // mounted while the sheet opens and closes so a request in flight still
 // navigates after the sheet is dismissed.
 export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, sessionCycleToken, children }: ProtectedAppShellProps) {
-  void sessionCycleToken;
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const [extendedUntil, setExtendedUntil] = useState<number | null>(null);
+  const dismissExtensionToast = useCallback(() => setExtendedUntil(null), []);
   const logoutControl = useLogout();
   const { drawerOpen, accountOpen, openDrawer, closeDrawer, setAccountOpen } = useShellModals(noticeOpen);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -63,6 +65,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
           onAccountOpenChange={setAccountOpen}
         />
         <PasswordUpdatedToast serverFlag={passwordUpdated} />
+        {extendedUntil !== null && <SessionExtensionToast extendedUntil={extendedUntil} onDismiss={dismissExtensionToast} />}
         <div className={`flex min-h-0 flex-1 flex-col ${scrollLocked ? "overflow-hidden" : "overflow-y-auto"}`}>{children}</div>
       </div>
       {drawerOpen && <NavDrawer email={email} onClose={closeDrawer} onOpenAccount={() => setAccountOpen(true)} />}
@@ -70,8 +73,10 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
       <SessionExpiryNotice
         sessionExpiresAt={sessionExpiresAt}
         noticeWindowMs={noticeWindowMs}
+        sessionCycleToken={sessionCycleToken}
         disabled={drawerOpen || accountOpen}
         onShowChange={setNoticeOpen}
+        onExtended={setExtendedUntil}
       />
     </div>
   );
