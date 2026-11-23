@@ -203,14 +203,21 @@ test.describe("application-managed session extension cycles", () => {
     // The first extension moves the app-managed expiry one session lifetime
     // beyond the original boundary. Prove that the original expiry is no
     // longer a sign-out boundary before waiting for the second notice.
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    // The real extension adds a production-length 30 days, which a compressed
+    // 30s run cannot wait for (and which overflows Playwright's timer). Shorten
+    // the stored extension to one compressed lifetime, then reload so the shell
+    // picks up the new expiry and cycle token.
+    const extendedExpiresAt = sessionStartedAt + 2 * SHORT_SESSION_LIFETIME_MS;
+    const { error: shortenError } = await supabaseAdmin
+      .from("session_extensions")
+      .update({ extended_until: new Date(extendedExpiresAt).toISOString() })
+      .eq("user_id", signedInSession.user.id);
+    expect(shortenError).toBeNull();
 
-    await expect.poll(
-      async () => Number(await appShell.getAttribute("data-session-expires-at")),
-      { timeout: 10_000 },
-    ).toBeGreaterThan(sessionStartedAt + SHORT_SESSION_LIFETIME_MS);
-    const extendedExpiresAt = Number(await appShell.getAttribute("data-session-expires-at"));
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(appShell).toHaveAttribute("data-session-expires-at", String(extendedExpiresAt));
     await page.waitForTimeout(Math.max(0, extendedExpiresAt - SHORT_NOTICE_WINDOW_MS - 500 - Date.now()));
     await expect(dialog).toBeVisible({ timeout: 15_000 });
     await page.getByRole("button", { name: "Yes, stay logged in" }).click();
