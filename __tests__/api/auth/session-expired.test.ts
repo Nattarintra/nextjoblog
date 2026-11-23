@@ -29,7 +29,7 @@ describe("GET /api/auth/session-expired", () => {
     expect(signOutMock).toHaveBeenCalledWith({ scope: "local" });
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe(
-      "http://localhost:3000/login?next=%2Fdashboard%3Ftab%3Drecent",
+      "http://localhost:3000/login?reason=session_expired&next=%2Fdashboard%3Ftab%3Drecent",
     );
     expect(response.headers.get("cache-control")).toBe("private, no-store, max-age=0");
   });
@@ -94,7 +94,7 @@ describe("GET /api/auth/session-expired", () => {
     const response = await GET(request("https%3A%2F%2Fevil.com"));
 
     expect(response.headers.get("location")).toBe(
-      "http://localhost:3000/login?next=%2Fdashboard",
+      "http://localhost:3000/login?reason=session_expired&next=%2Fdashboard",
     );
   });
 });

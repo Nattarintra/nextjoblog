@@ -20,6 +20,9 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { extendSession } from "@/app/actions/session";
 import { computeNextSessionExpiry } from "@/lib/session";
+import { createSessionCycleToken } from "@/lib/session/cycle-token";
+import { computeBaseSessionExpiry } from "@/lib/session/claims";
+import { computeEffectiveSessionExpiresAt } from "@/lib/session/calculations";
 
 const SESSION_MS = 30 * 24 * 60 * 60 * 1000;
 const SESSION_ID = "session-id";
@@ -52,6 +55,21 @@ function configureSession(extension: { extended_until: string } | null = null): 
     from: fromMock,
     rpc: rpcMock,
   });
+}
+
+function cycleFormData(extension: { extended_until: string } | null = null): FormData {
+  const baseExpiry = computeBaseSessionExpiry(
+    { amr: [{ timestamp: SESSION_STARTED_AT_SECONDS }] } as never,
+    SESSION_MS,
+  );
+  const extendedUntil = extension ? Date.parse(extension.extended_until) : undefined;
+  const effectiveExpiry = computeEffectiveSessionExpiresAt(baseExpiry, extendedUntil);
+  const formData = new FormData();
+  formData.set(
+    "cycleToken",
+    createSessionCycleToken({ sessionId: SESSION_ID, effectiveExpiresAt: effectiveExpiry }),
+  );
+  return formData;
 }
 
 describe("computeNextSessionExpiry", () => {
@@ -91,17 +109,42 @@ describe("extendSession", () => {
   it("extends from the current base expiry", async () => {
     configureSession();
 
-    const result = await extendSession(undefined);
+    const result = await extendSession(undefined, cycleFormData());
 
     expect(result).toEqual({ ok: true, extendedUntil: Date.parse("2050-01-01T00:00:00.000Z") });
     expect(rpcMock).toHaveBeenCalled();
+  });
+
+  it("rejects a tampered cycle token before mutation", async () => {
+    configureSession();
+    const formData = cycleFormData();
+    formData.set("cycleToken", `${formData.get("cycleToken")}tampered`);
+
+    await expect(extendSession(undefined, formData)).resolves.toEqual({
+      error: "unknown",
+      message: "Unable to extend the session. Please try again.",
+    });
+    expect(rpcMock).not.toHaveBeenCalled();
+  });
+
+  it("distinguishes a stale compare-and-set result", async () => {
+    configureSession();
+    rpcMock.mockResolvedValue({
+      data: [{ result: "conflict", extended_until: null }],
+      error: null,
+    });
+
+    await expect(extendSession(undefined, cycleFormData())).resolves.toEqual({
+      error: "stale",
+      message: "Your login changed in another tab. We refreshed the session details.",
+    });
   });
 
   it("compounds from the existing extension", async () => {
     const existingExpiry = SESSION_STARTED_AT_SECONDS * 1000 + SESSION_MS * 3;
     configureSession({ extended_until: new Date(existingExpiry).toISOString() });
 
-    const result = await extendSession(undefined);
+    const result = await extendSession(undefined, cycleFormData({ extended_until: new Date(existingExpiry).toISOString() }));
 
     expect(result).toEqual({
       ok: true,
@@ -114,7 +157,7 @@ describe("extendSession", () => {
     configureSession({ extended_until: new Date(currentEffectiveExpiry).toISOString() });
     vi.spyOn(Date, "now").mockReturnValue(currentEffectiveExpiry + 1);
 
-    const result = await extendSession(undefined);
+    const result = await extendSession(undefined, cycleFormData({ extended_until: new Date(currentEffectiveExpiry).toISOString() }));
 
     expect(result).toEqual({
       error: "unknown",

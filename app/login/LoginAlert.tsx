@@ -24,3 +24,11 @@ export function LoginConfirmationRequiredAlert() {
     </Alert>
   );
 }
+
+export function LoginSessionExpiredAlert() {
+  return (
+    <Alert tone="info" className="mb-4" data-testid="login-session-expired">
+      <b>Your login ended.</b> {LOGIN_MESSAGES.sessionExpired.message.replace("Your login ended. ", "")}
+    </Alert>
+  );
+}

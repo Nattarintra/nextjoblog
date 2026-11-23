@@ -133,6 +133,11 @@ export const LOGIN_MESSAGES = {
   pendingSubmit: "Logging in…",
   noAccount: "Don't have an account?",
   signUp: "Sign Up",
+  sessionExpired: {
+    heading: "Log In Again",
+    message:
+      "Your login ended. Logins last 30 days unless you choose to stay logged in. Your applications are safe — log in to see them.",
+  },
 } as const;
 
 export const SIGNUP_MESSAGES = {

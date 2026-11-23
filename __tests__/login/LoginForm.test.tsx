@@ -61,6 +61,14 @@ describe("LoginForm", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
+  it("shows expired-session information without prefilled account data", () => {
+    render(<LoginForm sessionExpired nextPath="/dashboard" />);
+
+    expect(screen.getByRole("heading", { name: "Log In Again" })).toBeTruthy();
+    expect(screen.getByTestId("login-session-expired").textContent).toContain("Your applications are safe");
+    expect((screen.getByLabelText("Email") as HTMLInputElement).value).toBe("");
+  });
+
   it("does not show a return strip when there is no destination label", () => {
     render(<LoginForm nextPath="/dashboard" />);
 

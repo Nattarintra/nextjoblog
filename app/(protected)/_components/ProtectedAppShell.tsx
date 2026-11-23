@@ -19,6 +19,7 @@ type ProtectedAppShellProps = {
   sessionExpiresAt: number;
   noticeWindowMs: number;
   passwordUpdated: boolean;
+  sessionCycleToken?: string;
   children: ReactNode;
 };
 
@@ -26,7 +27,8 @@ type ProtectedAppShellProps = {
 // the expiry notice never coexist, and the one useLogout instance, which stays
 // mounted while the sheet opens and closes so a request in flight still
 // navigates after the sheet is dismissed.
-export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, children }: ProtectedAppShellProps) {
+export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, sessionCycleToken, children }: ProtectedAppShellProps) {
+  void sessionCycleToken;
   const [noticeOpen, setNoticeOpen] = useState(false);
   const logoutControl = useLogout();
   const { drawerOpen, accountOpen, openDrawer, closeDrawer, setAccountOpen } = useShellModals(noticeOpen);

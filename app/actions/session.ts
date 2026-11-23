@@ -13,11 +13,12 @@ import {
 } from "@/lib/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { describeAuthError } from "@/lib/auth/error-details";
+import { verifySessionCycleToken } from "@/lib/session/cycle-token";
 
 export type ExtendSessionState =
   | undefined
   | { ok: true; extendedUntil: number }
-  | { error: "unknown"; message: string };
+  | { error: "stale" | "unknown"; message: string };
 
 function createFailureState(error: unknown): ExtendSessionState {
   // Keep the browser response deliberately generic, but leave enough safe
@@ -30,6 +31,7 @@ function createFailureState(error: unknown): ExtendSessionState {
 
 export async function extendSession(
   _state: ExtendSessionState,
+  formData?: FormData,
 ): Promise<ExtendSessionState> {
   void _state;
 
@@ -42,6 +44,10 @@ export async function extendSession(
     }
 
     const claims = getAuthenticatedClaims(data?.claims);
+    const token = verifySessionCycleToken(formData?.get("cycleToken"));
+    if (token.sid !== claims.session_id) {
+      throw new Error(SESSION_EXTENSION_ERROR_CODES.tokenMismatch);
+    }
     const store = createSupabaseSessionExtensionStore(supabase);
     const extension = await store.findBySessionId(claims.session_id);
     const baseExpiry = computeBaseSessionExpiry(
@@ -57,6 +63,10 @@ export async function extendSession(
       throw new Error(SESSION_EXTENSION_ERROR_CODES.expired);
     }
 
+    if (token.exp !== currentEffectiveExpiry) {
+      return { error: "stale", message: SESSION_EXTENSION_MESSAGES.stale };
+    }
+
     const extensionResult = await store.compareAndSet({
       sessionId: claims.session_id,
       expectedEffectiveExpiresAt: currentEffectiveExpiry,
@@ -64,7 +74,7 @@ export async function extendSession(
     });
 
     if (extensionResult.status === "conflict") {
-      throw new Error(SESSION_EXTENSION_ERROR_CODES.extensionRpcFailed);
+      return { error: "stale", message: SESSION_EXTENSION_MESSAGES.stale };
     }
 
     return { ok: true, extendedUntil: extensionResult.extendedUntil };

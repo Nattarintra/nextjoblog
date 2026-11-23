@@ -397,13 +397,13 @@ Apply the new migration to both the main and `supabase-test` migration trees. De
 
 #### Automated
 
-- [ ] 2.1 Action tests cover signed-token verification, server-returned expiry, stale conflict, and safe failures
-- [ ] 2.2 Login redirect tests cover reason parameter, safe next preservation, external next rejection, and ordinary redirects
-- [ ] 2.3 Type checking and linting pass for token, action, and login contracts
+- [x] 2.1 Action tests cover signed-token verification, server-returned expiry, stale conflict, and safe failures
+- [x] 2.2 Login redirect tests cover reason parameter, safe next preservation, external next rejection, and ordinary redirects
+- [x] 2.3 Type checking and linting pass for token, action, and login contracts
 
 #### Manual
 
-- [ ] 2.4 Expired-login screen matches the design and leaves the email field empty
+- [x] 2.4 Expired-login screen matches the design and leaves the email field empty
 
 ### Phase 3: Protected-Shell Lifecycle and Cross-Tab State
 

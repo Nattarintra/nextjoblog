@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { describeDestination } from "@/lib/auth/describe-destination";
 import {
   buildLoginRedirectUrl,
+  buildSessionExpiredLoginUrl,
   buildSessionExpiredUrl,
 } from "@/lib/auth/login-redirect";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
@@ -55,6 +56,9 @@ describe("redirect builders", () => {
     );
     expect(buildSessionExpiredUrl("/dashboard")).toBe(
       "/api/auth/session-expired?next=%2Fdashboard",
+    );
+    expect(buildSessionExpiredLoginUrl("/applications/123?tab=notes")).toBe(
+      "/login?reason=session_expired&next=%2Fapplications%2F123%3Ftab%3Dnotes",
     );
   });
 });
