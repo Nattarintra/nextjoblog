@@ -6,20 +6,18 @@ export function getBaseSessionExpiresAt(
   claims: JwtPayload,
   sessionLifetimeMs: number,
 ): number | undefined {
-  // Token refreshes add or update AMR entries, so a single entry's timestamp can
-  // move later within one session. The earliest timestamp is the original
-  // sign-in and stays fixed for the life of the session.
-  const timestamps = (claims.amr ?? []).flatMap((entry) =>
-    typeof entry !== "string" && typeof entry.timestamp === "number" && Number.isFinite(entry.timestamp)
-      ? [entry.timestamp]
-      : [],
-  );
+  const firstAmrEntry = claims.amr?.[0];
 
-  if (timestamps.length === 0) {
+  if (
+    !firstAmrEntry ||
+    typeof firstAmrEntry === "string" ||
+    typeof firstAmrEntry.timestamp !== "number" ||
+    !Number.isFinite(firstAmrEntry.timestamp)
+  ) {
     return undefined;
   }
 
-  return Math.min(...timestamps) * 1000 + sessionLifetimeMs;
+  return firstAmrEntry.timestamp * 1000 + sessionLifetimeMs;
 }
 
 export function computeBaseSessionExpiry(

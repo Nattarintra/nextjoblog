@@ -76,15 +76,11 @@ export function accessTokenLifetimeSeconds(accessToken: string): number {
 }
 
 export function sessionStartedAtMs(accessToken: string): number {
-  // Mirrors lib/session/claims.ts: refreshes can add later AMR entries, so the
-  // earliest timestamp is the original sign-in.
-  const timestamps = (decodeAccessToken(accessToken).amr ?? []).flatMap((entry) =>
-    typeof entry.timestamp === "number" ? [entry.timestamp] : [],
-  );
+  const timestamp = decodeAccessToken(accessToken).amr?.[0]?.timestamp;
 
-  if (timestamps.length === 0) {
+  if (typeof timestamp !== "number") {
     throw new Error("Session access token did not include an AMR timestamp");
   }
 
-  return Math.min(...timestamps) * 1000;
+  return timestamp * 1000;
 }
