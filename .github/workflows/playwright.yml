@@ -31,6 +31,15 @@ jobs:
       - name: Run unit tests
         run: npm run test:run
 
+      - name: Run coverage thresholds
+        run: npm run test:coverage
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run typecheck
+        run: npm run typecheck
+
   e2e-tests:
     # This Ubuntu workflow is the authoritative E2E runner. The development
     # Mac is capped at macOS 13 and cannot run this project's Playwright Chromium.
@@ -74,6 +83,9 @@ jobs:
 
       - name: Run database tests
         run: supabase test db
+
+      - name: Verify mirrored migrations
+        run: diff -ru --exclude=.git --exclude=README.md supabase/migrations supabase-test/supabase/migrations
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

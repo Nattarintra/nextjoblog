@@ -43,7 +43,7 @@ describe("ProtectedLayout", () => {
   it("passes the claims email to the chrome when authenticated", async () => {
     effectiveMock.mockResolvedValue({
       status: "authenticated",
-      claims: { email: "ada@example.com" },
+      claims: { email: "ada@example.com", session_id: "session-id" },
       effectiveExpiresAt: Date.now() + 1000,
     });
     await renderLayout();
@@ -52,7 +52,7 @@ describe("ProtectedLayout", () => {
   });
 
   it("passes undefined when the claims carry no email", async () => {
-    effectiveMock.mockResolvedValue({ status: "authenticated", claims: {}, effectiveExpiresAt: 1 });
+    effectiveMock.mockResolvedValue({ status: "authenticated", claims: { session_id: "session-id" }, effectiveExpiresAt: 1 });
     await renderLayout();
     expect(screen.getByTestId("chrome").textContent).toBe("no-email");
   });
@@ -60,7 +60,7 @@ describe("ProtectedLayout", () => {
   it("falls back to the email in user metadata", async () => {
     effectiveMock.mockResolvedValue({
       status: "authenticated",
-      claims: { user_metadata: { email: "ada@example.com" } },
+      claims: { user_metadata: { email: "ada@example.com" }, session_id: "session-id" },
       effectiveExpiresAt: Date.now() + 1000,
     });
     await renderLayout();
@@ -68,7 +68,7 @@ describe("ProtectedLayout", () => {
   });
 
   it("falls back to the authenticated user when claims omit email", async () => {
-    effectiveMock.mockResolvedValue({ status: "authenticated", claims: {}, effectiveExpiresAt: Date.now() + 1000 });
+    effectiveMock.mockResolvedValue({ status: "authenticated", claims: { session_id: "session-id" }, effectiveExpiresAt: Date.now() + 1000 });
     getUserMock.mockResolvedValue({ data: { user: { email: "ada@example.com" } } });
     await renderLayout();
     expect(screen.getByTestId("chrome").textContent).toBe("ada@example.com");

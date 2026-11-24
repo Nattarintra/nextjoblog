@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { createExpiredSessionCleanup } from "@/lib/auth/expired-session";
 import { logAuthEvent } from "@/lib/auth/log";
-import { buildLoginRedirectUrl } from "@/lib/auth/login-redirect";
+import { buildSessionExpiredLoginUrl } from "@/lib/auth/login-redirect";
 import { resolvePostLoginPath } from "@/lib/auth/next-path";
 import { AUTH_REDIRECT_CACHE_CONTROL } from "@/lib/auth/paths";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -18,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
 
   const next = resolvePostLoginPath(new URL(request.url).searchParams.get("next"));
   const response = NextResponse.redirect(
-    new URL(buildLoginRedirectUrl(next), request.url),
+    new URL(buildSessionExpiredLoginUrl(next), request.url),
   );
   response.headers.set("Cache-Control", AUTH_REDIRECT_CACHE_CONTROL);
   return response;

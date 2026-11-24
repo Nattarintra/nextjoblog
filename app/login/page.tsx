@@ -15,12 +15,13 @@ export default async function LoginPage(props: PageProps<typeof LOGIN_PATH>) {
   const params = await props.searchParams
   const { next } = params
   const loggedOut = params[LOGGED_OUT_PARAM_NAME] === LOGGED_OUT_PARAM_VALUE
+  const sessionExpired = params.reason === "session_expired"
   const nextPath = resolvePostLoginPath(next)
   const destinationLabel = describeDestination(nextPath)
 
   return (
     <AuthLayout>
-      <LoginForm nextPath={nextPath} destinationLabel={destinationLabel} loggedOut={loggedOut} forgotPasswordEnabled={process.env.PASSWORD_RESET_ENABLED === "1"} />
+    <LoginForm nextPath={nextPath} destinationLabel={destinationLabel} loggedOut={loggedOut} sessionExpired={sessionExpired} forgotPasswordEnabled={process.env.PASSWORD_RESET_ENABLED === "1"} />
     </AuthLayout>
   )
 }

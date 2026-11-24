@@ -1,3 +1,4 @@
+import { AuthApiError } from "@supabase/auth-js";
 import { NextRequest } from "next/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -43,6 +44,20 @@ describe("proxy", () => {
     );
     expect(response.headers.get("cache-control")).toBe(
       "private, no-store, max-age=0",
+    );
+  });
+
+  it("redirects confirmed-expired sessions to the expired login state", async () => {
+    setupClaims({
+      data: null,
+      error: Object.assign(new AuthApiError("expired", 400, "session_expired"), {}),
+    });
+
+    const response = await proxy(new NextRequest("https://example.test/dashboard?tab=recent"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://example.test/login?reason=session_expired&next=%2Fdashboard%3Ftab%3Drecent",
     );
   });
 

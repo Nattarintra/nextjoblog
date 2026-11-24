@@ -5,6 +5,16 @@ short-timebox test project that `e2e/session-expiry.spec.ts` starts via
 **Drift risk**: nothing enforces this automatically. Whenever a migration is added or
 changed here, copy the same change to `../../supabase-test/supabase/migrations/`.
 
+Before committing migration changes, verify the two trees are byte-equivalent:
+
+```sh
+diff -ru --exclude=.git --exclude=README.md supabase/migrations supabase-test/supabase/migrations
+```
+
+The session-extension CAS contract is documented in
+`supabase/docs/nextjoblog-supabase-schema-en.md` and is implemented by
+`20261123110000_add_session_extension_rpc.sql`.
+
 The rate-limit migration deliberately keeps its table private. Application callers use
 only the constrained `consume_rate_limit` function; direct table access remains revoked
 for `anon` and `authenticated`. The function accepts only 64-character lowercase

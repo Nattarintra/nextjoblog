@@ -9,16 +9,16 @@ import { SESSION_EXTENSION_ERROR_CODES } from "@/lib/session/errors";
 import { createSupabaseSessionExtensionStore } from "@/lib/session/extension-store";
 import {
   computeEffectiveSessionExpiresAt,
-  computeNextSessionExpiry,
   getSessionLifetimeMs,
 } from "@/lib/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { describeAuthError } from "@/lib/auth/error-details";
+import { createSessionCycleToken, verifySessionCycleToken } from "@/lib/session/cycle-token";
 
 export type ExtendSessionState =
   | undefined
-  | { ok: true; extendedUntil: number }
-  | { error: "unknown"; message: string };
+  | { ok: true; extendedUntil: number; cycleToken: string }
+  | { error: "stale" | "unknown"; message: string };
 
 function createFailureState(error: unknown): ExtendSessionState {
   // Keep the browser response deliberately generic, but leave enough safe
@@ -31,6 +31,7 @@ function createFailureState(error: unknown): ExtendSessionState {
 
 export async function extendSession(
   _state: ExtendSessionState,
+  formData?: FormData,
 ): Promise<ExtendSessionState> {
   void _state;
 
@@ -43,6 +44,10 @@ export async function extendSession(
     }
 
     const claims = getAuthenticatedClaims(data?.claims);
+    const token = verifySessionCycleToken(formData?.get("cycleToken"));
+    if (token.sid !== claims.session_id) {
+      throw new Error(SESSION_EXTENSION_ERROR_CODES.tokenMismatch);
+    }
     const store = createSupabaseSessionExtensionStore(supabase);
     const extension = await store.findBySessionId(claims.session_id);
     const baseExpiry = computeBaseSessionExpiry(
@@ -58,15 +63,28 @@ export async function extendSession(
       throw new Error(SESSION_EXTENSION_ERROR_CODES.expired);
     }
 
-    const extendedUntil = computeNextSessionExpiry(currentEffectiveExpiry);
+    if (token.exp !== currentEffectiveExpiry) {
+      return { error: "stale", message: SESSION_EXTENSION_MESSAGES.stale };
+    }
 
-    await store.upsert({
+    const extensionResult = await store.compareAndSet({
       sessionId: claims.session_id,
-      userId: claims.sub,
-      extendedUntil,
+      expectedEffectiveExpiresAt: currentEffectiveExpiry,
+      expectedExtendedUntil: extension,
     });
 
-    return { ok: true, extendedUntil };
+    if (extensionResult.status === "conflict") {
+      return { error: "stale", message: SESSION_EXTENSION_MESSAGES.stale };
+    }
+
+    return {
+      ok: true,
+      extendedUntil: extensionResult.extendedUntil,
+      cycleToken: createSessionCycleToken({
+        sessionId: claims.session_id,
+        effectiveExpiresAt: extensionResult.extendedUntil,
+      }),
+    };
   } catch (error) {
     return createFailureState(error);
   }

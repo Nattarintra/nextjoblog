@@ -133,6 +133,29 @@ export const LOGIN_MESSAGES = {
   pendingSubmit: "Logging in…",
   noAccount: "Don't have an account?",
   signUp: "Sign Up",
+  sessionExpired: {
+    heading: "Log In Again",
+    message:
+      "Your login ended. Logins last 30 days unless you choose to stay logged in. Your applications are safe — log in to see them.",
+  },
+} as const;
+
+export const SESSION_EXPIRY_MESSAGES = {
+  heading: "Stay logged in?",
+  currentDateLabel: "Now",
+  currentDateDescription: "Current end of your login",
+  nextDateLabel: "IF YES",
+  nextDateDescription: (date: string) => `30 more days, counted from ${date}`,
+  unchangedDateLabel: "Still",
+  unchangedDateDescription: "Current end of your login, unchanged",
+  yes: "Yes, stay logged in",
+  pendingYes: "Staying logged in…",
+  notNow: "Not now",
+  retry: "Try Again",
+  failure: "We couldn't extend your login. Nothing changed. Check your connection and try again.",
+  toastTitle: "You'll stay logged in",
+  toastBody: (date: string) => `Your login now ends on ${date}. We'll ask again 2 days before.`,
+  toastDismiss: "Dismiss login extension message",
 } as const;
 
 export const SIGNUP_MESSAGES = {

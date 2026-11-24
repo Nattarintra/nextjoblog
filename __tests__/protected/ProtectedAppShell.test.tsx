@@ -4,14 +4,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const { navState, logoutState, noticeState } = vi.hoisted(() => ({
   navState: { pathname: "/dashboard" },
   logoutState: { logout: vi.fn(), errorMessage: null as string | null, isPending: false },
-  noticeState: { show: false, notify: null as ((show: boolean) => void) | null },
+  noticeState: { show: false, notify: null as ((show: boolean) => void) | null, extended: null as ((expiry: number, cycleToken: string) => void) | null },
 }));
 
 vi.mock("next/navigation", () => ({ usePathname: () => navState.pathname }));
 vi.mock("@/app/(protected)/_components/useLogout", () => ({ useLogout: () => logoutState }));
 vi.mock("@/app/(protected)/_components/SessionExpiryNotice", () => ({
-  SessionExpiryNotice: ({ onShowChange }: { onShowChange: (show: boolean) => void }) => {
+  SessionExpiryNotice: ({ onShowChange, onExtended }: { onShowChange: (show: boolean) => void; onExtended: (expiry: number, cycleToken: string) => void }) => {
     noticeState.notify = onShowChange;
+    noticeState.extended = onExtended;
     return null;
   },
 }));
@@ -156,5 +157,13 @@ describe("ProtectedAppShell navigation", () => {
     act(() => noticeState.notify?.(true));
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).not.toBe(menuButton());
+  });
+
+  it("renders the shell toast only from the confirmed server expiry", () => {
+    renderShell();
+    act(() => noticeState.extended?.(Date.UTC(2030, 0, 2, 12, 30), "next-cycle-token"));
+    expect(screen.getByRole("status").textContent).toContain("Jan 2, 2030");
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss login extension message" }));
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });
