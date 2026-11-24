@@ -77,4 +77,21 @@ describe("proxy", () => {
     );
     expect(response.status).toBe(200);
   });
+
+  it("forwards refreshed cookies to the server code behind the proxy", async () => {
+    createServerClient.mockImplementation((_url, _key, options) => ({
+      auth: {
+        getClaims: async () => {
+          options.cookies.setAll([{ name: "token", value: "new" }], {});
+          return { data: { claims: { sub: "user" } }, error: null };
+        },
+      },
+    }));
+
+    const response = await proxy(
+      new NextRequest("https://example.test/dashboard", { headers: { cookie: "token=old" } }),
+    );
+
+    expect(response.headers.get("x-middleware-request-cookie")).toBe("token=new");
+  });
 });

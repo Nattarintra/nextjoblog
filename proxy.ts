@@ -60,6 +60,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
           request.cookies.set(name, value);
         });
 
+        // requestHeaders was cloned before the refresh, so without this the
+        // server code behind the proxy (layout, Server Actions) still sees the
+        // old tokens and refreshes again with the already-rotated refresh token.
+        // A second reuse is tolerated; a third (proxy + action + page re-render)
+        // makes GoTrue revoke the whole session.
+        requestHeaders.set("cookie", request.headers.get("cookie") ?? "");
+
         response = NextResponse.next(forwardedRequest);
 
         cookiesToSet.forEach(({ name, value, options }) => {
