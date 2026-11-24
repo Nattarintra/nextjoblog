@@ -14,7 +14,9 @@ import { supabaseAdmin } from "./helpers/supabase-admin";
 import { expectResponsiveScreen } from "./helpers/axe";
 
 const SHORT_SESSION_LIFETIME_MS = 30_000;
-const SHORT_NOTICE_WINDOW_MS = 2_000;
+// Must match SESSION_NOTICE_WINDOW_MS in playwright.config.ts. The tests that
+// click through the dialog need real headroom inside the 30s session.
+const SHORT_NOTICE_WINDOW_MS = 12_000;
 
 const isServerAction = (request: { method(): string; headers(): Record<string, string> }) =>
   request.method() === "POST" && "next-action" in request.headers();
@@ -271,10 +273,10 @@ test.describe("real session expiry (short timebox)", () => {
     expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
 
     // Playwright starts Next with a 30-second lifetime, matching the short
-    // Supabase project. The layout scales the two-day production notice window
-    // to 2 seconds, preserving the day-28-of-30 threshold at 28 seconds.
+    // Supabase project, and a 12-second notice window (see playwright.config.ts),
+    // so the notice opens at 18 seconds and leaves room to click before expiry.
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    const noticeAt = sessionStartedAt + 28_000;
+    const noticeAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS;
     const expiresAt = sessionStartedAt + 30_000;
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
@@ -362,7 +364,7 @@ test.describe("real session expiry (short timebox)", () => {
     const secondPage = await page.context().newPage();
     await secondPage.goto("/dashboard");
     const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_500 - Date.now()));
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
 
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
     await expect(dialog).toBeVisible();
@@ -385,7 +387,7 @@ test.describe("real session expiry (short timebox)", () => {
 
     const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_500 - Date.now()));
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
 
     const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
     await expect(dialog).toBeVisible();
