@@ -233,66 +233,32 @@ test.describe("application-managed session extension cycles", () => {
   });
 });
 
-test.describe("real session expiry (short timebox)", () => {
-  // A dedicated, fully separate local Supabase project rooted at
-  // ../supabase-test/ (its CLI config lives at supabase-test/supabase/config.toml)
-  // with `timebox` set to "30s" so real GoTrue expiry enforcement can be
-  // observed within a test run. It shares ports with the default local stack
-  // (a literal copy of supabase/config.toml, per plan Phase 6), so it cannot run
-  // concurrently with it — swap it in for this group only, then swap back.
-  // Relies on playwright.config.ts's `workers: 1` to guarantee no other spec
-  // file (login.spec.ts, signup.spec.ts) is running against the default stack
-  // while this group stops it.
+test.describe("dialog interactions (compressed app timebox)", () => {
+  // These exercise the notice dialog's Server Action, which only depends on the
+  // application-level 30-second lifetime that playwright.config.ts gives the
+  // Next server. They run on the default Supabase stack: the short-timebox
+  // stack's 5-second access tokens refresh on every server request and break
+  // the refresh token a Server Action click relies on.
 
-  test.beforeAll(() => {
-    test.setTimeout(180_000);
-    execSync("supabase stop", { stdio: "inherit" });
-    execSync("supabase start --workdir supabase-test", { stdio: "inherit" });
-  });
-
-  test.afterAll(() => {
-    test.setTimeout(180_000);
-    execSync("supabase stop --workdir supabase-test", { stdio: "inherit" });
-    execSync("supabase start", { stdio: "inherit" });
-  });
-
-  test("shows the expiry notice and clears the cookie once the session truly expires", async ({ page }, testInfo) => {
+  test("lets exactly one of two tabs win a concurrent extension", async ({ page }) => {
     test.setTimeout(75_000);
 
-    const email = `expiry-test+${Date.now()}@example.com`;
     await page.goto("/signup");
-    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Email").fill(`expiry-concurrent+${Date.now()}@example.com`);
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign Up" }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
 
-    // Make the compressed-time setup explicit. Supabase enforces timeboxes
-    // when refreshing a session, so the short JWT must be in effect before
-    // this test can prove the proxy clears an expired session cookie.
     const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
-    expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
-
-    // Playwright starts Next with a 30-second lifetime, matching the short
-    // Supabase project, and a 12-second notice window (see playwright.config.ts),
-    // so the notice opens at 18 seconds and leaves room to click before expiry.
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    const noticeAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS;
-    const expiresAt = sessionStartedAt + 30_000;
-    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
-
-    // Open the second tab well before the notice window: loading it near expiry
-    // races the 30s session in CI.
+    const expiresAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS;
     const secondPage = await page.context().newPage();
     await secondPage.goto("/dashboard");
+    await page.waitForTimeout(Math.max(0, expiresAt - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
     const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
-
-    await expect(dialog).toBeHidden();
-    await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
-    await expect(dialog).toBeHidden();
-    await page.waitForTimeout(750);
     await expect(dialog).toBeVisible();
-    await expectResponsiveScreen(page, testInfo, "session-expiry-dialog-real-expiry");
-
     await expect(secondDialog).toBeVisible();
 
     // Two pages submit the same signed cycle token concurrently. Exactly one
@@ -318,36 +284,12 @@ test.describe("real session expiry (short timebox)", () => {
         { timeout: 10_000 },
       )
       .toBe(1);
-    const { data: concurrentRows } = await supabaseAdmin
+    const { data: rows } = await supabaseAdmin
       .from("session_extensions")
       .select("extended_until")
       .eq("user_id", signedInSession.user.id);
-    expect(Date.parse(concurrentRows![0].extended_until)).toBeGreaterThan(expiresAt);
+    expect(Date.parse(rows![0].extended_until)).toBeGreaterThan(expiresAt);
     await secondPage.close();
-
-    // Wait past the full 30s timebox, then force a new request through
-    // proxy.ts — that's what actually re-checks expiry and clears cookies.
-    await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
-    await page.reload();
-
-    // The browser's cookie store can briefly still enumerate a cookie whose
-    // Set-Cookie deletion (Expires: epoch) it just received but hasn't fully
-    // purged yet — poll instead of asserting a single snapshot.
-    await expect(async () => {
-      const cookies = await page.context().cookies();
-      // Chromium/Playwright may expose the Set-Cookie deletion tombstone as
-      // an empty auth cookie briefly (and in CI, for the rest of the poll).
-      // A live session cookie must carry a value; the empty marker is already
-      // logged out and must not make this assertion flaky.
-      const remainingLiveAuthCookies = cookies.filter(
-        (cookie) =>
-          isAuthSessionCookie(cookie.name, authCookieStorageKey()) &&
-          cookie.value.length > 0,
-      );
-      expect(remainingLiveAuthCookies).toHaveLength(0);
-    }).toPass({ timeout: 5_000 });
-    await expect(page).toHaveURL(/\/login\?reason=session_expired&next=%2Fdashboard$/);
-    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
   });
 
   test("closes the matching prompt in another tab when one tab dismisses it", async ({ page }) => {
@@ -401,5 +343,89 @@ test.describe("real session expiry (short timebox)", () => {
     await page.getByRole("button", { name: "Try Again" }).click();
     await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeHidden();
     await expect(page.getByRole("status")).toContainText("You'll stay logged in");
+  });
+});
+
+test.describe("real session expiry (short timebox)", () => {
+  // A dedicated, fully separate local Supabase project rooted at
+  // ../supabase-test/ (its CLI config lives at supabase-test/supabase/config.toml)
+  // with `timebox` set to "30s" so real GoTrue expiry enforcement can be
+  // observed within a test run. It shares ports with the default local stack
+  // (a literal copy of supabase/config.toml, per plan Phase 6), so it cannot run
+  // concurrently with it — swap it in for this group only, then swap back.
+  // Relies on playwright.config.ts's `workers: 1` to guarantee no other spec
+  // file (login.spec.ts, signup.spec.ts) is running against the default stack
+  // while this group stops it.
+
+  test.beforeAll(() => {
+    test.setTimeout(180_000);
+    execSync("supabase stop", { stdio: "inherit" });
+    execSync("supabase start --workdir supabase-test", { stdio: "inherit" });
+  });
+
+  test.afterAll(() => {
+    test.setTimeout(180_000);
+    execSync("supabase stop --workdir supabase-test", { stdio: "inherit" });
+    execSync("supabase start", { stdio: "inherit" });
+  });
+
+  test("shows the expiry notice and clears the cookie once the session truly expires", async ({ page }, testInfo) => {
+    test.setTimeout(75_000);
+
+    const email = `expiry-test+${Date.now()}@example.com`;
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    // Make the compressed-time setup explicit. Supabase enforces timeboxes
+    // when refreshing a session, so the short JWT must be in effect before
+    // this test can prove the proxy clears an expired session cookie.
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
+
+    // Playwright starts Next with a 30-second lifetime, matching the short
+    // Supabase project, and a 12-second notice window (see playwright.config.ts).
+    // This stack's 5-second access tokens make every server request refresh the
+    // session, and refreshes made while rendering cannot be saved to the browser,
+    // so the browser's refresh token goes stale. That is fine for this test, which
+    // makes no server request before the timebox, but it means no dialog click
+    // (a Server Action) can be tested here; those run on the default stack below.
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const noticeAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS;
+    const expiresAt = sessionStartedAt + 30_000;
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
+    await expect(dialog).toBeHidden();
+    await page.waitForTimeout(750);
+    await expect(dialog).toBeVisible();
+    await expectResponsiveScreen(page, testInfo, "session-expiry-dialog-real-expiry");
+
+    // Wait past the full 30s timebox, then force a new request through
+    // proxy.ts — that's what actually re-checks expiry and clears cookies.
+    await page.waitForTimeout(Math.max(0, expiresAt - Date.now() + 500));
+    await page.reload();
+
+    // The browser's cookie store can briefly still enumerate a cookie whose
+    // Set-Cookie deletion (Expires: epoch) it just received but hasn't fully
+    // purged yet — poll instead of asserting a single snapshot.
+    await expect(async () => {
+      const cookies = await page.context().cookies();
+      // Chromium/Playwright may expose the Set-Cookie deletion tombstone as
+      // an empty auth cookie briefly (and in CI, for the rest of the poll).
+      // A live session cookie must carry a value; the empty marker is already
+      // logged out and must not make this assertion flaky.
+      const remainingLiveAuthCookies = cookies.filter(
+        (cookie) =>
+          isAuthSessionCookie(cookie.name, authCookieStorageKey()) &&
+          cookie.value.length > 0,
+      );
+      expect(remainingLiveAuthCookies).toHaveLength(0);
+    }).toPass({ timeout: 5_000 });
+    await expect(page).toHaveURL(/\/login\?reason=session_expired&next=%2Fdashboard$/);
+    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
   });
 });

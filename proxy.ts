@@ -7,6 +7,7 @@ import {
   SupabaseConfigError,
 } from "@/lib/supabase/config";
 import { applyProtectedCacheControl } from "@/lib/auth/protected-cache";
+import { buildSessionExpiredLoginUrl } from "@/lib/auth/login-redirect";
 import { createAuthRedirect } from "@/lib/auth/redirect-response";
 import { REQUEST_PATH_HEADER } from "@/lib/auth/request-path";
 import { decideRouteAccess } from "@/lib/auth/route-access";
@@ -103,7 +104,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   });
 
   if (decision.action === "redirect") {
-    const redirect = createAuthRedirect(decision.location, request.url, response);
+    // A confirmed-expired session gets the informational login state; a missing
+    // or invalid one keeps the plain login redirect.
+    const location =
+      authState.kind === "unauthenticated" && authState.reason === "expired"
+        ? buildSessionExpiredLoginUrl(`${pathname}${search}`)
+        : decision.location;
+    const redirect = createAuthRedirect(location, request.url, response);
 
     // The proxy may have accumulated refresh-cookie writes before it learned
     // that the session was expired. Re-apply deletion to the final redirect
