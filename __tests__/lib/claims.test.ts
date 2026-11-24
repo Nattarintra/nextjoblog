@@ -26,6 +26,21 @@ describe("getBaseSessionExpiresAt", () => {
     ).toBe(SESSION_STARTED_AT_SECONDS * 1000 + SESSION_LIFETIME_MS);
   });
 
+  it("uses the earliest AMR timestamp so token refreshes do not move the session start", () => {
+    expect(
+      getBaseSessionExpiresAt(
+        asClaims({
+          amr: [
+            { timestamp: SESSION_STARTED_AT_SECONDS + 20 },
+            { timestamp: SESSION_STARTED_AT_SECONDS },
+            { timestamp: "invalid" },
+          ],
+        }),
+        SESSION_LIFETIME_MS,
+      ),
+    ).toBe(SESSION_STARTED_AT_SECONDS * 1000 + SESSION_LIFETIME_MS);
+  });
+
   it.each<unknown>([
     null,
     { amr: [] },
