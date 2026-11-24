@@ -13,7 +13,6 @@ import { formatSessionDate, formatSessionDateOnly } from "./session-date-formatt
 import { useSessionExtension } from "./useSessionExtension";
 
 const DIALOG_HEADING_ID = "session-expiry-notice-heading";
-const DIALOG_DESCRIPTION_ID = "session-expiry-notice-description";
 
 type SessionExpiryNoticeDialogProps = {
   onDismiss: () => void;
@@ -32,13 +31,12 @@ export function SessionExpiryNoticeDialog({ onDismiss, sessionExpiresAt = 0, ses
   const nextDate = formatSessionDate(computeNextSessionExpiry(sessionExpiresAt));
 
   return (
-    <Dialog labelledBy={DIALOG_HEADING_ID} describedBy={DIALOG_DESCRIPTION_ID} busy={isPending} firstFocusableRef={noButtonRef} lastFocusableRef={yesButtonRef} initialFocusRef={yesButtonRef} onEscape={onDismiss} onBackdropClick={onDismiss}>
+    <Dialog labelledBy={DIALOG_HEADING_ID} busy={isPending} firstFocusableRef={noButtonRef} lastFocusableRef={yesButtonRef} initialFocusRef={yesButtonRef} onEscape={onDismiss} onBackdropClick={onDismiss}>
       <div className="mb-4 flex items-center gap-2.5">
         <span className="flex size-9 items-center justify-center rounded-full bg-warning-tint text-warning-text" aria-hidden="true">⌛</span>
         <span className="rounded-full bg-warning-tint px-2.5 py-1 text-xs font-semibold text-warning-text">Ends in 2 days</span>
       </div>
       <h2 id={DIALOG_HEADING_ID} className="font-display text-[16px] font-bold text-ink">{SESSION_EXPIRY_MESSAGES.heading}</h2>
-      <p id={DIALOG_DESCRIPTION_ID} className="mt-1 text-sm text-text-2">{SESSION_EXPIRY_MESSAGES.description}</p>
       {errorMessage && <Alert tone="danger" className="mt-5" role="alert">{SESSION_EXPIRY_MESSAGES.failure}</Alert>}
       <div className="mt-3 overflow-hidden rounded-[10px] border border-border bg-app-bg text-sm">
         <div className="flex gap-4 border-b border-border bg-app-bg px-4 py-3">
