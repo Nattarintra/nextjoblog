@@ -23,9 +23,13 @@ test("clears only the current session and preserves the second session", async (
   );
 
   expect(response.status()).toBe(307);
-  expect(response.headers().location).toMatch(/\/login\?next=%2Fdashboard%3Ftab%3Drecent$/);
+  expect(response.headers().location).toMatch(/\/login\?reason=session_expired&next=%2Fdashboard%3Ftab%3Drecent$/);
   expect(response.headers()["cache-control"]).toBe("private, no-store, max-age=0");
   await expect.poll(() => authCookieCount(first.page)).toBe(0);
+
+  await first.page.goto(response.headers().location!);
+  await expect(first.page.getByTestId("login-session-expired")).toContainText("Your login ended");
+  await expect(first.page.getByLabel("Email")).toHaveValue("");
 
   // Check the provider session before reloading the app so the isolation
   // assertion cannot be satisfied by stale browser markup alone.
@@ -55,7 +59,7 @@ test("rejects an external next path", async ({ browser }) => {
   );
 
   expect(response.status()).toBe(307);
-  expect(response.headers().location).toMatch(/\/login\?next=%2Fdashboard$/);
+  expect(response.headers().location).toMatch(/\/login\?reason=session_expired&next=%2Fdashboard$/);
   await expect.poll(() => authCookieCount(page)).toBe(0);
   await context.close();
 });

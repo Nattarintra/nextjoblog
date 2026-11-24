@@ -3,4 +3,7 @@ export const SESSION_EXTENSION_ERROR_CODES = {
   claimsMalformed: "session_claims_malformed",
   claimsMissingFields: "session_claims_missing_fields",
   extensionMalformed: "session_extension_malformed",
+  extensionRpcMalformed: "session_extension_rpc_malformed",
+  extensionRpcFailed: "session_extension_rpc_failed",
+  tokenMismatch: "session_extension_token_mismatch",
 } as const;

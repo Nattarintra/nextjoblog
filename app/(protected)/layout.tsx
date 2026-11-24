@@ -9,6 +9,7 @@ import {
   PASSWORD_UPDATED_TOAST_FLAG_VALUE,
 } from "@/lib/auth/password-reset-confirm-config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createSessionCycleToken } from "@/lib/session/cycle-token";
 
 import { ProtectedAppShell } from "./_components/ProtectedAppShell";
 
@@ -40,6 +41,10 @@ export default async function ProtectedLayout({ children }: LayoutProps<"/">) {
     <ProtectedAppShell
       email={await getAccountEmail(effective.claims)}
       sessionExpiresAt={effective.effectiveExpiresAt}
+      sessionCycleToken={createSessionCycleToken({
+        sessionId: effective.claims.session_id as string,
+        effectiveExpiresAt: effective.effectiveExpiresAt,
+      })}
       noticeWindowMs={noticeWindowMs}
       passwordUpdated={passwordUpdated}
     >

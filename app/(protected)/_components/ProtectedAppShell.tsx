@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { AccountSheet } from "./AccountSheet";
 import { NavDrawer } from "./NavDrawer";
 import { PasswordUpdatedToast } from "./PasswordUpdatedToast";
 import { SessionExpiryNotice } from "./SessionExpiryNotice";
+import { SessionExtensionToast } from "./SessionExtensionToast";
 import { SideNav } from "./SideNav";
 import { SiteHeader } from "./SiteHeader";
 import { useBodyScrollLock } from "./useBodyScrollLock";
@@ -19,6 +20,7 @@ type ProtectedAppShellProps = {
   sessionExpiresAt: number;
   noticeWindowMs: number;
   passwordUpdated: boolean;
+  sessionCycleToken?: string;
   children: ReactNode;
 };
 
@@ -26,8 +28,17 @@ type ProtectedAppShellProps = {
 // the expiry notice never coexist, and the one useLogout instance, which stays
 // mounted while the sheet opens and closes so a request in flight still
 // navigates after the sheet is dismissed.
-export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, children }: ProtectedAppShellProps) {
+export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, passwordUpdated, sessionCycleToken, children }: ProtectedAppShellProps) {
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const [extendedUntil, setExtendedUntil] = useState<number | null>(null);
+  const [activeSessionExpiresAt, setActiveSessionExpiresAt] = useState(sessionExpiresAt);
+  const [activeSessionCycleToken, setActiveSessionCycleToken] = useState(sessionCycleToken);
+  const dismissExtensionToast = useCallback(() => setExtendedUntil(null), []);
+  const handleExtension = useCallback((nextExpiresAt: number, nextCycleToken: string) => {
+    setActiveSessionExpiresAt(nextExpiresAt);
+    setActiveSessionCycleToken(nextCycleToken);
+    setExtendedUntil(nextExpiresAt);
+  }, []);
   const logoutControl = useLogout();
   const { drawerOpen, accountOpen, openDrawer, closeDrawer, setAccountOpen } = useShellModals(noticeOpen);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -40,7 +51,7 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
   useBodyScrollLock(scrollLocked);
 
   return (
-    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]">
+    <div className="flex h-[100svh] bg-app-bg text-ink [color-scheme:light]" data-session-expires-at={activeSessionExpiresAt}>
       <SideNav
         email={email}
         logoutControl={logoutControl}
@@ -61,15 +72,18 @@ export function ProtectedAppShell({ email, sessionExpiresAt, noticeWindowMs, pas
           onAccountOpenChange={setAccountOpen}
         />
         <PasswordUpdatedToast serverFlag={passwordUpdated} />
+        {extendedUntil !== null && <SessionExtensionToast extendedUntil={extendedUntil} onDismiss={dismissExtensionToast} />}
         <div className={`flex min-h-0 flex-1 flex-col ${scrollLocked ? "overflow-hidden" : "overflow-y-auto"}`}>{children}</div>
       </div>
       {drawerOpen && <NavDrawer email={email} onClose={closeDrawer} onOpenAccount={() => setAccountOpen(true)} />}
       {accountOpen && <AccountSheet email={email} logoutControl={logoutControl} onClose={() => setAccountOpen(false)} />}
       <SessionExpiryNotice
-        sessionExpiresAt={sessionExpiresAt}
+        sessionExpiresAt={activeSessionExpiresAt}
         noticeWindowMs={noticeWindowMs}
+        sessionCycleToken={activeSessionCycleToken}
         disabled={drawerOpen || accountOpen}
         onShowChange={setNoticeOpen}
+        onExtended={handleExtension}
       />
     </div>
   );

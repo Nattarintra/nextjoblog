@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SessionExpiryNoticeDialog } from "@/app/(protected)/_components/SessionExpiryNoticeDialog";
+import { formatSessionDate } from "@/app/(protected)/_components/session-date-formatting";
 
 const { useActionStateMock, extendActionMock, refreshMock } = vi.hoisted(() => ({
   useActionStateMock: vi.fn(),
@@ -29,7 +30,7 @@ describe("SessionExpiryNoticeDialog", () => {
   it("dispatches the extension action from Yes", () => {
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, stay logged in" }));
 
     expect(extendActionMock).toHaveBeenCalledTimes(1);
   });
@@ -38,7 +39,7 @@ describe("SessionExpiryNoticeDialog", () => {
     const onDismiss = vi.fn();
     render(<SessionExpiryNoticeDialog onDismiss={onDismiss} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "No" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not now" }));
 
     expect(onDismiss).toHaveBeenCalledTimes(1);
     expect(extendActionMock).not.toHaveBeenCalled();
@@ -47,7 +48,7 @@ describe("SessionExpiryNoticeDialog", () => {
   it("dismisses and refreshes after a successful extension", () => {
     const onDismiss = vi.fn();
     useActionStateMock.mockReturnValue([
-      { ok: true, extendedUntil: Date.now() + 30_000 },
+      { ok: true, extendedUntil: Date.now() + 30_000, cycleToken: "next-cycle-token" },
       extendActionMock,
       false,
     ]);
@@ -66,19 +67,29 @@ describe("SessionExpiryNoticeDialog", () => {
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
 
     expect(screen.getByRole("alert").textContent).toBe(
-      "Unable to extend the session. Please try again.",
+      "We couldn't extend your login. Nothing changed. Check your connection and try again.",
     );
-    expect(screen.getByRole("button", { name: "Yes" })).toHaveProperty("disabled", false);
+    expect(screen.getByRole("button", { name: "Try Again" })).toHaveProperty("disabled", false);
+    expect(screen.queryByText("If yes")).toBeNull();
+  });
+
+  it("shows local current and proposed expiry dates", () => {
+    const sessionExpiresAt = Date.UTC(2026, 10, 25, 9, 8);
+    render(<SessionExpiryNoticeDialog sessionExpiresAt={sessionExpiresAt} onDismiss={vi.fn()} />);
+
+    expect(screen.getByText("Ends in 2 days")).toBeTruthy();
+    expect(screen.getByText(formatSessionDate(sessionExpiresAt))).toBeTruthy();
+    expect(screen.getByText(formatSessionDate(sessionExpiresAt + 30 * 24 * 60 * 60 * 1000))).toBeTruthy();
   });
 
   it("renders a client error without dispatching when offline", () => {
     Object.defineProperty(navigator, "onLine", { configurable: true, value: false });
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, stay logged in" }));
 
     expect(screen.getByRole("alert").textContent).toBe(
-      "You appear to be offline. Please reconnect and try again.",
+      "We couldn't extend your login. Nothing changed. Check your connection and try again.",
     );
     expect(extendActionMock).not.toHaveBeenCalled();
   });
@@ -88,7 +99,7 @@ describe("SessionExpiryNoticeDialog", () => {
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
 
     const dialog = screen.getByRole("dialog");
-    const yesButton = screen.getByRole("button", { name: "Yes…" });
+    const yesButton = screen.getByRole("button", { name: "Staying logged in…" });
 
     expect(yesButton).toHaveProperty("disabled", true);
     expect(dialog.getAttribute("aria-busy")).toBe("true");
@@ -97,8 +108,8 @@ describe("SessionExpiryNoticeDialog", () => {
   it("wraps keyboard focus from Yes to No and back", () => {
     render(<SessionExpiryNoticeDialog onDismiss={vi.fn()} />);
     const dialog = screen.getByRole("dialog");
-    const noButton = screen.getByRole("button", { name: "No" });
-    const yesButton = screen.getByRole("button", { name: "Yes" });
+    const noButton = screen.getByRole("button", { name: "Not now" });
+    const yesButton = screen.getByRole("button", { name: "Yes, stay logged in" });
 
     yesButton.focus();
     fireEvent.keyDown(dialog, { key: "Tab" });

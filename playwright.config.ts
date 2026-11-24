@@ -19,8 +19,10 @@ export default defineConfig({
   webServer: {
     // Keep the app's client-side expiry calculation aligned with the
     // 30-second Supabase project used by session-expiry.spec.ts. The app
-    // falls back to its real 30-day lifetime outside this test server.
-    command: "SESSION_TIMEBOX_MS=30000 E2E_TEST_HOOKS=1 npm run dev",
+    // falls back to its real 30-day lifetime outside this test server. The
+    // 12-second notice window gives the dialog tests time to interact before
+    // the 30-second expiry (the default would be only 2 seconds).
+    command: "SESSION_TIMEBOX_MS=30000 SESSION_NOTICE_WINDOW_MS=12000 E2E_TEST_HOOKS=1 npm run dev",
     url: "http://localhost:3000",
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,

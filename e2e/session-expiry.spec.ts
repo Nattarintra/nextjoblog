@@ -13,6 +13,14 @@ import {
 import { supabaseAdmin } from "./helpers/supabase-admin";
 import { expectResponsiveScreen } from "./helpers/axe";
 
+const SHORT_SESSION_LIFETIME_MS = 30_000;
+// Must match SESSION_NOTICE_WINDOW_MS in playwright.config.ts. The tests that
+// click through the dialog need real headroom inside the 30s session.
+const SHORT_NOTICE_WINDOW_MS = 12_000;
+
+const isServerAction = (request: { method(): string; headers(): Record<string, string> }) =>
+  request.method() === "POST" && "next-action" in request.headers();
+
 // This file relies on beforeAll seeding and (for the short-timebox group) swaps
 // the local Supabase backend out from under the running `npm run dev` server —
 // mirrors e2e/login.spec.ts's reasoning for forcing single-worker, in-order mode,
@@ -188,28 +196,153 @@ test.describe("application-managed session extension cycles", () => {
     expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBeGreaterThan(0);
 
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    const appShell = page.locator("[data-session-expires-at]");
 
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 28_000 - Date.now()));
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS - Date.now()));
     await expect(dialog).toBeVisible();
     await expectResponsiveScreen(page, testInfo, "session-expiry-dialog");
-    await page.getByRole("button", { name: "Yes" }).click();
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
     await expect(dialog).toBeHidden();
 
-    // The first extension moves the app-managed expiry to 60 seconds from
-    // session start. Prove that the original 30-second expiry is no longer a
-    // sign-out boundary before waiting for the second notice.
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 30_500 - Date.now()));
+    // The first extension moves the app-managed expiry one session lifetime
+    // beyond the original boundary. Prove that the original expiry is no
+    // longer a sign-out boundary before waiting for the second notice.
+    // The real extension adds a production-length 30 days, which a compressed
+    // 30s run cannot wait for (and which overflows Playwright's timer). Shorten
+    // the stored extension to one compressed lifetime, then reload so the shell
+    // picks up the new expiry and cycle token.
+    const extendedExpiresAt = sessionStartedAt + 2 * SHORT_SESSION_LIFETIME_MS;
+    const { error: shortenError } = await supabaseAdmin
+      .from("session_extensions")
+      .update({ extended_until: new Date(extendedExpiresAt).toISOString() })
+      .eq("user_id", signedInSession.user.id);
+    expect(shortenError).toBeNull();
+
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS + 500 - Date.now()));
     await page.reload();
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    await expect(appShell).toHaveAttribute("data-session-expires-at", String(extendedExpiresAt));
+    await page.waitForTimeout(Math.max(0, extendedExpiresAt - SHORT_NOTICE_WINDOW_MS - 500 - Date.now()));
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
+    await expect(dialog).toBeHidden();
 
-    await page.waitForTimeout(Math.max(0, sessionStartedAt + 58_000 - Date.now()));
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+});
+
+test.describe("dialog interactions (compressed app timebox)", () => {
+  // These exercise the notice dialog's Server Action, which only depends on the
+  // application-level 30-second lifetime that playwright.config.ts gives the
+  // Next server. They run on the default Supabase stack: the short-timebox
+  // stack's 5-second access tokens refresh on every server request and break
+  // the refresh token a Server Action click relies on.
+
+  test("lets exactly one of two tabs win a concurrent extension", async ({ page }) => {
+    test.setTimeout(75_000);
+
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(`expiry-concurrent+${Date.now()}@example.com`);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const expiresAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS;
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    await page.waitForTimeout(Math.max(0, expiresAt - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
     await expect(dialog).toBeVisible();
-    await page.getByRole("button", { name: "Yes" }).click();
-    await expect(dialog).toBeHidden();
+    await expect(secondDialog).toBeVisible();
 
-    await page.reload();
-    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+    // Two pages submit the same signed cycle token concurrently. Exactly one
+    // CAS write may win; the other page must reconcile as stale.
+    await Promise.all([
+      page.getByRole("button", { name: "Yes, stay logged in" }).click(),
+      secondPage.getByRole("button", { name: "Yes, stay logged in" }).click(),
+    ]);
+    await expect(dialog).toBeHidden();
+    await expect(secondDialog).toBeHidden();
+    // Either tab can close the other's dialog via the cross-tab broadcast, so
+    // the dialogs hiding doesn't prove the write is visible yet; poll for it.
+    await expect
+      .poll(
+        async () => {
+          const { data, error } = await supabaseAdmin
+            .from("session_extensions")
+            .select("extended_until")
+            .eq("user_id", signedInSession.user.id);
+          if (error) throw error;
+          return data?.length ?? 0;
+        },
+        { timeout: 10_000 },
+      )
+      .toBe(1);
+    const { data: rows } = await supabaseAdmin
+      .from("session_extensions")
+      .select("extended_until")
+      .eq("user_id", signedInSession.user.id);
+    expect(Date.parse(rows![0].extended_until)).toBeGreaterThan(expiresAt);
+    await secondPage.close();
+  });
+
+  test("closes the matching prompt in another tab when one tab dismisses it", async ({ page }) => {
+    test.setTimeout(75_000);
+
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(`expiry-cross-tab+${Date.now()}@example.com`);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    const secondPage = await page.context().newPage();
+    await secondPage.goto("/dashboard");
+    const secondDialog = secondPage.getByRole("dialog", { name: "Stay logged in?" });
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(dialog).toBeVisible();
+    await expect(secondDialog).toBeVisible();
+
+    await secondPage.getByRole("button", { name: "Not now" }).click();
+    await expect(secondDialog).toBeHidden();
+    await expect(dialog).toBeHidden();
+    await secondPage.close();
+  });
+
+  test("keeps the prompt open on a failed extension and retries successfully", async ({ page }) => {
+    test.setTimeout(75_000);
+
+    await page.goto("/signup");
+    await page.getByLabel("Email").fill(`expiry-retry+${Date.now()}@example.com`);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign Up" }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+
+    const signedInSession = decodeAuthCookie(await page.context().cookies(), authCookieStorageKey());
+    const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
+    await page.waitForTimeout(Math.max(0, sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS + 500 - Date.now()));
+
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
+    await expect(dialog).toBeVisible();
+    await page.route("**/*", (route) => (isServerAction(route.request()) ? route.abort("connectionfailed") : route.continue()));
+    await page.getByRole("button", { name: "Yes, stay logged in" }).click();
+    await expect(dialog.getByRole("alert")).toContainText("Nothing changed");
+    await expect(page.getByText("Current end of your login, unchanged")).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeVisible();
+
+    await page.unroute("**/*");
+    await page.getByRole("button", { name: "Try Again" }).click();
+    await expect(page.getByRole("dialog", { name: "Stay logged in?" })).toBeHidden();
+    await expect(page.getByRole("status")).toContainText("You'll stay logged in");
   });
 });
 
@@ -253,12 +386,16 @@ test.describe("real session expiry (short timebox)", () => {
     expect(accessTokenLifetimeSeconds(signedInSession.access_token)).toBe(5);
 
     // Playwright starts Next with a 30-second lifetime, matching the short
-    // Supabase project. The layout scales the two-day production notice window
-    // to 2 seconds, preserving the day-28-of-30 threshold at 28 seconds.
+    // Supabase project, and a 12-second notice window (see playwright.config.ts).
+    // This stack's 5-second access tokens make every server request refresh the
+    // session, and refreshes made while rendering cannot be saved to the browser,
+    // so the browser's refresh token goes stale. That is fine for this test, which
+    // makes no server request before the timebox, but it means no dialog click
+    // (a Server Action) can be tested here; those run on the default stack below.
     const sessionStartedAt = sessionStartedAtMs(signedInSession.access_token);
-    const noticeAt = sessionStartedAt + 28_000;
+    const noticeAt = sessionStartedAt + SHORT_SESSION_LIFETIME_MS - SHORT_NOTICE_WINDOW_MS;
     const expiresAt = sessionStartedAt + 30_000;
-    const dialog = page.getByRole("dialog", { name: "Your session is expiring soon" });
+    const dialog = page.getByRole("dialog", { name: "Stay logged in?" });
 
     await expect(dialog).toBeHidden();
     await page.waitForTimeout(Math.max(0, noticeAt - Date.now() - 500));
@@ -288,5 +425,7 @@ test.describe("real session expiry (short timebox)", () => {
       );
       expect(remainingLiveAuthCookies).toHaveLength(0);
     }).toPass({ timeout: 5_000 });
+    await expect(page).toHaveURL(/\/login\?reason=session_expired&next=%2Fdashboard$/);
+    await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).not.toBeVisible();
   });
 });
