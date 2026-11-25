@@ -13,6 +13,8 @@ import { createSessionCycleToken } from "@/lib/session/cycle-token";
 
 import { ProtectedAppShell } from "./_components/ProtectedAppShell";
 
+export const dynamic = "force-dynamic";
+
 async function getAccountEmail(claims: { email?: unknown; user_metadata?: unknown }): Promise<string | undefined> {
   if (typeof claims.email === "string") return claims.email;
   if (claims.user_metadata && typeof claims.user_metadata === "object" && "email" in claims.user_metadata) {
