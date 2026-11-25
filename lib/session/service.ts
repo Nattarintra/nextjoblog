@@ -1,4 +1,5 @@
 import type { JwtPayload } from "@supabase/auth-js";
+import { unstable_rethrow } from "next/navigation";
 import { cache } from "react";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -52,6 +53,7 @@ async function fetchEffectiveSessionExpiry(): Promise<EffectiveSessionExpiry> {
       ),
     };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Unable to read the effective session expiry", error);
     classifyThrown(error);
     return { status: "verification_failed", error };

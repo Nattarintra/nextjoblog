@@ -25,6 +25,8 @@ const playwright = spawnSync(process.platform === "win32" ? "npx.cmd" : "npx", [
     PASSWORD_RESET_ENABLED: "1",
     E2E_TEST_HOOKS: "1",
     RATE_LIMIT_HASH_SECRET: process.env.RATE_LIMIT_HASH_SECRET ?? randomBytes(32).toString("hex"),
+    SESSION_EXTENSION_TOKEN_SECRET:
+      process.env.SESSION_EXTENSION_TOKEN_SECRET ?? randomBytes(32).toString("hex"),
     E2E_MAIL_API_URL: process.env.E2E_MAIL_API_URL ?? "http://127.0.0.1:54324/api/v1",
   },
   stdio: "inherit",

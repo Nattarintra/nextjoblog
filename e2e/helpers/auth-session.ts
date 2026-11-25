@@ -9,10 +9,23 @@ export const BASE_URL = "http://localhost:3000";
 export const MOBILE_VIEWPORT = { width: 390, height: 844 };
 export const DESKTOP_VIEWPORT = { width: 1280, height: 800 };
 
+function dismissExpiryNoticeForUnrelatedTest(page: Page): void {
+  // The E2E web server uses a compressed session lifetime so the dedicated
+  // session-expiry specs can run quickly. Other specs should not be blocked by
+  // that test-only notice appearing during a longer flow.
+  page.addLocatorHandler(
+    page.getByRole("dialog", { name: "Stay logged in?" }),
+    async (dialog) => {
+      await dialog.getByRole("button", { name: "Not now" }).click();
+    },
+  );
+}
+
 export async function signUpNewUser(browser: Browser, label: string, viewport = MOBILE_VIEWPORT) {
   const email = `auth-session-${label}+${Date.now()}@example.com`;
   const context = await browser.newContext({ baseURL: BASE_URL, viewport });
   const page = await context.newPage();
+  dismissExpiryNoticeForUnrelatedTest(page);
   await page.goto("/signup");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
@@ -24,6 +37,7 @@ export async function signUpNewUser(browser: Browser, label: string, viewport = 
 export async function logInInNewContext(browser: Browser, email: string) {
   const context = await browser.newContext({ baseURL: BASE_URL, viewport: MOBILE_VIEWPORT });
   const page = await context.newPage();
+  dismissExpiryNoticeForUnrelatedTest(page);
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
