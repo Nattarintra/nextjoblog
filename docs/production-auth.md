@@ -18,6 +18,7 @@ Vercel (Project Settings → Environment Variables). Names must match
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | The hosted project's anon/publishable key, not the local key and never the service-role key. |
 | `NEXT_PUBLIC_SITE_URL` | Yes | The deployed production origin. |
 | `RATE_LIMIT_HASH_SECRET` | Yes | Server-only random secret, at least 32 characters, used to hash reset limiter keys. Never expose it to the browser. |
+| `SESSION_EXTENSION_TOKEN_SECRET` | Yes | Server-only random secret, at least 32 characters, used to sign stay-logged-in session cycle tokens. Never expose it to the browser. |
 | `PASSWORD_RESET_ENABLED` | No | Feature flag for the whole password-reset flow (Forgot password link and request action). Set to `1` in Production only after the Story 0.7 hosted smoke test (section 5, check 8) passes; keep `0` or unset until then. Changing it requires a redeploy (section 3). |
 
 Do **not** set `SUPABASE_SERVICE_ROLE_KEY` (or any service-role key) as a

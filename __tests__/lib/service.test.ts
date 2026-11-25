@@ -106,6 +106,17 @@ describe("getEffectiveSessionExpiry", () => {
     expect(await getEffectiveSessionExpiry()).toEqual({ status: "verification_failed" });
   });
 
+  it("rethrows framework-controlled dynamic rendering errors", async () => {
+    getClaimsMock.mockRejectedValue({
+      digest: "DYNAMIC_SERVER_USAGE",
+      message: "Dynamic server usage",
+    });
+
+    await expect(getEffectiveSessionExpiry()).rejects.toMatchObject({
+      digest: "DYNAMIC_SERVER_USAGE",
+    });
+  });
+
   it("returns verification_failed when the extension is malformed", async () => {
     setValidClaims();
     setExtensionResult({ extended_until: "not-a-date" });
