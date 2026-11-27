@@ -280,13 +280,13 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Automated
 
-- [ ] 1.1 Repository tests pass with the 500-row bound and unchanged projection/order.
-- [ ] 1.2 Application list/page tests pass, including empty, load-error, session-failure, and exact-boundary cap states.
-- [ ] 1.3 `npm run test:coverage` remains above 80% globally and 90% for `lib/applications/**`.
+- [x] 1.1 Repository tests pass with the 500-row bound and unchanged projection/order.
+- [x] 1.2 Application list/page tests pass, including empty, load-error, session-failure, and exact-boundary cap states.
+- [x] 1.3 `npm run test:coverage` remains above 80% globally and 90% for `lib/applications/**`.
 
 #### Manual
 
-- [ ] 1.4 Confirm the populated list is newest-first and the cap message is understandable at exactly 500 rows.
+- [x] 1.4 Confirm the populated list is newest-first and the cap message is understandable at exactly 500 rows.
 
 ### Phase 2: Responsive List and Detail Presentation
 

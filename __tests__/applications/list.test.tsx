@@ -24,7 +24,7 @@ vi.mock("@/app/actions/applications", () => ({ logApplicationAction: vi.fn() }))
 import ApplicationsPage from "@/app/(protected)/applications/page";
 import NewApplicationPage from "@/app/(protected)/applications/new/page";
 import { ApplicationRow } from "@/app/(protected)/applications/_components/ApplicationRow";
-import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
+import { MAX_APPLICATION_LIST_ROWS } from "@/lib/applications/limits";
 import type { ApplicationSummary } from "@/lib/applications/types";
 
 const SESSION = { status: "authenticated", claims: { sub: "user-1" } };
@@ -61,9 +61,9 @@ describe("ApplicationsPage", () => {
   });
 
   it("tells the user the list is capped only when the cap is reached", async () => {
-    mocks.list.mockResolvedValue(Array.from({ length: LIST_PAGE_SIZE }, (_, index) => application({ id: `a${index}` })));
+    mocks.list.mockResolvedValue(Array.from({ length: MAX_APPLICATION_LIST_ROWS }, (_, index) => application({ id: `a${index}` })));
     const { unmount } = render(await ApplicationsPage());
-    expect(screen.getByText(`Showing your ${LIST_PAGE_SIZE} most recent applications.`)).toBeTruthy();
+    expect(screen.getByText(`Showing your ${MAX_APPLICATION_LIST_ROWS} most recent applications.`)).toBeTruthy();
     unmount();
 
     mocks.list.mockResolvedValue([application()]);

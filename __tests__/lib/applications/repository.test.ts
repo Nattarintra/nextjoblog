@@ -8,7 +8,7 @@ import {
   createApplicationWriter,
   createProfileTimeZoneReader,
 } from "@/lib/applications/repository";
-import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
+import { MAX_APPLICATION_LIST_ROWS } from "@/lib/applications/limits";
 import type { NewApplicationRecord } from "@/lib/applications/types";
 
 type Result = { data?: unknown; error?: { code?: string } | null };
@@ -131,7 +131,7 @@ describe("createApplicationReader", () => {
   it("caps the list at the page size", async () => {
     const { client, calls } = fakeClient({ select: { data: [] } });
     await createApplicationReader(client).list();
-    expect(calls).toContainEqual(["limit", [LIST_PAGE_SIZE]]);
+    expect(calls).toContainEqual(["limit", [MAX_APPLICATION_LIST_ROWS]]);
   });
 
   it("returns an empty list when no data comes back", async () => {
