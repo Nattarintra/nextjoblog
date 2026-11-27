@@ -10,8 +10,14 @@ import {
   fillApplicationForm,
   openNewApplicationForm,
 } from "./helpers/applications";
-import { DESKTOP_VIEWPORT, signUpNewUser } from "./helpers/auth-session";
-import { expectNoAxeViolations } from "./helpers/axe";
+import { DESKTOP_VIEWPORT, logInInNewContext, signUpNewUser } from "./helpers/auth-session";
+import { expectNoAxeViolations, expectResponsiveScreen } from "./helpers/axe";
+import {
+  createConfirmedE2EUser,
+  deleteE2EUser,
+  seedApplicationsForE2EUser,
+  supabaseAdmin,
+} from "./helpers/supabase-admin";
 
 const APPLIED_STATUS_LABEL = "Applied";
 const LOGGED_OUT_LOGIN_URL = /\/login\?loggedOut=1$/;
@@ -46,7 +52,7 @@ async function fillOptionalDetails(page: Page) {
   await technologies.press("Enter");
 }
 
-test("logs an application, redirects to detail, and shows optional details", async ({ browser }) => {
+test("logs an application, redirects to detail, and shows optional details", async ({ browser }, testInfo) => {
   const { context, page } = await signUpNewUser(browser, "apps-add", DESKTOP_VIEWPORT);
   const input = buildApplicationInput("add");
 
@@ -62,8 +68,10 @@ test("logs an application, redirects to detail, and shows optional details", asy
   await expect(page.getByText("React")).toBeVisible();
   await expect(page.getByText("TypeScript")).toBeVisible();
   await expectNoAxeViolations(page);
+  await expectResponsiveScreen(page, testInfo, "application-detail");
   const detailUrl = page.url();
   await page.goto(APPLICATIONS_PATH);
+  await expectResponsiveScreen(page, testInfo, "applications-list");
   const row = page.getByRole("listitem").filter({ hasText: input.title });
   await expect(row).toContainText(input.company);
   await expect(row).toContainText(APPLIED_STATUS_LABEL);
@@ -86,10 +94,72 @@ test("another user never sees the application", async ({ browser }) => {
   await expect(other.page.getByText(APPLICATION_PAGE_MESSAGES.emptyTitle)).toBeVisible();
   await expect(other.page.getByText(input.title)).toHaveCount(0);
   await other.page.goto(detailUrl);
-  await expect(other.page.getByRole("heading", { name: /can't find this application/i })).toBeVisible();
+  await expect(other.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
+  await expectNoAxeViolations(other.page);
 
   await owner.context.close();
   await other.context.close();
+});
+
+test("foreign and deleted detail URLs share the application not-found state", async ({ browser }) => {
+  const owner = await signUpNewUser(browser, "apps-deleted-owner", DESKTOP_VIEWPORT);
+  const input = buildApplicationInput("deleted");
+  await openNewApplicationForm(owner.page);
+  await fillApplicationForm(owner.page, input);
+  await saveApplication(owner.page);
+  await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+  const detailUrl = owner.page.url();
+  const applicationId = detailUrl.split("/").pop()!;
+
+  const otherUser = await createConfirmedE2EUser("apps-deleted-other");
+  const other = await logInInNewContext(browser, otherUser.email);
+  try {
+    await other.page.goto(detailUrl);
+    await expect(other.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
+    await expectNoAxeViolations(other.page);
+
+    const { error } = await supabaseAdmin.from("applications").delete().eq("id", applicationId);
+    expect(error).toBeNull();
+    await owner.page.goto(detailUrl);
+    await expect(owner.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
+    await expectNoAxeViolations(owner.page);
+  } finally {
+    await owner.context.close();
+    await other.context.close();
+    await deleteE2EUser(otherUser.id);
+  }
+});
+
+test("renders 500 applications within the CI route budget", async ({ browser }) => {
+  const user = await createConfirmedE2EUser("apps-500");
+  const session = await logInInNewContext(browser, user.email);
+  const foreignUser = await createConfirmedE2EUser("apps-500-foreign");
+  const foreignSession = await logInInNewContext(browser, foreignUser.email);
+  try {
+    const detailId = await seedApplicationsForE2EUser(user.id, 500);
+    await foreignSession.page.goto(`/applications/${detailId}`);
+    await expect(
+      foreignSession.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle }),
+    ).toBeVisible();
+    await expectNoAxeViolations(foreignSession.page);
+
+    const startedAt = performance.now();
+    await session.page.goto(APPLICATIONS_PATH);
+    const list = session.page.getByRole("list", { name: APPLICATION_PAGE_MESSAGES.listAriaLabel });
+    await expect(list).toBeVisible();
+    await expect(list.getByRole("listitem").nth(499)).toBeVisible();
+    const duration = performance.now() - startedAt;
+
+    await expect(list.getByRole("listitem")).toHaveCount(500);
+    await expect(session.page.getByText(APPLICATION_PAGE_MESSAGES.listCapped(500))).toBeVisible();
+    console.log(`500-row applications route duration: ${duration.toFixed(0)}ms`);
+    expect(duration).toBeLessThanOrEqual(2500);
+  } finally {
+    await session.context.close();
+    await foreignSession.context.close();
+    await deleteE2EUser(user.id);
+    await deleteE2EUser(foreignUser.id);
+  }
 });
 
 test("stores an injection-style title literally", async ({ browser }) => {

@@ -33,3 +33,10 @@ There is no migration for Story 1.2: the optional columns already exist and are 
 - Unit and component: `npm run test:run` (Vitest, React Testing Library).
 - SQL: `supabase test db`.
 - E2E and a11y: `e2e/applications.spec.ts` (Playwright + `@axe-core/playwright`), run in CI via `npm run test:e2e`. The save-failure path aborts the Server Action request with `page.route`, so no server hook is needed.
+
+The E2E suite is CI-only for this project. The authoritative runner is the
+Ubuntu GitHub Actions job, which starts Supabase, resets the database, installs
+Playwright Chromium, and runs `npm run test:e2e`. Local macOS 13 development is
+not expected to provide a compatible Chromium runtime. The CI environment must
+provide Node 22, the Supabase CLI, Docker, and the service-role credentials
+injected by `scripts/run-e2e.mjs`.

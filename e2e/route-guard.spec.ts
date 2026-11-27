@@ -32,7 +32,7 @@ test("preserves a deep link through login and shows the generic not-found screen
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Log In" }).click();
   await expect(page).toHaveURL("/applications/123?tab=notes");
-  await expect(page.getByRole("heading", { name: /can't find this application/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Application not found" })).toBeVisible();
   await expect(page.getByText("Go to Dashboard", { exact: true })).toHaveAttribute("href", "/dashboard");
 });
 

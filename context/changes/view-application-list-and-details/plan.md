@@ -304,9 +304,9 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Automated
 
-- [x] 3.1 Detail route tests pass for session failure, malformed UUID, missing row, load error, and successful detail rendering.
-- [x] 3.2 Route-local not-found tests assert the exact heading and both recovery hrefs.
-- [x] 3.3 Root not-found tests assert generic copy and no application-specific claim.
+- [x] 3.1 Detail route tests pass for session failure, malformed UUID, missing row, load error, and successful detail rendering. — 49dd034
+- [x] 3.2 Route-local not-found tests assert the exact heading and both recovery hrefs. — 49dd034
+- [x] 3.3 Root not-found tests assert generic copy and no application-specific claim. — 49dd034
 
 #### Manual
 
@@ -317,9 +317,9 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Automated
 
-- [ ] 4.1 `npm run test:coverage` passes all configured thresholds.
-- [ ] 4.2 `npm run lint` passes.
-- [ ] 4.3 `npm run typecheck` passes.
+- [x] 4.1 `npm run test:coverage` passes all configured thresholds.
+- [x] 4.2 `npm run lint` passes.
+- [x] 4.3 `npm run typecheck` passes.
 - [ ] 4.4 CI `npm run test:e2e` passes populated, empty, detail, RLS/not-found, responsive, axe, and 500-row timing coverage.
 
 #### Manual
