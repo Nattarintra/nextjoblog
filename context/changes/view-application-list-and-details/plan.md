@@ -292,21 +292,21 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Automated
 
-- [x] 2.1 Component tests cover populated rows, Story 1.4 fields, optional-value dashes, safe/unsafe posting links, and keyboard-reachable detail links.
-- [x] 2.2 `npm run lint` and `npm run typecheck` pass.
+- [x] 2.1 Component tests cover populated rows, Story 1.4 fields, optional-value dashes, safe/unsafe posting links, and keyboard-reachable detail links. — 311cca3
+- [x] 2.2 `npm run lint` and `npm run typecheck` pass. — 311cca3
 
 #### Manual
 
-- [x] 2.3 Review the list at desktop and 375px mobile widths for column/stack behavior and overflow.
-- [x] 2.4 Keyboard-tab through list rows and detail actions; confirm visible focus and readable labels.
+- [x] 2.3 Review the list at desktop and 375px mobile widths for column/stack behavior and overflow. — 311cca3
+- [x] 2.4 Keyboard-tab through list rows and detail actions; confirm visible focus and readable labels. — 311cca3
 
 ### Phase 3: Not-Found Boundaries and Error Behavior
 
 #### Automated
 
-- [ ] 3.1 Detail route tests pass for session failure, malformed UUID, missing row, load error, and successful detail rendering.
-- [ ] 3.2 Route-local not-found tests assert the exact heading and both recovery hrefs.
-- [ ] 3.3 Root not-found tests assert generic copy and no application-specific claim.
+- [x] 3.1 Detail route tests pass for session failure, malformed UUID, missing row, load error, and successful detail rendering.
+- [x] 3.2 Route-local not-found tests assert the exact heading and both recovery hrefs.
+- [x] 3.3 Root not-found tests assert generic copy and no application-specific claim.
 
 #### Manual
 

@@ -70,4 +70,8 @@ export const APPLICATION_PAGE_MESSAGES = {
   detailTechnologyLabel: "Technologies",
   detailLoadFailed: "Couldn't load this application. Refresh the page to try again.",
   postingLinkLabel: (title: string, company: string) => `Open job posting for ${title} at ${company}`,
+  notFoundTitle: "Application not found",
+  notFoundDescription: "It may have been deleted, or the link may be wrong.",
+  backToApplications: "Back to applications",
+  goToDashboard: "Go to Dashboard",
 } as const;
