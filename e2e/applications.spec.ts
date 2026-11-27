@@ -143,6 +143,11 @@ test("renders 500 applications within the CI route budget", async ({ browser }) 
     ).toBeVisible();
     await expectNoAxeViolations(foreignSession.page);
 
+    // Compile the route before timing it. The budget excludes Next.js startup,
+    // so the measured navigation must represent the warmed application route.
+    await session.page.goto(APPLICATIONS_PATH);
+    await expect(session.page.getByRole("list", { name: APPLICATION_PAGE_MESSAGES.listAriaLabel })).toBeVisible();
+
     const startedAt = performance.now();
     await session.page.goto(APPLICATIONS_PATH);
     const list = session.page.getByRole("list", { name: APPLICATION_PAGE_MESSAGES.listAriaLabel });
