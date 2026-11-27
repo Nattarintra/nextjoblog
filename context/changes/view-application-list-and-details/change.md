@@ -1,7 +1,7 @@
 ---
 change_id: view-application-list-and-details
 title: View application list and details
-status: implementing
+status: impl_reviewed
 created: 2026-11-26
 updated: 2026-11-27
 archived_at: null

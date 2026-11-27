@@ -33,10 +33,10 @@ export function ApplicationList({ applications }: { applications: readonly Appli
         aria-hidden="true"
         className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,auto)_auto] gap-6 border-b border-border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-text-3 md:grid"
       >
-        <span>Role · Company</span>
-        <span>Location</span>
-        <span>Applied</span>
-        <span>Status</span>
+        <span>{APPLICATION_PAGE_MESSAGES.listColumnRoleCompany}</span>
+        <span>{APPLICATION_PAGE_MESSAGES.listColumnLocation}</span>
+        <span>{APPLICATION_PAGE_MESSAGES.listColumnApplied}</span>
+        <span>{APPLICATION_PAGE_MESSAGES.listColumnStatus}</span>
       </div>
       <ul aria-label={APPLICATION_PAGE_MESSAGES.listAriaLabel}>
         {applications.map((application) => (

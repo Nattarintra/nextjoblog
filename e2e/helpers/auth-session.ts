@@ -34,8 +34,8 @@ export async function signUpNewUser(browser: Browser, label: string, viewport = 
   return { email, context, page };
 }
 
-export async function logInInNewContext(browser: Browser, email: string) {
-  const context = await browser.newContext({ baseURL: BASE_URL, viewport: MOBILE_VIEWPORT });
+export async function logInInNewContext(browser: Browser, email: string, viewport = MOBILE_VIEWPORT) {
+  const context = await browser.newContext({ baseURL: BASE_URL, viewport });
   const page = await context.newPage();
   dismissExpiryNoticeForUnrelatedTest(page);
   await page.goto("/login");

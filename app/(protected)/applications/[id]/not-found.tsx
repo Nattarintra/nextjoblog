@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { APPLICATION_PAGE_MESSAGES } from "@/lib/applications/messages";
 import { APPLICATIONS_PATH } from "@/lib/applications/paths";
+import { DASHBOARD_PATH } from "@/lib/navigation/nav-items";
 
 export default function ApplicationNotFound() {
   return (
@@ -18,7 +19,7 @@ export default function ApplicationNotFound() {
               <ButtonLink href={APPLICATIONS_PATH} fullWidth>
                 {APPLICATION_PAGE_MESSAGES.backToApplications}
               </ButtonLink>
-              <ButtonLink href="/dashboard" variant="ghost" fullWidth>
+              <ButtonLink href={DASHBOARD_PATH} variant="ghost" fullWidth>
                 {APPLICATION_PAGE_MESSAGES.goToDashboard}
               </ButtonLink>
             </div>

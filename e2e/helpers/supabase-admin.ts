@@ -43,10 +43,12 @@ export async function deleteE2EUser(userId: string): Promise<void> {
 }
 
 export async function seedApplicationsForE2EUser(userId: string, count: number): Promise<string> {
+  const detailId = crypto.randomUUID();
   const rows = Array.from({ length: count }, (_, index) => {
     const day = String((index % 28) + 1).padStart(2, "0");
     const timestamp = new Date(Date.UTC(2026, 0, 1, 0, 0, index)).toISOString();
     return {
+      id: index === 0 ? detailId : crypto.randomUUID(),
       user_id: userId,
       title: `Seeded Engineer ${String(index + 1).padStart(3, "0")}`,
       company: `Seeded Company ${String(index + 1).padStart(3, "0")}`,
@@ -60,10 +62,8 @@ export async function seedApplicationsForE2EUser(userId: string, count: number):
     };
   });
 
-  const { data, error } = await supabaseAdmin.from("applications").insert(rows).select("id").limit(1);
-  if (error || !data?.[0]?.id) {
-    throw error ?? new Error("Supabase did not return the seeded application ID");
-  }
+  const { error } = await supabaseAdmin.from("applications").insert(rows);
+  if (error) throw error;
 
-  return data[0].id as string;
+  return detailId;
 }

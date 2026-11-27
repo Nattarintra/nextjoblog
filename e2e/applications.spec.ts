@@ -81,39 +81,57 @@ test("logs an application, redirects to detail, and shows optional details", asy
 });
 
 test("another user never sees the application", async ({ browser }) => {
-  const owner = await signUpNewUser(browser, "apps-owner", DESKTOP_VIEWPORT);
-  const input = buildApplicationInput("isolation");
-  await openNewApplicationForm(owner.page);
-  await fillApplicationForm(owner.page, input);
-  await saveApplication(owner.page);
-  await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
-  const detailUrl = owner.page.url();
+  let ownerUser: Awaited<ReturnType<typeof createConfirmedE2EUser>> | undefined;
+  let otherUser: Awaited<ReturnType<typeof createConfirmedE2EUser>> | undefined;
+  let owner: Awaited<ReturnType<typeof logInInNewContext>> | undefined;
+  let other: Awaited<ReturnType<typeof logInInNewContext>> | undefined;
 
-  const other = await signUpNewUser(browser, "apps-other", DESKTOP_VIEWPORT);
-  await other.page.goto(APPLICATIONS_PATH);
-  await expect(other.page.getByText(APPLICATION_PAGE_MESSAGES.emptyTitle)).toBeVisible();
-  await expect(other.page.getByText(input.title)).toHaveCount(0);
-  await other.page.goto(detailUrl);
-  await expect(other.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
-  await expectNoAxeViolations(other.page);
+  try {
+    ownerUser = await createConfirmedE2EUser("apps-owner");
+    owner = await logInInNewContext(browser, ownerUser.email, DESKTOP_VIEWPORT);
+    const input = buildApplicationInput("isolation");
+    await openNewApplicationForm(owner.page);
+    await fillApplicationForm(owner.page, input);
+    await saveApplication(owner.page);
+    await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+    const detailUrl = owner.page.url();
 
-  await owner.context.close();
-  await other.context.close();
+    otherUser = await createConfirmedE2EUser("apps-other");
+    other = await logInInNewContext(browser, otherUser.email, DESKTOP_VIEWPORT);
+    await other.page.goto(APPLICATIONS_PATH);
+    await expect(other.page.getByText(APPLICATION_PAGE_MESSAGES.emptyTitle)).toBeVisible();
+    await expect(other.page.getByText(input.title)).toHaveCount(0);
+    await expectNoAxeViolations(other.page);
+    await other.page.goto(detailUrl);
+    await expect(other.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
+    await expectNoAxeViolations(other.page);
+  } finally {
+    await owner?.context.close();
+    await other?.context.close();
+    if (ownerUser) await deleteE2EUser(ownerUser.id);
+    if (otherUser) await deleteE2EUser(otherUser.id);
+  }
 });
 
 test("foreign and deleted detail URLs share the application not-found state", async ({ browser }) => {
-  const owner = await signUpNewUser(browser, "apps-deleted-owner", DESKTOP_VIEWPORT);
-  const input = buildApplicationInput("deleted");
-  await openNewApplicationForm(owner.page);
-  await fillApplicationForm(owner.page, input);
-  await saveApplication(owner.page);
-  await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
-  const detailUrl = owner.page.url();
-  const applicationId = detailUrl.split("/").pop()!;
+  let ownerUser: Awaited<ReturnType<typeof createConfirmedE2EUser>> | undefined;
+  let otherUser: Awaited<ReturnType<typeof createConfirmedE2EUser>> | undefined;
+  let owner: Awaited<ReturnType<typeof logInInNewContext>> | undefined;
+  let other: Awaited<ReturnType<typeof logInInNewContext>> | undefined;
 
-  const otherUser = await createConfirmedE2EUser("apps-deleted-other");
-  const other = await logInInNewContext(browser, otherUser.email);
   try {
+    ownerUser = await createConfirmedE2EUser("apps-deleted-owner");
+    owner = await logInInNewContext(browser, ownerUser.email, DESKTOP_VIEWPORT);
+    const input = buildApplicationInput("deleted");
+    await openNewApplicationForm(owner.page);
+    await fillApplicationForm(owner.page, input);
+    await saveApplication(owner.page);
+    await expect(owner.page).toHaveURL(/\/applications\/[0-9a-f-]+$/);
+    const detailUrl = owner.page.url();
+    const applicationId = detailUrl.split("/").pop()!;
+
+    otherUser = await createConfirmedE2EUser("apps-deleted-other");
+    other = await logInInNewContext(browser, otherUser.email, DESKTOP_VIEWPORT);
     await other.page.goto(detailUrl);
     await expect(other.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
     await expectNoAxeViolations(other.page);
@@ -124,9 +142,10 @@ test("foreign and deleted detail URLs share the application not-found state", as
     await expect(owner.page.getByRole("heading", { name: APPLICATION_PAGE_MESSAGES.notFoundTitle })).toBeVisible();
     await expectNoAxeViolations(owner.page);
   } finally {
-    await owner.context.close();
-    await other.context.close();
-    await deleteE2EUser(otherUser.id);
+    await owner?.context.close();
+    await other?.context.close();
+    if (ownerUser) await deleteE2EUser(ownerUser.id);
+    if (otherUser) await deleteE2EUser(otherUser.id);
   }
 });
 
@@ -157,6 +176,7 @@ test("renders 500 applications within the CI route budget", async ({ browser }) 
 
     await expect(list.getByRole("listitem")).toHaveCount(500);
     await expect(session.page.getByText(APPLICATION_PAGE_MESSAGES.listCapped(500))).toBeVisible();
+    await expectNoAxeViolations(session.page);
     console.log(`500-row applications route duration: ${duration.toFixed(0)}ms`);
     expect(duration).toBeLessThanOrEqual(2500);
   } finally {

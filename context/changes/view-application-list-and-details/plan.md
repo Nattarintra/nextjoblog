@@ -310,8 +310,8 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Manual
 
-- [ ] 3.4 Verify random and foreign application IDs show the same application-specific fallback.
-- [ ] 3.5 Verify unrelated unknown routes use generic 404 copy without leaking identifiers or errors.
+- [x] 3.4 Verify random and foreign application IDs show the same application-specific fallback. — 49dd034
+- [x] 3.5 Verify unrelated unknown routes use generic 404 copy without leaking identifiers or errors. — 49dd034
 
 ### Phase 4: Verification and CI E2E
 
