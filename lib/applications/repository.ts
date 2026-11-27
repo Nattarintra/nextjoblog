@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
+import { MAX_APPLICATION_LIST_ROWS } from "@/lib/applications/limits";
 import type {
   ApplicationDetailReader,
   ApplicationReader,
@@ -103,7 +103,7 @@ export function createApplicationReader(client: SupabaseClient): ApplicationRead
         .select(LIST_COLUMNS)
         .order("applied_date", { ascending: false })
         .order("created_at", { ascending: false })
-        .limit(LIST_PAGE_SIZE)
+        .limit(MAX_APPLICATION_LIST_ROWS)
         .returns<ApplicationSummary[]>();
       if (error) throw new ApplicationRepositoryError(error.code);
       return data ?? [];

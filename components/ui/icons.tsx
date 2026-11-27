@@ -30,6 +30,12 @@ const ICON_SHAPES = {
       <path d="M4 10h16M8 3.5v3M16 3.5v3" strokeWidth="1.9" strokeLinecap="round" />
     </>
   ),
+  search: (
+    <>
+      <circle cx="10.8" cy="10.8" r="6.5" strokeWidth="1.9" />
+      <path d="M16 16l4 4" strokeWidth="1.9" strokeLinecap="round" />
+    </>
+  ),
   chevronLeft: <path d="M15 6l-6 6 6 6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />,
   chevronRight: <path d="M9 6l6 6-6 6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />,
   back: <path d="M19 12H5M11 6l-6 6 6 6" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />,

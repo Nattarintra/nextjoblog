@@ -5,11 +5,12 @@ vi.mock("next/link", () => ({ default: ({ href, children, ...props }: { href: st
 import NotFound from "@/app/not-found";
 
 describe("NotFound", () => {
-  it("renders the application empty state with a dashboard recovery link", () => {
+  it("renders generic 404 copy with a dashboard recovery link", () => {
     render(<NotFound />);
-    expect(screen.getByRole("heading", { name: "Application" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /can't find this application/i })).toBeTruthy();
-    expect(screen.getAllByRole("link", { name: "Go to Dashboard" })[1].getAttribute("href")).toBe("/dashboard");
-    expect(screen.getAllByRole("link", { name: "Go to Dashboard" })).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "Page not found" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "The page does not exist" })).toBeTruthy();
+    expect(screen.getByText(/check the address/i)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Go to Dashboard" }).getAttribute("href")).toBe("/dashboard");
+    expect(screen.queryByText(/application/i)).toBeNull();
   });
 });

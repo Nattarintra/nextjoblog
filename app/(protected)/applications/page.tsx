@@ -5,7 +5,7 @@ import { Alert } from "@/components/ui/Alert";
 import { ButtonLink } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { LIST_PAGE_SIZE } from "@/lib/applications/limits";
+import { MAX_APPLICATION_LIST_ROWS } from "@/lib/applications/limits";
 import { APPLICATION_EVENTS, logApplicationEvent } from "@/lib/applications/log";
 import { APPLICATION_PAGE_MESSAGES } from "@/lib/applications/messages";
 import { NEW_APPLICATION_PATH } from "@/lib/applications/paths";
@@ -59,9 +59,9 @@ export default async function ApplicationsPage() {
         ) : (
           <>
             <ApplicationList applications={applications} />
-            {applications.length >= LIST_PAGE_SIZE && (
+            {applications.length >= MAX_APPLICATION_LIST_ROWS && (
               <Alert tone="info" className="mt-4">
-                {APPLICATION_PAGE_MESSAGES.listCapped(LIST_PAGE_SIZE)}
+                {APPLICATION_PAGE_MESSAGES.listCapped(MAX_APPLICATION_LIST_ROWS)}
               </Alert>
             )}
           </>
