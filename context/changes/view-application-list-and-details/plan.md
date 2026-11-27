@@ -320,7 +320,7 @@ No database migration is expected. Existing RLS policies, status-history trigger
 - [x] 4.1 `npm run test:coverage` passes all configured thresholds. — cff7443
 - [x] 4.2 `npm run lint` passes. — cff7443
 - [x] 4.3 `npm run typecheck` passes. — cff7443
-- [ ] 4.4 CI `npm run test:e2e` passes populated, empty, detail, RLS/not-found, responsive, axe, and 500-row timing coverage.
+- [x] 4.4 CI `npm run test:e2e` passes populated, empty, detail, RLS/not-found, responsive, axe, and 500-row timing coverage. — 9ff0dd4
 
 #### Manual
 
