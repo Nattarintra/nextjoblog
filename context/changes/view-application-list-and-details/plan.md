@@ -280,25 +280,25 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Automated
 
-- [x] 1.1 Repository tests pass with the 500-row bound and unchanged projection/order.
-- [x] 1.2 Application list/page tests pass, including empty, load-error, session-failure, and exact-boundary cap states.
-- [x] 1.3 `npm run test:coverage` remains above 80% globally and 90% for `lib/applications/**`.
+- [x] 1.1 Repository tests pass with the 500-row bound and unchanged projection/order. — 8b419d6
+- [x] 1.2 Application list/page tests pass, including empty, load-error, session-failure, and exact-boundary cap states. — 8b419d6
+- [x] 1.3 `npm run test:coverage` remains above 80% globally and 90% for `lib/applications/**`. — 8b419d6
 
 #### Manual
 
-- [x] 1.4 Confirm the populated list is newest-first and the cap message is understandable at exactly 500 rows.
+- [x] 1.4 Confirm the populated list is newest-first and the cap message is understandable at exactly 500 rows. — 8b419d6
 
 ### Phase 2: Responsive List and Detail Presentation
 
 #### Automated
 
-- [ ] 2.1 Component tests cover populated rows, Story 1.4 fields, optional-value dashes, safe/unsafe posting links, and keyboard-reachable detail links.
-- [ ] 2.2 `npm run lint` and `npm run typecheck` pass.
+- [x] 2.1 Component tests cover populated rows, Story 1.4 fields, optional-value dashes, safe/unsafe posting links, and keyboard-reachable detail links.
+- [x] 2.2 `npm run lint` and `npm run typecheck` pass.
 
 #### Manual
 
-- [ ] 2.3 Review the list at desktop and 375px mobile widths for column/stack behavior and overflow.
-- [ ] 2.4 Keyboard-tab through list rows and detail actions; confirm visible focus and readable labels.
+- [x] 2.3 Review the list at desktop and 375px mobile widths for column/stack behavior and overflow.
+- [x] 2.4 Keyboard-tab through list rows and detail actions; confirm visible focus and readable labels.
 
 ### Phase 3: Not-Found Boundaries and Error Behavior
 

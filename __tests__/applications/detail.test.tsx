@@ -48,6 +48,25 @@ describe("ApplicationDetailPage", () => {
     expect(screen.getByRole("link", { name: /open job posting/i }).getAttribute("href")).toBe(detail.posting_url);
   });
 
+  it("renders every Story 1.4 detail field with accessible optional fallbacks", async () => {
+    mocks.get.mockResolvedValue({
+      ...detail,
+      closing_date: "2026-11-30",
+      contract_type: null,
+      salary_info: "48,000 SEK/month",
+      work_format: "remote",
+      discipline: "frontend",
+      tech_stack: ["React", "TypeScript"],
+    });
+    render(await ApplicationDetailPage({ params: Promise.resolve({ id }) }));
+
+    expect(screen.getByText("30 Nov 2026")).toBeTruthy();
+    expect(screen.getByText("48,000 SEK/month")).toBeTruthy();
+    expect(screen.getByText("Frontend")).toBeTruthy();
+    expect(screen.getByText("TypeScript")).toBeTruthy();
+    expect(screen.getByText("Not provided")).toBeTruthy();
+  });
+
   it("renders not found for malformed and missing ids", async () => {
     await expect(ApplicationDetailPage({ params: Promise.resolve({ id: "bad" }) })).rejects.toThrow("NEXT_NOT_FOUND");
     mocks.get.mockResolvedValue(null);

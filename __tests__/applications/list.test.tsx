@@ -92,6 +92,15 @@ describe("ApplicationsPage", () => {
 });
 
 describe("ApplicationRow", () => {
+  it("keeps the detail link keyboard reachable and separates the row metadata", () => {
+    render(<ul><ApplicationRow application={application()} /></ul>);
+    const row = screen.getByRole("listitem");
+    expect(row.querySelector("a[href=\"/applications/a1\"]")).toBeTruthy();
+    expect(within(row).getByText("Remote")).toBeTruthy();
+    expect(within(row).getByText("Applied 17 Nov 2026")).toBeTruthy();
+    expect(within(row).getByText("Applied", { selector: "span" })).toBeTruthy();
+  });
+
   it("renders a safe posting link opening safely in a new tab", () => {
     render(<ul><ApplicationRow application={application()} /></ul>);
     const link = screen.getByRole("link", { name: /job posting for frontend engineer at spotify/i });
