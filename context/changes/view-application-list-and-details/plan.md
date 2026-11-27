@@ -324,5 +324,5 @@ No database migration is expected. Existing RLS policies, status-history trigger
 
 #### Manual
 
-- [ ] 4.5 Review CI artifacts for the measured 500-row duration and Playwright/axe results.
-- [ ] 4.6 Smoke-test list-to-detail navigation and recovery links on desktop and mobile after CI passes.
+- [x] 4.5 Review CI artifacts for the measured 500-row duration and Playwright/axe results.
+- [x] 4.6 Smoke-test list-to-detail navigation and recovery links on desktop and mobile after CI passes.
